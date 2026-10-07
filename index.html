@@ -8,7 +8,7 @@
     <style>
         :root {
             --bg-pitch: #000000;
-            --panel-bg: rgba(10, 10, 14, 0.75);
+            --panel-bg: rgba(10, 10, 14, 0.85);
             --panel-border: rgba(255, 183, 3, 0.35);
             --ff-yellow: #ffb703;
             --ff-orange: #fb5607;
@@ -38,7 +38,7 @@
             width: 100vw;
             height: 100vh;
             background: url('bg.png') center center / cover no-repeat fixed;
-            opacity: 0.32;
+            opacity: 0.30;
             z-index: -1;
             filter: contrast(120%) brightness(85%);
             pointer-events: none;
@@ -57,12 +57,11 @@
             align-items: center;
             justify-content: space-between;
             padding: 14px 22px;
-            background: rgba(4, 4, 6, 0.85);
+            background: rgba(4, 4, 6, 0.9);
             border: 1px solid var(--panel-border);
             border-radius: 8px;
             margin-bottom: 20px;
             box-shadow: 0 0 25px rgba(255, 183, 3, 0.15);
-            backdrop-filter: blur(6px);
         }
 
         .brand-zone {
@@ -97,7 +96,6 @@
             text-transform: uppercase;
         }
 
-        /* 뷰 네비게이션 탭 */
         .terminal-tabs {
             display: flex;
             gap: 10px;
@@ -141,7 +139,6 @@
             border-radius: 6px;
             margin-bottom: 20px;
             box-shadow: 0 0 20px rgba(255, 0, 85, 0.25);
-            backdrop-filter: blur(8px);
         }
 
         .alert-item {
@@ -175,7 +172,6 @@
             padding: 20px;
             margin-bottom: 24px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
         }
 
         .panel-heading {
@@ -203,13 +199,12 @@
         }
 
         .stat-card {
-            background: rgba(6, 6, 10, 0.7);
+            background: rgba(6, 6, 10, 0.75);
             border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 16px 20px;
             border-radius: 6px;
             position: relative;
             overflow: hidden;
-            backdrop-filter: blur(6px);
         }
 
         .stat-card::after {
@@ -247,7 +242,7 @@
         }
 
         .chart-box {
-            background: rgba(0, 0, 0, 0.75);
+            background: rgba(0, 0, 0, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 18px;
             border-radius: 6px;
@@ -298,17 +293,10 @@
             flex-direction: column;
             justify-content: space-between;
             position: relative;
-            transition: border-color 0.2s;
         }
 
-        .cal-cell:hover {
-            border-color: var(--neon-blue);
-        }
-
-        .cal-cell.empty {
-            background: rgba(0, 0, 0, 0.3);
-            border-color: transparent;
-        }
+        .cal-cell:hover { border-color: var(--neon-blue); }
+        .cal-cell.empty { background: rgba(0, 0, 0, 0.3); border-color: transparent; }
 
         .cal-cell-top {
             display: flex;
@@ -343,15 +331,8 @@
             display: inline-block;
         }
 
-        .pill-positive {
-            color: var(--neon-green);
-            background: rgba(0, 255, 102, 0.12);
-        }
-
-        .pill-negative {
-            color: var(--ff-red);
-            background: rgba(255, 0, 85, 0.12);
-        }
+        .pill-positive { color: var(--neon-green); background: rgba(0, 255, 102, 0.12); }
+        .pill-negative { color: var(--ff-red); background: rgba(255, 0, 85, 0.12); }
 
         .cyber-tooltip-wrap {
             position: relative;
@@ -415,7 +396,6 @@
             font-size: 0.88rem;
             border-radius: 4px;
             outline: none;
-            transition: border-color 0.2s;
         }
 
         input:focus, select:focus, textarea:focus {
@@ -436,13 +416,9 @@
             border-radius: 4px;
             cursor: pointer;
             box-shadow: 0 0 15px rgba(255, 183, 3, 0.4);
-            transition: all 0.2s ease;
         }
 
-        .cyber-btn:hover {
-            filter: brightness(1.2);
-            transform: translateY(-1px);
-        }
+        .cyber-btn:hover { filter: brightness(1.2); }
 
         .cyber-btn-outline {
             background: rgba(0, 0, 0, 0.5);
@@ -456,10 +432,7 @@
             cursor: pointer;
         }
 
-        .cyber-btn-outline:hover {
-            background: var(--ff-yellow);
-            color: #000;
-        }
+        .cyber-btn-outline:hover { background: var(--ff-yellow); color: #000; }
 
         .table-wrap { overflow-x: auto; }
 
@@ -505,16 +478,6 @@
             font-weight: bold;
         }
 
-        .badge-retired {
-            color: var(--ff-red);
-            border: 1px solid var(--ff-red);
-            padding: 2px 6px;
-            font-size: 0.72rem;
-            border-radius: 2px;
-            font-weight: bold;
-            background: rgba(255, 0, 85, 0.1);
-        }
-
         .prog-bg {
             background: rgba(0, 0, 0, 0.7);
             height: 8px;
@@ -525,20 +488,11 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        .prog-bar {
-            height: 100%;
-            width: 0%;
-            transition: width 0.4s ease;
-        }
-
+        .prog-bar { height: 100%; width: 0%; transition: width 0.4s ease; }
         .prog-bar.eval { background: linear-gradient(90deg, var(--neon-blue), var(--ff-yellow)); }
         .prog-bar.pa { background: linear-gradient(90deg, var(--neon-blue), var(--neon-green)); }
 
-        .action-row {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-        }
+        .action-row { display: flex; gap: 5px; flex-wrap: wrap; }
 
         .btn-act {
             padding: 4px 7px;
@@ -560,10 +514,7 @@
         .btn-del { color: #777; border: 1px solid #444; }
         .btn-del:hover { color: #fff; border-color: #888; }
 
-        .origin-eval-tooltip {
-            cursor: help;
-            border-bottom: 1px dotted var(--text-dim);
-        }
+        .origin-eval-tooltip { cursor: help; border-bottom: 1px dotted var(--text-dim); }
 
         .notes-feed {
             max-height: 280px;
@@ -592,11 +543,7 @@
             margin-bottom: 4px;
         }
 
-        .personal-blur {
-            filter: blur(8px);
-            user-select: none;
-            transition: filter 0.25s ease;
-        }
+        .personal-blur { filter: blur(8px); user-select: none; }
     </style>
 </head>
 <body>
@@ -619,15 +566,12 @@
         </div>
     </header>
 
-    <!-- 뷰 전환 탭: 활성 대시보드 vs 은퇴 계좌 전용 페이지 -->
     <div class="terminal-tabs">
         <button class="nav-tab-btn active" id="tabActiveBtn" onclick="switchMainTab('active')">ACTIVE TERMINAL</button>
         <button class="nav-tab-btn danger-tab" id="tabRetiredBtn" onclick="switchMainTab('retired')">RETIRED ARCHIVE (BLOWN PA)</button>
     </div>
 
-    <!-- ========================================== -->
-    <!-- VIEW 1: ACTIVE TERMINAL                    -->
-    <!-- ========================================== -->
+    <!-- VIEW 1: ACTIVE TERMINAL -->
     <div id="activeDashboardView">
         <div id="inactivityBanner">
             <div style="font-weight: bold; color: var(--ff-red); font-size: 0.88rem; margin-bottom: 8px; letter-spacing: 1px;">
@@ -837,11 +781,8 @@
         </section>
     </div>
 
-    <!-- ========================================== -->
-    <!-- VIEW 2: RETIRED ARCHIVE (BLOWN PA LEDGER)  -->
-    <!-- ========================================== -->
+    <!-- VIEW 2: RETIRED ARCHIVE -->
     <div id="retiredArchiveView" style="display: none;">
-        <!-- 은퇴 비용 통합 결산 요약 -->
         <div class="stat-grid">
             <div class="stat-card" style="border-top: 1px solid var(--ff-yellow);">
                 <div class="stat-label">RETIRED EVAL EXPENSES (EVAL 지출)</div>
@@ -866,7 +807,7 @@
                 ■ RETIRED PA LEDGER (BLOWN ACCOUNTS ARCHIVE)
             </div>
             <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: -6px; margin-bottom: 16px;">
-                * 비밀번호(0220) 인증을 통해 보관된 탈락/은퇴 계좌 목록입니다. Eval 및 PA 지출액을 한눈에 결산하고 필요시 복원할 수 있습니다.
+                * 비밀번호(0220) 인증을 통해 보관된 탈락/은퇴 계좌 목록입니다.
             </p>
             <div class="table-wrap">
                 <table>
@@ -891,8 +832,23 @@
 </div>
 
 <script>
-    let accounts = JSON.parse(localStorage.getItem('tradingAccounts')) || [];
-    let dismissedInactivity = JSON.parse(localStorage.getItem('dismissedInactivity')) || {};
+    let accounts = [];
+    try {
+        const stored = localStorage.getItem('tradingAccounts');
+        accounts = stored ? JSON.parse(stored) : [];
+        if (!Array.isArray(accounts)) accounts = [];
+    } catch(e) {
+        accounts = [];
+    }
+
+    let dismissedInactivity = {};
+    try {
+        const stored = localStorage.getItem('dismissedInactivity');
+        dismissedInactivity = stored ? JSON.parse(stored) : {};
+    } catch(e) {
+        dismissedInactivity = {};
+    }
+
     let personalNotes = localStorage.getItem('ff_personal_notes') || '';
     let isPersonalBlurred = false;
     let currentMainTab = 'active';
@@ -998,9 +954,7 @@
         try {
             localStorage.setItem('tradingAccounts', JSON.stringify(accounts));
             localStorage.setItem('dismissedInactivity', JSON.stringify(dismissedInactivity));
-        } catch(e) {
-            console.error('Storage error:', e);
-        }
+        } catch(e) {}
 
         if (currentMainTab === 'active') {
             renderAccounts();
@@ -1014,27 +968,24 @@
         }
     }
 
-    /* PA 계좌 Retire (비밀번호 인증: 0220) */
     function retireAccount(id) {
         const acc = accounts.find(a => a.id === id);
         if (!acc) return;
 
         const enteredPasscode = prompt(`[보안 확인]\n[${acc.name}] PA 계좌를 은퇴(Retire) 처리하시겠습니까?\n보안 비밀번호 4자리를 입력하세요:`);
-        
         if (enteredPasscode === null) return;
 
         if (enteredPasscode.trim() !== '0220') {
-            alert('비밀번호가 일치하지 않습니다. 접근이 거부되었습니다.');
+            alert('비밀번호가 일치하지 않습니다.');
             return;
         }
 
         acc.isRetired = true;
         acc.retiredDate = new Date().toISOString().slice(0, 10);
         saveAndRender();
-        alert(`[${acc.name}] 계좌가 RETIRED ARCHIVE 페이지로 안전하게 이동되었습니다.`);
+        alert(`[${acc.name}] 계좌가 RETIRED ARCHIVE로 이동되었습니다.`);
     }
 
-    /* 은퇴 계좌 복원(Reactivate) */
     function reactivateAccount(id) {
         const acc = accounts.find(a => a.id === id);
         if (!acc) return;
@@ -1046,7 +997,6 @@
         }
     }
 
-    /* 은퇴 계좌 전용 페이지 렌더링 */
     function renderRetiredView() {
         const tbody = document.getElementById('retiredTableBody');
         if (!tbody) return;
@@ -1086,7 +1036,7 @@
                 <td style="color: #ff6688; font-weight: bold;">$${totalExp.toLocaleString()}</td>                 <td style="color: var(--neon-green); font-weight: bold;">$${wd.toLocaleString()}</td>
                 <td style="color: var(--text-dim); font-size: 0.8rem;">${acc.retiredDate || '-'}</td>
                 <td>
-                    <button class="btn-act btn-reactivate" onclick="reactivateAccount(${acc.id})">복원 (RESTORE)</button>
+                    <button class="btn-act btn-reactivate" onclick="reactivateAccount(${acc.id})">복원</button>
                     <button class="btn-act btn-del" onclick="deleteAccount(${acc.id})">영구삭제</button>
                 </td>
             `;
@@ -1111,8 +1061,6 @@
 
         const now = new Date();
         const inactiveAccounts = [];
-
-        // 활성 계좌만 인액티비티 체크
         const activeAccounts = accounts.filter(a => !a.isRetired);
 
         activeAccounts.forEach(acc => {
@@ -1211,627 +1159,4 @@
         const acc = accounts.find(a => a.id === id);
         if (!acc) return;
 
-        const val = prompt(`[${acc.name}] 인출(Withdrawal) 금액 ($):`);
-        if (val === null || val.trim() === '') return;
-
-        const amount = parseFloat(val);
-        if (isNaN(amount) || amount <= 0) {
-            alert('양수 금액을 입력해 주세요.');
-            return;
-        }
-
-        const dateTag = new Date().toISOString().slice(0, 10);
-        acc.withdrawals = (acc.withdrawals || 0) + amount;
-        if (!acc.withdrawalHistory) acc.withdrawalHistory = [];
-        acc.withdrawalHistory.push({ date: dateTag, amount: amount });
-        acc.lastActivityDate = dateTag;
-
-        saveAndRender();
-    }
-
-    function editTarget(id) {
-        const acc = accounts.find(a => a.id === id);
-        if (!acc) return;
-
-        const curTarget = acc.target || 0;
-        const msg = acc.status === 'FUNDED'
-            ? `[${acc.name} - PA]\n출금 기준/목표 프로핏 ($):`
-            : `[${acc.name} - EVAL]\n합격 프로핏 타겟 ($):`;
-
-        const val = prompt(msg, curTarget);
-        if (val === null || val.trim() === '') return;
-
-        const parsed = parseFloat(val);
-        if (isNaN(parsed) || parsed < 0) {
-            alert('올바른 금액을 입력해 주세요.');
-            return;
-        }
-
-        acc.target = parsed;
-        saveAndRender();
-    }
-
-    function upgradeToFunded(id) {
-        const acc = accounts.find(a => a.id === id);
-        if (!acc) return;
-
-        const currentName = acc.name;
-        const originEval = prompt(
-            `[PA 전환: 역추적 데이터 설정]\n원본 Eval 계정명:`, 
-            acc.originEvalName || currentName
-        );
-        if (originEval === null) return;
-
-        const defaultPaTag = acc.accountNum ? `PA-${acc.accountNum}` : 'PA-01';
-        const newPaTag = prompt(`새 PA 계정 태그/번호:`, defaultPaTag);
-        if (newPaTag === null || newPaTag.trim() === '') return;
-
-        const fee = parseFloat(prompt('PA 수수료 ($):', '150')) || 0;
-        const paTarget = parseFloat(prompt('PA 출금/프로핏 목표액 ($):', '2600')) || 0;
-
-        acc.originEvalName = originEval.trim() || currentName;
-        acc.accountNum = newPaTag.trim();
-        acc.name = `${acc.platform}-${newPaTag.trim()}`;
-        acc.status = 'FUNDED';
-        acc.paExpense = (acc.paExpense || 0) + fee;
-        if (!acc.expenses) acc.expenses = { category: 'PA', amount: 0 };
-        acc.expenses.amount += fee;
-        acc.expenses.category = 'PA';
-        acc.lastActivityDate = new Date().toISOString().slice(0, 10);
-        if (paTarget > 0) acc.target = paTarget;
-
-        saveAndRender();
-    }
-
-    function deleteAccount(id) {
-        if (confirm('계정을 영구 삭제하시겠습니까? 복구할 수 없습니다.')) {
-            accounts = accounts.filter(a => a.id !== id);
-            saveAndRender();
-        }
-    }
-
-    function setSort(criteria) {
-        if (currentSort === criteria) {
-            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            currentSort = criteria;
-            sortDirection = 'asc';
-        }
-        renderAccounts();
-    }
-
-    function shiftCalendar(delta) {
-        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
-        renderCalendar();
-    }
-
-    function renderCalendar() {
-        const calMonthEl = document.getElementById('calendarMonthTitle');
-        const grid = document.getElementById('calendarCells');
-        const accSelect = document.getElementById('calAccountFilter');
-        const typeFilterEl = document.getElementById('calTypeFilter');
-        if (!calMonthEl || !grid || !accSelect || !typeFilterEl) return;
-
-        const year = currentCalendarDate.getFullYear();
-        const month = currentCalendarDate.getMonth();
-        const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-        calMonthEl.innerText = `${monthNames[month]}${year}`;
-
-        const activeAccounts = accounts.filter(a => !a.isRetired);
-
-        const selVal = accSelect.value;
-        accSelect.innerHTML = '<option value="ALL">전체 계정 통합</option>';
-        activeAccounts.forEach(a => {
-            const opt = document.createElement('option');
-            opt.value = a.id;
-            opt.text = `[${a.status}]${a.name}`;
-            if (a.id == selVal) opt.selected = true;
-            accSelect.appendChild(opt);
-        });
-
-        const typeFilter = typeFilterEl.value;
-        const targetAccId = accSelect.value;
-
-        let targetAccounts = [...activeAccounts];
-        if (typeFilter !== 'ALL') {
-            targetAccounts = targetAccounts.filter(a => a.status === typeFilter);
-        }
-        if (targetAccId !== 'ALL') {
-            targetAccounts = targetAccounts.filter(a => a.id == targetAccId);
-        }
-
-        const firstDayIdx = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-        grid.innerHTML = '';
-
-        for (let i = 0; i < firstDayIdx; i++) {
-            const emptyCell = document.createElement('div');
-            emptyCell.className = 'cal-cell empty';
-            grid.appendChild(emptyCell);
-        }
-
-        const todayStr = new Date().toISOString().slice(0, 10);
-
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-            const cell = document.createElement('div');
-            cell.className = 'cal-cell';
-            if (dayStr === todayStr) cell.classList.add('cal-today');
-
-            let dailySum = 0;
-            let hasTrades = false;
-
-            targetAccounts.forEach(a => {
-                if (a.pnlHistory) {
-                    a.pnlHistory.forEach(h => {
-                        if (h.date === dayStr) {
-                            dailySum += h.amount;
-                            hasTrades = true;
-                        }
-                    });
-                }
-            });
-
-            const dayNotes = [];
-            targetAccounts.forEach(a => {
-                if (a.notes) {
-                    a.notes.forEach(n => {
-                        if (n.date === dayStr) {
-                            dayNotes.push({ accName: a.name, status: a.status, text: n.text });
-                        }
-                    });
-                }
-            });
-
-            let noteHtml = '';
-            if (dayNotes.length > 0) {
-                const notesListText = dayNotes.map(n => `<strong>[${n.status}] ${n.accName}</strong>:${n.text}`).join('<br><hr style="border:0; border-top:1px solid #333; margin:4px 0;">');
-                noteHtml = `
-                    <div class="cyber-tooltip-wrap">
-                        <span class="cal-note-badge">📝</span>
-                        <div class="cyber-tooltip-content">
-                            <div style="color: var(--ff-yellow); font-weight:bold; margin-bottom:4px;">NOTES (${dayStr})</div>${notesListText}
-                        </div>
-                    </div>
-                `;
-            }
-
-            let pnlHtml = '';
-            if (hasTrades) {
-                const pnlClass = dailySum >= 0 ? 'pill-positive' : 'pill-negative';
-                pnlHtml = `<div class="cal-pnl-pill ${pnlClass}">${dailySum >= 0 ? '+' : ''}$${dailySum.toLocaleString()}</div>`;
-            }
-
-            cell.innerHTML = `
-                <div class="cal-cell-top">
-                    <span class="cal-date-num">${d}</span>${noteHtml}
-                </div>
-                <div>${pnlHtml}</div>
-            `;
-            grid.appendChild(cell);
-        }
-    }
-
-    function renderNotesFeed() {
-        const feed = document.getElementById('masterNotesFeed');
-        const filterEl = document.getElementById('noteFeedFilter');
-        if (!feed || !filterEl) return;
-        feed.innerHTML = '';
-
-        const filter = filterEl.value;
-        const allNotes = [];
-        const activeAccounts = accounts.filter(a => !a.isRetired);
-
-        activeAccounts.forEach(a => {
-            if (filter !== 'ALL' && a.status !== filter) return;
-            if (a.notes) {
-                a.notes.forEach(n => {
-                    allNotes.push({
-                        accId: a.id,
-                        accName: a.name,
-                        status: a.status,
-                        date: n.date,
-                        text: n.text,
-                        noteId: n.id
-                    });
-                });
-            }
-        });
-
-        allNotes.sort((a, b) => b.date.localeCompare(a.date));
-
-        if (allNotes.length === 0) {
-            feed.innerHTML = '<div style="color: var(--text-dim); font-size: 0.8rem; padding: 10px;">등록된 활성 계정 노트가 없습니다.</div>';
-            return;
-        }
-
-        allNotes.forEach(item => {
-            const card = document.createElement('div');
-            card.className = `note-card ${item.status === 'FUNDED' ? 'pa' : ''}`;
-            card.innerHTML = `
-                <div class="note-header">
-                    <span><strong>[${item.status}]${item.accName}</strong></span>
-                    <span>${item.date}</span>
-                </div>
-                <div style="color: #eee;">${item.text}</div>
-            `;
-            feed.appendChild(card);
-        });
-    }
-
-    function loadPersonalNotes() {
-        const el = document.getElementById('personalNotesArea');
-        if (el) el.value = personalNotes;
-    }
-
-    function savePersonalNotes() {
-        const el = document.getElementById('personalNotesArea');
-        if (!el) return;
-        personalNotes = el.value;
-        localStorage.setItem('ff_personal_notes', personalNotes);
-        const notice = document.getElementById('personalSaveNotice');
-        if (notice) {
-            notice.innerText = '저장됨 ✓';
-            setTimeout(() => { notice.innerText = ''; }, 1500);
-        }
-    }
-
-    function togglePersonalPrivacy() {
-        const area = document.getElementById('personalNotesArea');
-        const btn = document.getElementById('privacyToggleBtn');
-        if (!area || !btn) return;
-        isPersonalBlurred = !isPersonalBlurred;
-
-        if (isPersonalBlurred) {
-            area.classList.add('personal-blur');
-            btn.innerText = '👁 SHOW';
-        } else {
-            area.classList.remove('personal-blur');
-            btn.innerText = '🔒 HIDE';
-        }
-    }
-
-    /* 활성 계정 원장 렌더링 */
-    function renderAccounts() {
-        const tbody = document.getElementById('accountTableBody');
-        const tableFilterEl = document.getElementById('tableFilterSelect');
-        const sortByEl = document.getElementById('sortBy');
-        if (!tbody || !tableFilterEl || !sortByEl) return;
-
-        tbody.innerHTML = '';
-
-        const tableFilter = tableFilterEl.value;
-        const sortBy = sortByEl.value;
-        
-        let filtered = accounts.filter(a => !a.isRetired);
-        if (tableFilter !== 'ALL') {
-            filtered = filtered.filter(a => a.status === tableFilter);
-        }
-
-        filtered.sort((a, b) => {
-            let vA = a[sortBy];
-            let vB = b[sortBy];
-            if (sortBy === 'remainingTarget') {
-                vA = Math.max(0, (a.target || 0) - (a.totalPnl || 0));
-                vB = Math.max(0, (b.target || 0) - (b.totalPnl || 0));
-            }
-            if (vA < vB) return sortDirection === 'asc' ? -1 : 1;
-            if (vA > vB) return sortDirection === 'asc' ? 1 : -1;
-            return 0;
-        });
-
-        filtered.forEach(acc => {
-            const row = document.createElement('tr');
-            const targetGap = (acc.target || 0) > 0 ? Math.max(0, acc.target - (acc.totalPnl || 0)) : 0;
-            const progress = (acc.target || 0) > 0 ? Math.min(100, Math.max(0, ((acc.totalPnl || 0) / acc.target) * 100)) : 0;
-            const pnlColor = (acc.totalPnl || 0) >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
-            const isFunded = acc.status === 'FUNDED';
-
-            const backtrackAttr = acc.originEvalName 
-                ? `title="Originated from Eval: ${acc.originEvalName}" class="origin-eval-tooltip"` 
-                : '';
-
-            const expAmount = acc.expenses ? (acc.expenses.amount || 0) : 0;
-
-            row.innerHTML = `
-                <td style="color: var(--ff-yellow); font-weight: bold; letter-spacing: 1px;">
-                    <span ${backtrackAttr}>${acc.name}</span>
-                </td>
-                <td>${acc.accountType}</td>                 <td>                     $${(acc.currentBalance || acc.initialBalance || 0).toLocaleString()}<br>
-                    <span style="color: ${pnlColor}; font-size: 0.8rem;">
-                        (${(acc.totalPnl \vert{}\vert{} 0) >= 0 ? '+' : ''}${(acc.totalPnl || 0).toLocaleString()})
-                    </span>
-                </td>
-                <td>
-                    ${(acc.target || 0) > 0 ? `
-                        남음: $${targetGap.toLocaleString()} (${progress.toFixed(1)}%)
-                        <div class="prog-bg">
-                            <div class="prog-bar ${isFunded ? 'pa' : 'eval'}" style="width: ${progress}%;"></div>
-                        </div>
-                    ` : '<span style="color: var(--text-dim);">- (타겟 미설정)</span>'}
-                </td>
-                <td>${(acc.dailyDd || 0) > 0 ? '$' + acc.dailyDd.toLocaleString() : '무제한'} / $${(acc.hardDd || 0).toLocaleString()}</td>
-                <td>${acc.consistency || '없음'}</td>
-                <td><span class="${isFunded ? 'badge-pa' : 'badge-eval'}">${acc.status}</span></td>
-                <td>
-                    비용: $${expAmount.toLocaleString()}<br>                     <span style="color: var(--neon-green); font-size: 0.8rem;">출금: $${(acc.withdrawals || 0).toLocaleString()}</span>
-                </td>
-                <td>
-                    <div class="action-row">
-                        <button class="btn-act btn-pnl" onclick="recordDailyPnl(${acc.id})">PnL</button>
-                        <button class="btn-act btn-note" onclick="addAccountNote(${acc.id})">노트</button>
-                        <button class="btn-act btn-target" onclick="editTarget(${acc.id})">타겟</button>
-                        ${!isFunded ? `<button class="btn-act btn-upgrade" onclick="upgradeToFunded(${acc.id})">PA전환</button>` : ''}
-                        ${isFunded ? `<button class="btn-act btn-wd" onclick="recordWithdrawal(${acc.id})">출금</button>` : ''}
-                        ${isFunded ? `<button class="btn-act btn-retire" onclick="retireAccount(${acc.id})">RETIRE</button>` : ''}
-                        <button class="btn-act btn-del" onclick="deleteAccount(${acc.id})">DEL</button>
-                    </div>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-    }
-
-    function updateSummary() {
-        const activeAccounts = accounts.filter(a => !a.isRetired);
-
-        const totalExp = activeAccounts.reduce((s, a) => s + (a.expenses ? (a.expenses.amount || 0) : 0), 0);
-        const totalWd = activeAccounts.reduce((s, a) => s + (a.withdrawals || 0), 0);
-        const net = totalWd - totalExp;
-
-        const taxExpEl = document.getElementById('taxExpense');
-        const taxWdEl = document.getElementById('taxWithdrawal');
-        const netEl = document.getElementById('taxNet');
-        const countsEl = document.getElementById('accountCounts');
-
-        if (taxExpEl) taxExpEl.innerText = `$${totalExp.toLocaleString()}`;
-        if (taxWdEl) taxWdEl.innerText = `$${totalWd.toLocaleString()}`;
-        if (netEl) {
-            netEl.innerText = `${net >= 0 ? '+' : ''}$${net.toLocaleString()}`;
-            netEl.style.color = net >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
-        }
-
-        const evals = activeAccounts.filter(a => a.status === 'EVAL').length;
-        const pas = activeAccounts.filter(a => a.status === 'FUNDED').length;
-        if (countsEl) countsEl.innerText = `${evals} /${pas}`;
-    }
-
-    function renderCharts() {
-        const select = document.getElementById('pnlAccountSelect');
-        if (!select) return;
-
-        const activeAccounts = accounts.filter(a => !a.isRetired);
-        const selVal = select.value;
-        select.innerHTML = '';
-
-        activeAccounts.forEach(acc => {
-            const opt = document.createElement('option');
-            opt.value = acc.id;
-            opt.text = `[${acc.status}]${acc.name}`;
-            if (acc.id == selVal) opt.selected = true;
-            select.appendChild(opt);
-        });
-
-        updatePnlChart();
-        updateTargetProgressChart();
-    }
-
-    function updatePnlChart() {
-        const select = document.getElementById('pnlAccountSelect');
-        const canvas = document.getElementById('dailyPnlChart');
-        if (!select || !canvas) return;
-
-        const accId = parseInt(select.value);
-        const acc = accounts.find(a => a.id === accId && !a.isRetired);
-        const ctx = canvas.getContext('2d');
-
-        if (pnlChartInstance) {
-            pnlChartInstance.destroy();
-            pnlChartInstance = null;
-        }
-
-        if (!acc || !acc.pnlHistory || acc.pnlHistory.length === 0) {
-            pnlChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: ['NO RECORD'], datasets: [{ data: [0], backgroundColor: '#333' }] },
-                options: { responsive: true, plugins: { legend: { display: false } } }
-            });
-            return;
-        }
-
-        const history = acc.pnlHistory.slice(-10);
-        const labels = history.map(h => h.date);
-        const data = history.map(h => h.amount);
-        const colors = data.map(v => v >= 0 ? '#00ff66' : '#ff0055');
-
-        pnlChartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'DAILY PnL ($)',
-                    data: data,
-                    backgroundColor: colors,
-                    borderColor: colors,
-                    borderWidth: 2,
-                    borderRadius: 3
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: { ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: { ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                },
-                plugins: {
-                    legend: { labels: { color: '#ffb703' } }
-                }
-            }
-        });
-    }
-
-    function updateTargetProgressChart() {
-        const filterEl = document.getElementById('targetFilterSelect');
-        const canvas = document.getElementById('targetProgressChart');
-        if (!filterEl || !canvas) return;
-
-        const filter = filterEl.value;
-        const ctx = canvas.getContext('2d');
-
-        if (progressChartInstance) {
-            progressChartInstance.destroy();
-            progressChartInstance = null;
-        }
-
-        let filtered = accounts.filter(a => !a.isRetired && (a.target || 0) > 0);
-        if (filter !== 'ALL') {
-            filtered = filtered.filter(a => a.status === filter);
-        }
-
-        if (filtered.length === 0) {
-            progressChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: ['타겟 설정 계정 없음'], datasets: [{ data: [0], backgroundColor: '#333' }] },
-                options: { responsive: true, plugins: { legend: { display: false } } }
-            });
-            return;
-        }
-
-        const labels = filtered.map(a => `[${a.status}]${a.name}`);
-        const percentReached = filtered.map(a => Math.min(100, Math.max(0, ((a.totalPnl || 0) / a.target) * 100)));
-        const percentRemaining = percentReached.map(pct => Math.max(0, 100 - pct));
-        const barColors = filtered.map(a => a.status === 'FUNDED' ? '#00ff66' : '#00f0ff');
-
-        progressChartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: '달성률 (%)',
-                        data: percentReached,
-                        backgroundColor: barColors,
-                        borderColor: barColors,
-                        borderWidth: 1
-                    },
-                    {
-                        label: '목표 잔여율 (%)',
-                        data: percentRemaining,
-                        backgroundColor: 'rgba(255,255,255,0.08)',
-                        borderColor: 'rgba(255,255,255,0.18)',
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: { stacked: true, ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: {
-                        stacked: true,
-                        min: 0,
-                        max: 100,
-                        ticks: {
-                            color: '#888',
-                            callback: function(val) { return val + '%'; }
-                        },
-                        grid: { color: 'rgba(255,255,255,0.05)' }
-                    }
-                },
-                plugins: {
-                    legend: { labels: { color: '#ffb703' } },
-                    tooltip: {
-                        enabled: true,
-                        backgroundColor: 'rgba(6, 6, 10, 0.95)',
-                        titleColor: '#ffb703',
-                        titleFont: { family: 'Consolas', size: 13, weight: 'bold' },
-                        bodyColor: '#ffffff',
-                        bodyFont: { family: 'Consolas', size: 12 },
-                        borderColor: '#ffb703',
-                        borderWidth: 1.5,
-                        padding: 12,
-                        displayColors: false,
-                        callbacks: {
-                            title: items => `▶ UNIT: ${items[0].label}`,
-                            label: function(context) {
-                                const acc = filtered[context.dataIndex];
-                                const currentPnl = acc.totalPnl || 0;
-                                const target = acc.target || 0;
-                                const remaining = Math.max(0, target - currentPnl);
-                                const reachedPercent = ((currentPnl / target) * 100).toFixed(1);
-
-                                const lines = [
-                                    `• 달성률     : ${reachedPercent}%`,
-                                    `• 누적 손익   : $${currentPnl.toLocaleString()}`,
-                                    `• 목표 잔여액 : $${remaining.toLocaleString()}`,
-                                    `• 타겟 기준액 : $${target.toLocaleString()}`
-                                ];
-
-                                if (acc.originEvalName) {
-                                    lines.push(`• 원본 EVAL   : ${acc.originEvalName}`);
-                                }
-
-                                return lines;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    function exportData() {
-        const fullBackup = {
-            version: '2.5',
-            accounts: accounts,
-            personalNotes: personalNotes,
-            dismissedInactivity: dismissedInactivity,
-            exportedAt: new Date().toISOString()
-        };
-        const blob = new Blob([JSON.stringify(fullBackup, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `FF_Terminal_FullBackup_${new Date().toISOString().slice(0, 10)}.json`;
-        a.click();
-    }
-
-    function importData(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-            try {
-                const parsed = JSON.parse(evt.target.result);
-                if (Array.isArray(parsed)) {
-                    accounts = parsed;
-                } else if (parsed.accounts) {
-                    accounts = parsed.accounts || [];
-                    if (parsed.personalNotes !== undefined) {
-                        personalNotes = parsed.personalNotes;
-                        localStorage.setItem('ff_personal_notes', personalNotes);
-                        loadPersonalNotes();
-                    }
-                    if (parsed.dismissedInactivity) {
-                        dismissedInactivity = parsed.dismissedInactivity;
-                    }
-                } else {
-                    alert('유효하지 않은 백업 형식입니다.');
-                    return;
-                }
-                saveAndRender();
-                alert('원장 및 노트 데이터 복원 완료.');
-            } catch(err) {
-                alert('파일 복원 중 오류가 발생했습니다.');
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    loadPersonalNotes();
-    saveAndRender();
-</script>
-
-</body>
-</html>
+        const val = prompt(`[${acc.name}] 인출(Withdrawal) 금액 ($
