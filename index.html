@@ -475,6 +475,25 @@
             font-weight: bold;
         }
 
+        .badge-crypto {
+            color: #ff9900;
+            border: 1px solid #ff9900;
+            padding: 1px 5px;
+            font-size: 0.68rem;
+            border-radius: 2px;
+            background: rgba(255, 153, 0, 0.12);
+            font-weight: bold;
+        }
+
+        .badge-futures {
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            padding: 1px 5px;
+            font-size: 0.68rem;
+            border-radius: 2px;
+            background: rgba(0, 240, 255, 0.12);
+        }
+
         .prog-bg {
             background: rgba(0, 0, 0, 0.7);
             height: 8px;
@@ -544,7 +563,6 @@
 
         .personal-blur { filter: blur(8px); user-select: none; }
 
-        /* 공통 사이버 모달 */
         .cyber-modal {
             display: none;
             position: fixed;
@@ -629,20 +647,34 @@
             <div class="panel-heading">NEON PERFORMANCE MONITORS</div>
             <div class="charts-grid">
                 <div class="chart-box">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap;">
                         <span style="font-size: 0.8rem; color: var(--text-dim);">계정별 일일 P&amp;L 추이 (최근 10회)</span>
-                        <select id="pnlAccountSelect" onchange="updatePnlChart()" style="padding: 3px 8px; font-size: 0.75rem;"></select>
+                        <div style="display: flex; gap: 6px;">
+                            <select id="pnlAssetFilter" onchange="updatePnlAccountList()" style="padding: 3px 6px; font-size: 0.75rem;">
+                                <option value="ALL">전체 자산</option>
+                                <option value="FUTURES">선물만</option>
+                                <option value="CRYPTO">크립토만</option>
+                            </select>
+                            <select id="pnlAccountSelect" onchange="updatePnlChart()" style="padding: 3px 8px; font-size: 0.75rem;"></select>
+                        </div>
                     </div>
                     <canvas id="dailyPnlChart" height="200"></canvas>
                 </div>
                 <div class="chart-box">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap;">
                         <span style="font-size: 0.8rem; color: var(--text-dim);">타겟 달성률 (0% ~ 100% 정규화 게이지)</span>
-                        <select id="targetFilterSelect" onchange="updateTargetProgressChart()" style="padding: 3px 8px; font-size: 0.75rem;">
-                            <option value="ALL">전체 보기 (EVAL + PA)</option>
-                            <option value="EVAL">EVAL만 보기</option>
-                            <option value="FUNDED">PA만 보기</option>
-                        </select>
+                        <div style="display: flex; gap: 6px;">
+                            <select id="targetAssetFilter" onchange="updateTargetProgressChart()" style="padding: 3px 6px; font-size: 0.75rem;">
+                                <option value="ALL">전체 자산</option>
+                                <option value="FUTURES">선물만</option>
+                                <option value="CRYPTO">크립토만</option>
+                            </select>
+                            <select id="targetFilterSelect" onchange="updateTargetProgressChart()" style="padding: 3px 8px; font-size: 0.75rem;">
+                                <option value="ALL">전체 (EVAL + PA)</option>
+                                <option value="EVAL">EVAL만 보기</option>
+                                <option value="FUNDED">PA만 보기</option>
+                            </select>
+                        </div>
                     </div>
                     <canvas id="targetProgressChart" height="200"></canvas>
                 </div>
@@ -658,6 +690,11 @@
                         <span id="calendarMonthTitle" style="color: var(--ff-yellow); font-weight: bold; padding: 4px 8px; font-size: 0.85rem;"></span>
                         <button class="cal-nav-btn" onclick="shiftCalendar(1)">NEXT &gt;</button>
                     </div>
+                    <select id="calAssetFilter" onchange="renderCalendar()" style="padding: 4px 8px; font-size: 0.75rem;">
+                        <option value="ALL">모든 자산군 (전체)</option>
+                        <option value="FUTURES">선물 (Futures)만</option>
+                        <option value="CRYPTO">크립토 (Crypto)만</option>
+                    </select>
                     <select id="calTypeFilter" onchange="renderCalendar()" style="padding: 4px 8px; font-size: 0.75rem;">
                         <option value="ALL">모든 유형 (EVAL+PA)</option>
                         <option value="EVAL">EVAL 계정만</option>
@@ -716,12 +753,19 @@
             <div class="panel-heading">ACCOUNT REGISTRATION PROTOCOL</div>
             <div class="input-grid">
                 <div class="field-group">
+                    <label>자산군 (ASSET CLASS)</label>
+                    <select id="assetClass">
+                        <option value="FUTURES">FUTURES (나스닥/골드 등 선물)</option>
+                        <option value="CRYPTO">CRYPTO (비트코인/하이퍼리퀴드 등)</option>
+                    </select>
+                </div>
+                <div class="field-group">
                     <label>플랫폼 (PLATFORM)</label>
-                    <input type="text" id="platform" placeholder="예: APEX">
+                    <input type="text" id="platform" placeholder="APEX, TRADEIFY, BREAKOUT 등">
                 </div>
                 <div class="field-group">
                     <label>계정 끝자리/번호 (ID TAG)</label>
-                    <input type="text" id="accountNum" placeholder="예: 01">
+                    <input type="text" id="accountNum" placeholder="예: 01 또는 93821">
                 </div>
                 <div class="field-group">
                     <label>사이즈 (SIZE)</label>
@@ -745,7 +789,7 @@
                 </div>
                 <div class="field-group">
                     <label>일관성 룰 (%)</label>
-                    <input type="number" id="consistency" placeholder="30">
+                    <input type="text" id="consistency" placeholder="30% 또는 없음">
                 </div>
                 <div class="field-group">
                     <label>비용 구분</label>
@@ -766,9 +810,17 @@
         <section class="terminal-panel">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
                 <div class="panel-heading" style="margin: 0;">ACCOUNT INVENTORY RECORD (ACTIVE)</div>
-                <div style="display: flex; gap: 14px; align-items: center;">
+                <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
                     <div style="display: flex; gap: 6px; align-items: center;">
-                        <span style="font-size: 0.75rem; color: var(--text-dim);">보기 필터:</span>
+                        <span style="font-size: 0.75rem; color: var(--text-dim);">자산군:</span>
+                        <select id="tableAssetFilterSelect" onchange="renderAccounts()" style="padding: 4px 8px; font-size: 0.78rem;">
+                            <option value="ALL">전체 자산</option>
+                            <option value="FUTURES">선물(FUTURES)</option>
+                            <option value="CRYPTO">크립토(CRYPTO)</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        <span style="font-size: 0.75rem; color: var(--text-dim);">유형:</span>
                         <select id="tableFilterSelect" onchange="renderAccounts()" style="padding: 4px 8px; font-size: 0.78rem;">
                             <option value="ALL">전체 보기</option>
                             <option value="EVAL">EVAL만 보기</option>
@@ -791,7 +843,8 @@
                     <thead>
                         <tr>
                             <th onclick="setSort('platform')">계정 태그</th>
-                            <th>유형</th>
+                            <th>자산</th>
+                            <th>사이즈</th>
                             <th>현재 밸런스 (누적손익)</th>
                             <th>프로핏/출금 타겟 갭</th>
                             <th>DD 한도 (일일/하드)</th>
@@ -834,7 +887,13 @@
                     ■ RETIRED ARCHIVE (BLOWN PA / FAILED EVAL LEDGER)
                 </div>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <span style="font-size: 0.75rem; color: var(--text-dim);">분류 필터:</span>
+                    <span style="font-size: 0.75rem; color: var(--text-dim);">자산군:</span>
+                    <select id="retiredAssetFilterSelect" onchange="renderRetiredView()" style="padding: 4px 8px; font-size: 0.78rem;">
+                        <option value="ALL">전체 자산</option>
+                        <option value="FUTURES">선물만</option>
+                        <option value="CRYPTO">크립토만</option>
+                    </select>
+                    <span style="font-size: 0.75rem; color: var(--text-dim); margin-left: 6px;">유형:</span>
                     <select id="retiredFilterSelect" onchange="renderRetiredView()" style="padding: 4px 8px; font-size: 0.78rem;">
                         <option value="ALL">전체 은퇴 계좌</option>
                         <option value="EVAL">실패한 EVAL만</option>
@@ -850,8 +909,9 @@
                     <thead>
                         <tr>
                             <th>계정 태그</th>
+                            <th>자산</th>
                             <th>상태</th>
-                            <th>유형</th>
+                            <th>사이즈</th>
                             <th>최종 손익 (Final PnL)</th>
                             <th>EVAL 지출액</th>
                             <th>PA 지출액</th>
@@ -1030,6 +1090,16 @@
             if (a.currentBalance === undefined) a.currentBalance = a.initialBalance + a.totalPnl;
             if (a.consistency === undefined) a.consistency = '없음';
 
+            // 자산군(Asset Class) 안전 보정
+            if (!a.assetClass) {
+                const checkStr = (a.platform + ' ' + a.name).toUpperCase();
+                if (checkStr.includes('CRYPTO') || checkStr.includes('HYPER') || checkStr.includes('PERP')) {
+                    a.assetClass = 'CRYPTO';
+                } else {
+                    a.assetClass = 'FUTURES';
+                }
+            }
+
             if (a.evalExpense === undefined || a.paExpense === undefined) {
                 const cat = a.expenses ? a.expenses.category : (a.status === 'FUNDED' ? 'PA' : 'EVAL');
                 const amt = a.expenses ? (a.expenses.amount || 0) : 0;
@@ -1064,6 +1134,7 @@
     }
 
     function addAccount() {
+        const assetClass = document.getElementById('assetClass').value;
         const platformInput = document.getElementById('platform');
         const accountNumInput = document.getElementById('accountNum');
         const accountTypeInput = document.getElementById('accountType');
@@ -1073,7 +1144,7 @@
         const accountType = accountTypeInput ? accountTypeInput.value.toUpperCase().trim() : '';
 
         if (!platform || !accountNum) {
-            alert('플랫폼명(예: APEX)과 계정 번호/끝자리(예: 01)는 반드시 입력해야 합니다.');
+            alert('플랫폼명과 계정 번호/끝자리는 반드시 입력해야 합니다.');
             return;
         }
 
@@ -1082,7 +1153,7 @@
         const hardDd = parseFloat(document.getElementById('hardDd').value) || 0;
         const target = parseFloat(document.getElementById('target').value) || 0;
         const consistencyVal = document.getElementById('consistency').value.trim();
-        const consistency = consistencyVal ? (consistencyVal.includes('%') ? consistencyVal : consistencyVal + '%') : '없음';
+        const consistency = consistencyVal ? (consistencyVal.includes('%') || consistencyVal === '없음' ? consistencyVal : consistencyVal + '%') : '없음';
         const expenseCategory = document.getElementById('expenseCategory').value;
         const expenseAmount = parseFloat(document.getElementById('expenseAmount').value) || 0;
 
@@ -1090,6 +1161,7 @@
 
         const newAccount = {
             id: Date.now(),
+            assetClass: assetClass,
             name: `${platform}-${accountNum}`,
             accountNum: accountNum,
             platform: platform,
@@ -1297,7 +1369,6 @@
         }
     }
 
-    /* PA 승격 모달 핸들러 */
     function openPaUpgradeModal(id) {
         const acc = accounts.find(a => a.id === id);
         if (!acc) return;
@@ -1309,7 +1380,7 @@
         document.getElementById('upCustomConsistencyWrap').style.display = 'none';
         document.getElementById('upDailyDd').value = acc.dailyDd || 0;
         document.getElementById('upHardDd').value = acc.hardDd || 2500;
-        document.getElementById('upTarget').value = 2600; // PA 1차 출금/안전버퍼 기준치 디폴트
+        document.getElementById('upTarget').value = 2600;
         document.getElementById('upFee').value = 150;
 
         document.getElementById('paUpgradeModal').style.display = 'flex';
@@ -1337,7 +1408,7 @@
         const consistencyChoice = document.getElementById('upConsistency').value;
         const customConsistency = document.getElementById('upCustomConsistency').value.trim();
         const finalConsistency = (consistencyChoice === 'CUSTOM') 
-            ? (customConsistency ? (customConsistency.includes('%') ? customConsistency : customConsistency + '%') : '없음')
+            ? (customConsistency ? (customConsistency.includes('%') || customConsistency === '없음' ? customConsistency : customConsistency + '%') : '없음')
             : consistencyChoice;
 
         const fee = parseFloat(document.getElementById('upFee').value) || 0;
@@ -1345,7 +1416,6 @@
         const newHardDd = parseFloat(document.getElementById('upHardDd').value) || 0;
         const newTarget = parseFloat(document.getElementById('upTarget').value) || 0;
 
-        // 원본 EVAL 계정 태그 보존
         acc.originEvalName = acc.name;
         acc.accountNum = newPaTag;
         acc.name = `${acc.platform}-${newPaTag}`;
@@ -1363,10 +1433,9 @@
 
         closePaUpgradeModal();
         saveAndRender();
-        alert(`[${acc.name}] 계정이 PA로 성공적으로 승격되었습니다. 일관성 룰(${finalConsistency}) 및 타겟이 갱신되었습니다.`);
+        alert(`[${acc.name}] 계정이 PA로 승격되었습니다.`);
     }
 
-    /* 인라인 룰 / DD 설정 모달 */
     function openRuleEditModal(id) {
         const acc = accounts.find(a => a.id === id);
         if (!acc) return;
@@ -1398,7 +1467,6 @@
         saveAndRender();
     }
 
-    // EVAL 및 PA 공통 Retire (비밀번호: 0220)
     function retireAccount(id) {
         const acc = accounts.find(a => a.id === id);
         if (!acc) return;
@@ -1415,7 +1483,7 @@
         acc.isRetired = true;
         acc.retiredDate = new Date().toISOString().slice(0, 10);
         saveAndRender();
-        alert(`[${acc.name}] 계좌가 RETIRED ARCHIVE로 안전하게 이동되었습니다.`);
+        alert(`[${acc.name}] 계좌가 RETIRED ARCHIVE로 이동되었습니다.`);
     }
 
     function reactivateAccount(id) {
@@ -1431,10 +1499,12 @@
 
     function renderRetiredView() {
         const tbody = document.getElementById('retiredTableBody');
+        const assetFilterEl = document.getElementById('retiredAssetFilterSelect');
         const filterEl = document.getElementById('retiredFilterSelect');
         if (!tbody) return;
         tbody.innerHTML = '';
 
+        const selectedAsset = assetFilterEl ? assetFilterEl.value : 'ALL';
         const selectedFilter = filterEl ? filterEl.value : 'ALL';
         let retiredAccounts = accounts.filter(a => a.isRetired === true);
 
@@ -1455,6 +1525,9 @@
         document.getElementById('retiredTotalCost').innerText = `$${(totalEvalExp + totalPaExp).toLocaleString()}`;
         document.getElementById('retiredHistoricalWithdrawals').innerText = `$${totalWd.toLocaleString()}`;
 
+        if (selectedAsset !== 'ALL') {
+            retiredAccounts = retiredAccounts.filter(a => a.assetClass === selectedAsset);
+        }
         if (selectedFilter !== 'ALL') {
             retiredAccounts = retiredAccounts.filter(a => a.status === selectedFilter);
         }
@@ -1467,11 +1540,13 @@
 
             const row = document.createElement('tr');
             const backtrackAttr = acc.originEvalName ? `title="Originated from Eval: ${acc.originEvalName}" class="origin-eval-tooltip"` : '';
+            const isCrypto = acc.assetClass === 'CRYPTO';
 
             row.innerHTML = `
                 <td style="color: var(--ff-red); font-weight: bold; letter-spacing: 1px;">
                     <span ${backtrackAttr}>${acc.name}</span>
                 </td>
+                <td><span class="${isCrypto ? 'badge-crypto' : 'badge-futures'}">${acc.assetClass}</span></td>
                 <td><span class="${acc.status === 'FUNDED' ? 'badge-pa' : 'badge-eval'}">${acc.status}</span></td>
                 <td>${acc.accountType}</td>
                 <td>
@@ -1494,7 +1569,7 @@
         });
 
         if (retiredAccounts.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--text-dim); padding: 24px;">은퇴/탈락 처리된 계좌가 없습니다.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; color: var(--text-dim); padding: 24px;">해당 조건의 은퇴/탈락 계좌가 없습니다.</td></tr>`;
         }
     }
 
@@ -1646,8 +1721,9 @@
         const calMonthEl = document.getElementById('calendarMonthTitle');
         const grid = document.getElementById('calendarCells');
         const accSelect = document.getElementById('calAccountFilter');
+        const assetFilterEl = document.getElementById('calAssetFilter');
         const typeFilterEl = document.getElementById('calTypeFilter');
-        if (!calMonthEl || !grid || !accSelect || !typeFilterEl) return;
+        if (!calMonthEl || !grid || !accSelect || !typeFilterEl || !assetFilterEl) return;
 
         const year = currentCalendarDate.getFullYear();
         const month = currentCalendarDate.getMonth();
@@ -1661,15 +1737,19 @@
         activeAccounts.forEach(a => {
             const opt = document.createElement('option');
             opt.value = a.id;
-            opt.text = `[${a.status}] ${a.name}`;
+            opt.text = `[${a.assetClass}|${a.status}] ${a.name}`;
             if (a.id == selVal) opt.selected = true;
             accSelect.appendChild(opt);
         });
 
+        const assetFilter = assetFilterEl.value;
         const typeFilter = typeFilterEl.value;
         const targetAccId = accSelect.value;
 
         let targetAccounts = [...activeAccounts];
+        if (assetFilter !== 'ALL') {
+            targetAccounts = targetAccounts.filter(a => a.assetClass === assetFilter);
+        }
         if (typeFilter !== 'ALL') {
             targetAccounts = targetAccounts.filter(a => a.status === typeFilter);
         }
@@ -1715,7 +1795,7 @@
                 if (a.notes) {
                     a.notes.forEach(n => {
                         if (n.date === dayStr) {
-                            dayNotes.push({ accName: a.name, status: a.status, text: n.text });
+                            dayNotes.push({ accName: a.name, status: a.status, assetClass: a.assetClass, text: n.text });
                         }
                     });
                 }
@@ -1723,7 +1803,7 @@
 
             let noteHtml = '';
             if (dayNotes.length > 0) {
-                const notesListText = dayNotes.map(n => `<strong>[${n.status}] ${n.accName}</strong>: ${n.text}`).join('<br><hr style="border:0; border-top:1px solid #333; margin:4px 0;">');
+                const notesListText = dayNotes.map(n => `<strong>[${n.assetClass}|${n.status}] ${n.accName}</strong>: ${n.text}`).join('<br><hr style="border:0; border-top:1px solid #333; margin:4px 0;">');
                 noteHtml = `
                     <div class="cyber-tooltip-wrap">
                         <span class="cal-note-badge">📝</span>
@@ -1769,6 +1849,7 @@
                     allNotes.push({
                         accId: a.id,
                         accName: a.name,
+                        assetClass: a.assetClass,
                         status: a.status,
                         date: n.date,
                         text: n.text,
@@ -1790,7 +1871,7 @@
             card.className = `note-card ${item.status === 'FUNDED' ? 'pa' : ''}`;
             card.innerHTML = `
                 <div class="note-header">
-                    <span><strong>[${item.status}] ${item.accName}</strong></span>
+                    <span><strong>[${item.assetClass} | ${item.status}] ${item.accName}</strong></span>
                     <span>${item.date}</span>
                 </div>
                 <div style="color: #eee;">${item.text}</div>
@@ -1833,16 +1914,21 @@
 
     function renderAccounts() {
         const tbody = document.getElementById('accountTableBody');
+        const assetFilterEl = document.getElementById('tableAssetFilterSelect');
         const tableFilterEl = document.getElementById('tableFilterSelect');
         const sortByEl = document.getElementById('sortBy');
-        if (!tbody || !tableFilterEl || !sortByEl) return;
+        if (!tbody || !tableFilterEl || !sortByEl || !assetFilterEl) return;
 
         tbody.innerHTML = '';
 
+        const assetFilter = assetFilterEl.value;
         const tableFilter = tableFilterEl.value;
         const sortBy = sortByEl.value;
         
         let filtered = accounts.filter(a => !a.isRetired);
+        if (assetFilter !== 'ALL') {
+            filtered = filtered.filter(a => a.assetClass === assetFilter);
+        }
         if (tableFilter !== 'ALL') {
             filtered = filtered.filter(a => a.status === tableFilter);
         }
@@ -1865,6 +1951,7 @@
             const progress = (acc.target || 0) > 0 ? Math.min(100, Math.max(0, ((acc.totalPnl || 0) / acc.target) * 100)) : 0;
             const pnlColor = (acc.totalPnl || 0) >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
             const isFunded = acc.status === 'FUNDED';
+            const isCrypto = acc.assetClass === 'CRYPTO';
 
             const backtrackAttr = acc.originEvalName ? `title="Originated from Eval: ${acc.originEvalName}" class="origin-eval-tooltip"` : '';
             const expAmount = acc.expenses ? (acc.expenses.amount || 0) : 0;
@@ -1873,6 +1960,7 @@
                 <td style="color: var(--ff-yellow); font-weight: bold; letter-spacing: 1px;">
                     <span ${backtrackAttr}>${acc.name}</span>
                 </td>
+                <td><span class="${isCrypto ? 'badge-crypto' : 'badge-futures'}">${acc.assetClass}</span></td>
                 <td>${acc.accountType}</td>
                 <td>
                     $${(acc.currentBalance || acc.initialBalance || 0).toLocaleString()}<br>
@@ -1940,25 +2028,33 @@
     }
 
     function renderCharts() {
-        if (typeof Chart === 'undefined') return;
+        updatePnlAccountList();
+        updateTargetProgressChart();
+    }
 
+    function updatePnlAccountList() {
         const select = document.getElementById('pnlAccountSelect');
-        if (!select) return;
+        const assetFilterEl = document.getElementById('pnlAssetFilter');
+        if (!select || !assetFilterEl) return;
 
-        const activeAccounts = accounts.filter(a => !a.isRetired);
+        const assetFilter = assetFilterEl.value;
+        let activeAccounts = accounts.filter(a => !a.isRetired);
+        if (assetFilter !== 'ALL') {
+            activeAccounts = activeAccounts.filter(a => a.assetClass === assetFilter);
+        }
+
         const selVal = select.value;
         select.innerHTML = '';
 
         activeAccounts.forEach(acc => {
             const opt = document.createElement('option');
             opt.value = acc.id;
-            opt.text = `[${acc.status}] ${acc.name}`;
+            opt.text = `[${acc.assetClass}|${acc.status}] ${acc.name}`;
             if (acc.id == selVal) opt.selected = true;
             select.appendChild(opt);
         });
 
         updatePnlChart();
-        updateTargetProgressChart();
     }
 
     function updatePnlChart() {
@@ -2018,10 +2114,12 @@
     function updateTargetProgressChart() {
         if (typeof Chart === 'undefined') return;
 
+        const assetFilterEl = document.getElementById('targetAssetFilter');
         const filterEl = document.getElementById('targetFilterSelect');
         const canvas = document.getElementById('targetProgressChart');
-        if (!filterEl || !canvas) return;
+        if (!filterEl || !canvas || !assetFilterEl) return;
 
+        const assetFilter = assetFilterEl.value;
         const filter = filterEl.value;
         const ctx = canvas.getContext('2d');
 
@@ -2031,6 +2129,9 @@
         }
 
         let filtered = accounts.filter(a => !a.isRetired && (a.target || 0) > 0);
+        if (assetFilter !== 'ALL') {
+            filtered = filtered.filter(a => a.assetClass === assetFilter);
+        }
         if (filter !== 'ALL') {
             filtered = filtered.filter(a => a.status === filter);
         }
@@ -2044,7 +2145,7 @@
             return;
         }
 
-        const labels = filtered.map(a => `[${a.status}] ${a.name}`);
+        const labels = filtered.map(a => `[${a.assetClass}|${a.status}] ${a.name}`);
         const percentReached = filtered.map(a => Math.min(100, Math.max(0, ((a.totalPnl || 0) / a.target) * 100)));
         const percentRemaining = percentReached.map(pct => Math.max(0, 100 - pct));
         const barColors = filtered.map(a => a.status === 'FUNDED' ? '#00ff66' : '#00f0ff');
@@ -2091,6 +2192,7 @@
                                 const reachedPercent = ((currentPnl / target) * 100).toFixed(1);
 
                                 const lines = [
+                                    `• 자산 분류   : ${acc.assetClass}`,
                                     `• 달성률     : ${reachedPercent}%`,
                                     `• 누적 손익   : $${currentPnl.toLocaleString()}`,
                                     `• 목표 잔여액 : $${remaining.toLocaleString()}`,
@@ -2112,7 +2214,7 @@
 
     function exportData() {
         const fullBackup = {
-            version: '3.2',
+            version: '3.3',
             accounts: accounts,
             personalNotes: personalNotes,
             dismissedInactivity: dismissedInactivity,
@@ -2152,7 +2254,7 @@
                 
                 sanitizeAccounts(accounts);
                 saveAndRender();
-                alert('원장 데이터가 안전하게 복원 및 최적화되었습니다.');
+                alert('원장 데이터가 안전하게 복원 및 자산군(Crypto/Futures) 매핑되었습니다.');
             } catch(err) {
                 alert('파일 복원 중 오류가 발생했습니다.');
             }
