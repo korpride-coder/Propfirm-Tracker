@@ -1023,8 +1023,20 @@
         const acc = accounts.find(a => a.id === id);
         if (!acc) return;
 
-        const lastBalance = acc.currentBalance || acc.initialBalance || 0;
-        const balInput = prompt(`[${acc.name}]\n현재 실제 마감 밸런스(Actual Balance)를 입력하세요 ($):\n(이전 밸런스: $${lastBalance.toLocaleString()})`, lastBalance);
+        let lastBalance = acc.initialBalance || 0;
+        if (acc.pnlHistory && acc.pnlHistory.length > 0) {
+            const lastEntry = acc.pnlHistory[acc.pnlHistory.length - 1];
+            if (lastEntry.balance !== undefined && !isNaN(lastEntry.balance)) {
+                lastBalance = parseFloat(lastEntry.balance);
+            } else {
+                lastBalance = (acc.initialBalance || 0) + (acc.totalPnl || 0);
+            }
+        }
+
+        const balInput = prompt(
+            `[${acc.name}]\n현재 실제 마감 밸런스(Actual Balance)를 입력하세요 ($):\n(이전 마감 기준: $${lastBalance.toLocaleString()})`, 
+            lastBalance
+        );
         if (balInput === null || balInput.trim() === '') return;
 
         const newBalance = parseFloat(balInput);
@@ -1045,10 +1057,7 @@
             amount: netPnl
         });
 
-        acc.currentBalance = newBalance;
-        acc.totalPnl = (acc.totalPnl || 0) + netPnl;
-        acc.lastActivityDate = dateTag;
-
+        recalculateAccountMetrics(acc);
         saveAndRender();
     }
 
@@ -1145,10 +1154,17 @@
             total += (h.amount || 0);
         });
         acc.totalPnl = Math.round(total * 100) / 100;
-        acc.currentBalance = (acc.initialBalance || 0) + acc.totalPnl;
 
         if (acc.pnlHistory.length > 0) {
-            acc.lastActivityDate = acc.pnlHistory[acc.pnlHistory.length - 1].date;
+            const lastEntry = acc.pnlHistory[acc.pnlHistory.length - 1];
+            if (lastEntry.balance !== undefined && !isNaN(lastEntry.balance)) {
+                acc.currentBalance = lastEntry.balance;
+            } else {
+                acc.currentBalance = (acc.initialBalance || 0) + acc.totalPnl;
+            }
+            acc.lastActivityDate = lastEntry.date;
+        } else {
+            acc.currentBalance = acc.initialBalance || 0;
         }
     }
 
