@@ -475,6 +475,16 @@
             font-weight: bold;
         }
 
+        .badge-retired {
+            color: var(--ff-red);
+            border: 1px solid var(--ff-red);
+            padding: 2px 6px;
+            font-size: 0.72rem;
+            border-radius: 2px;
+            font-weight: bold;
+            background: rgba(255, 0, 85, 0.1);
+        }
+
         .prog-bg {
             background: rgba(0, 0, 0, 0.7);
             height: 8px;
@@ -592,7 +602,7 @@
 
     <div class="terminal-tabs">
         <button class="nav-tab-btn active" id="tabActiveBtn" onclick="switchMainTab('active')">ACTIVE TERMINAL</button>
-        <button class="nav-tab-btn danger-tab" id="tabRetiredBtn" onclick="switchMainTab('retired')">RETIRED ARCHIVE (BLOWN PA)</button>
+        <button class="nav-tab-btn danger-tab" id="tabRetiredBtn" onclick="switchMainTab('retired')">RETIRED ARCHIVE (BLOWN PA / FAILED EVAL)</button>
     </div>
 
     <!-- VIEW 1: ACTIVE TERMINAL -->
@@ -809,15 +819,15 @@
     <div id="retiredArchiveView" style="display: none;">
         <div class="stat-grid">
             <div class="stat-card" style="border-top: 1px solid var(--ff-yellow);">
-                <div class="stat-label">RETIRED EVAL EXPENSES (EVAL 지출)</div>
+                <div class="stat-label">FAILED EVAL EXPENSES (실패한 Eval 총비용)</div>
                 <div class="stat-value" id="retiredEvalExpense" style="color: var(--ff-yellow);">$0</div>
             </div>
             <div class="stat-card pink">
-                <div class="stat-label">RETIRED PA FEES (PA 액티베이션/유지비)</div>
+                <div class="stat-label">BLOWN PA EXPENSES (날린 PA 총비용)</div>
                 <div class="stat-value" id="retiredPaExpense" style="color: var(--ff-red);">$0</div>
             </div>
             <div class="stat-card" style="border-top: 1px solid #ff4444;">
-                <div class="stat-label">TOTAL BLOWN COST (은퇴 계좌 총 손실비용)</div>
+                <div class="stat-label">TOTAL SUNK COST (은퇴/탈락 총 매몰비용)</div>
                 <div class="stat-value" id="retiredTotalCost" style="color: #ff4444;">$0</div>
             </div>
             <div class="stat-card green">
@@ -827,17 +837,28 @@
         </div>
 
         <section class="terminal-panel" style="border-top: 2px solid var(--ff-red);">
-            <div class="panel-heading" style="color: var(--ff-red);">
-                ■ RETIRED PA LEDGER (BLOWN ACCOUNTS ARCHIVE)
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                <div class="panel-heading" style="color: var(--ff-red); margin: 0;">
+                    ■ RETIRED ARCHIVE (BLOWN PA / FAILED EVAL LEDGER)
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span style="font-size: 0.75rem; color: var(--text-dim);">분류 필터:</span>
+                    <select id="retiredFilterSelect" onchange="renderRetiredView()" style="padding: 4px 8px; font-size: 0.78rem;">
+                        <option value="ALL">전체 은퇴 계좌</option>
+                        <option value="EVAL">실패한 EVAL만</option>
+                        <option value="FUNDED">날린 PA만</option>
+                    </select>
+                </div>
             </div>
             <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: -6px; margin-bottom: 16px;">
-                * 비밀번호(0220) 인증을 통해 보관된 탈락/은퇴 계좌 목록입니다.
+                * 비밀번호(0220) 인증을 통해 보관된 탈락 EVAL 및 은퇴 PA 계좌 목록입니다. 지출액 결산 및 필요시 복원(RESTORE)이 가능합니다.
             </p>
             <div class="table-wrap">
                 <table>
                     <thead>
                         <tr>
                             <th>계정 태그</th>
+                            <th>상태</th>
                             <th>유형</th>
                             <th>최종 손익 (Final PnL)</th>
                             <th>EVAL 지출액</th>
@@ -887,6 +908,7 @@
         const stored = localStorage.getItem('tradingAccounts');
         accounts = stored ? JSON.parse(stored) : [];
         if (!Array.isArray(accounts)) accounts = [];
+        sanitizeAccounts(accounts);
     } catch(e) {
         accounts = [];
     }
@@ -909,6 +931,29 @@
     let sortDirection = 'asc';
     let pnlChartInstance = null;
     let progressChartInstance = null;
+
+    // 과거 버전 데이터 완벽 복원 보정 함수
+    function sanitizeAccounts(accList) {
+        accList.forEach(a => {
+            if (a.isRetired === undefined) a.isRetired = false;
+            if (a.retiredDate === undefined) a.retiredDate = null;
+            if (!a.pnlHistory) a.pnlHistory = [];
+            if (!a.withdrawalHistory) a.withdrawalHistory = [];
+            if (!a.notes) a.notes = [];
+            if (a.withdrawals === undefined) a.withdrawals = 0;
+            if (a.totalPnl === undefined) a.totalPnl = 0;
+            if (a.initialBalance === undefined) a.initialBalance = 0;
+            if (a.currentBalance === undefined) a.currentBalance = a.initialBalance + a.totalPnl;
+
+            // 비용 분리 보정
+            if (a.evalExpense === undefined || a.paExpense === undefined) {
+                const cat = a.expenses ? a.expenses.category : (a.status === 'FUNDED' ? 'PA' : 'EVAL');
+                const amt = a.expenses ? (a.expenses.amount || 0) : 0;
+                a.evalExpense = (cat === 'EVAL' || a.status === 'EVAL') ? amt : 0;
+                a.paExpense = (cat === 'PA' || a.status === 'FUNDED') ? amt : 0;
+            }
+        });
+    }
 
     function switchMainTab(tabName) {
         currentMainTab = tabName;
@@ -1046,7 +1091,6 @@
         }
 
         const dateTag = prompt('적용 날짜 (YYYY-MM-DD):', new Date().toISOString().slice(0, 10)) || new Date().toISOString().slice(0, 10);
-        
         const netPnl = Math.round((newBalance - lastBalance) * 100) / 100;
 
         if (!acc.pnlHistory) acc.pnlHistory = [];
@@ -1168,11 +1212,13 @@
         }
     }
 
+    // EVAL 및 PA 공통 Retire (비밀번호: 0220)
     function retireAccount(id) {
         const acc = accounts.find(a => a.id === id);
         if (!acc) return;
 
-        const enteredPasscode = prompt(`[보안 확인]\n[${acc.name}] PA 계좌를 은퇴(Retire) 처리하시겠습니까?\n보안 비밀번호 4자리를 입력하세요:`);
+        const promptTitle = acc.status === 'FUNDED' ? 'PA 은퇴/탈락(Blown)' : 'EVAL 탈락/종료(Failed)';
+        const enteredPasscode = prompt(`[보안 확인]\n[${acc.name}] ${promptTitle} 처리하시겠습니까?\n보안 비밀번호 4자리를 입력하세요:`);
         if (enteredPasscode === null) return;
 
         if (enteredPasscode.trim() !== '0220') {
@@ -1183,7 +1229,7 @@
         acc.isRetired = true;
         acc.retiredDate = new Date().toISOString().slice(0, 10);
         saveAndRender();
-        alert(`[${acc.name}] 계좌가 RETIRED ARCHIVE로 이동되었습니다.`);
+        alert(`[${acc.name}] 계좌가 RETIRED ARCHIVE로 안전하게 이동되었습니다.`);
     }
 
     function reactivateAccount(id) {
@@ -1197,28 +1243,44 @@
         }
     }
 
+    // 은퇴 페이지 렌더링 (EVAL & PA 구분 결산)
     function renderRetiredView() {
         const tbody = document.getElementById('retiredTableBody');
+        const filterEl = document.getElementById('retiredFilterSelect');
         if (!tbody) return;
         tbody.innerHTML = '';
 
-        const retiredAccounts = accounts.filter(a => a.isRetired === true);
+        const selectedFilter = filterEl ? filterEl.value : 'ALL';
+        let retiredAccounts = accounts.filter(a => a.isRetired === true);
 
         let totalEvalExp = 0;
         let totalPaExp = 0;
-        let totalBlown = 0;
         let totalWd = 0;
+
+        // 전체 은퇴 비용 누적 계산 (필터와 무관하게 상단 카드는 전체 은퇴 매몰비용 집계)
+        retiredAccounts.forEach(acc => {
+            const evalExp = acc.evalExpense !== undefined ? acc.evalExpense : (acc.expenses && acc.expenses.category === 'EVAL' ? acc.expenses.amount : 0);
+            const paExp = acc.paExpense !== undefined ? acc.paExpense : (acc.expenses && acc.expenses.category === 'PA' ? acc.expenses.amount : 0);
+            totalEvalExp += evalExp;
+            totalPaExp += paExp;
+            totalWd += (acc.withdrawals || 0);
+        });
+
+        document.getElementById('retiredEvalExpense').innerText = `$${totalEvalExp.toLocaleString()}`;
+        document.getElementById('retiredPaExpense').innerText = `$${totalPaExp.toLocaleString()}`;
+        document.getElementById('retiredTotalCost').innerText = `$${(totalEvalExp + totalPaExp).toLocaleString()}`;
+        document.getElementById('retiredHistoricalWithdrawals').innerText = `$${totalWd.toLocaleString()}`;
+
+        // 필터링 적용
+        if (selectedFilter !== 'ALL') {
+            retiredAccounts = retiredAccounts.filter(a => a.status === selectedFilter);
+        }
 
         retiredAccounts.forEach(acc => {
             const evalExp = acc.evalExpense !== undefined ? acc.evalExpense : (acc.expenses && acc.expenses.category === 'EVAL' ? acc.expenses.amount : 0);
             const paExp = acc.paExpense !== undefined ? acc.paExpense : (acc.expenses && acc.expenses.category === 'PA' ? acc.expenses.amount : 0);
             const totalExp = evalExp + paExp;
             const wd = acc.withdrawals || 0;
-
-            totalEvalExp += evalExp;
-            totalPaExp += paExp;
-            totalBlown += totalExp;
-            totalWd += wd;
 
             const row = document.createElement('tr');
             const backtrackAttr = acc.originEvalName ? `title="Originated from Eval: ${acc.originEvalName}" class="origin-eval-tooltip"` : '';
@@ -1227,6 +1289,7 @@
                 <td style="color: var(--ff-red); font-weight: bold; letter-spacing: 1px;">
                     <span ${backtrackAttr}>${acc.name}</span>
                 </td>
+                <td><span class="${acc.status === 'FUNDED' ? 'badge-pa' : 'badge-eval'}">${acc.status}</span></td>
                 <td>${acc.accountType}</td>
                 <td>
                     $${(acc.currentBalance || acc.initialBalance || 0).toLocaleString()}<br>
@@ -1248,13 +1311,8 @@
         });
 
         if (retiredAccounts.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-dim); padding: 24px;">은퇴/탈락 처리된 PA 계좌가 없습니다.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--text-dim); padding: 24px;">은퇴/탈락 처리된 계좌가 없습니다.</td></tr>`;
         }
-
-        document.getElementById('retiredEvalExpense').innerText = `$${totalEvalExp.toLocaleString()}`;
-        document.getElementById('retiredPaExpense').innerText = `$${totalPaExp.toLocaleString()}`;
-        document.getElementById('retiredTotalCost').innerText = `$${totalBlown.toLocaleString()}`;
-        document.getElementById('retiredHistoricalWithdrawals').innerText = `$${totalWd.toLocaleString()}`;
     }
 
     function checkInactivity() {
@@ -1694,7 +1752,7 @@
                         <button class="btn-act btn-target" onclick="editTarget(${acc.id})">타겟</button>
                         ${!isFunded ? `<button class="btn-act btn-upgrade" onclick="upgradeToFunded(${acc.id})">PA전환</button>` : ''}
                         ${isFunded ? `<button class="btn-act btn-wd" onclick="recordWithdrawal(${acc.id})">출금</button>` : ''}
-                        ${isFunded ? `<button class="btn-act btn-retire" onclick="retireAccount(${acc.id})">RETIRE</button>` : ''}
+                        <button class="btn-act btn-retire" onclick="retireAccount(${acc.id})" title="은퇴/탈락 처리">RETIRE</button>
                         <button class="btn-act btn-del" onclick="deleteAccount(${acc.id})">DEL</button>
                     </div>
                 </td>
@@ -1900,7 +1958,7 @@
 
     function exportData() {
         const fullBackup = {
-            version: '3.0',
+            version: '3.1',
             accounts: accounts,
             personalNotes: personalNotes,
             dismissedInactivity: dismissedInactivity,
@@ -1937,8 +1995,11 @@
                     alert('유효하지 않은 백업 형식입니다.');
                     return;
                 }
+                
+                // 이전 백업 구조 완벽 보정
+                sanitizeAccounts(accounts);
                 saveAndRender();
-                alert('원장 및 노트 데이터 복원 완료.');
+                alert('원장 데이터가 안전하게 복원 및 최적화되었습니다.');
             } catch(err) {
                 alert('파일 복원 중 오류가 발생했습니다.');
             }
