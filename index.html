@@ -475,16 +475,6 @@
             font-weight: bold;
         }
 
-        .badge-retired {
-            color: var(--ff-red);
-            border: 1px solid var(--ff-red);
-            padding: 2px 6px;
-            font-size: 0.72rem;
-            border-radius: 2px;
-            font-weight: bold;
-            background: rgba(255, 0, 85, 0.1);
-        }
-
         .prog-bg {
             background: rgba(0, 0, 0, 0.7);
             height: 8px;
@@ -512,9 +502,10 @@
 
         .btn-pnl { color: var(--neon-blue); border: 1px solid var(--neon-blue); }
         .btn-hist { color: var(--ff-orange); border: 1px solid var(--ff-orange); }
+        .btn-rule { color: var(--neon-purple); border: 1px solid var(--neon-purple); }
         .btn-note { color: var(--ff-yellow); border: 1px solid var(--ff-yellow); }
         .btn-target { color: var(--neon-blue); border: 1px solid #335577; }
-        .btn-upgrade { color: var(--neon-green); border: 1px solid var(--neon-green); }
+        .btn-upgrade { color: var(--neon-green); border: 1px solid var(--neon-green); font-weight: bold; }
         .btn-wd { color: var(--neon-green); border: 1px solid var(--neon-green); }
         .btn-retire { color: var(--ff-red); border: 1px solid var(--ff-red); font-weight: bold; }
         .btn-retire:hover { background: var(--ff-red); color: #000; }
@@ -553,6 +544,7 @@
 
         .personal-blur { filter: blur(8px); user-select: none; }
 
+        /* 공통 사이버 모달 */
         .cyber-modal {
             display: none;
             position: fixed;
@@ -801,9 +793,9 @@
                             <th onclick="setSort('platform')">계정 태그</th>
                             <th>유형</th>
                             <th>현재 밸런스 (누적손익)</th>
-                            <th>프로핏 타겟 갭</th>
+                            <th>프로핏/출금 타겟 갭</th>
                             <th>DD 한도 (일일/하드)</th>
-                            <th>룰</th>
+                            <th>일관성 룰</th>
                             <th>상태</th>
                             <th>비용 / 총출금</th>
                             <th>액션</th>
@@ -902,6 +894,99 @@
     </div>
 </div>
 
+<!-- PA PROMOTION PROTOCOL MODAL -->
+<div class="cyber-modal" id="paUpgradeModal">
+    <div class="cyber-modal-content" style="max-width: 580px; border-color: var(--neon-green); box-shadow: 0 0 30px rgba(0, 255, 102, 0.25);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div class="panel-heading" style="margin: 0; color: var(--neon-green);" id="paUpgradeTitle">PA PROMOTION CONFIGURATION</div>
+            <button class="cyber-btn-outline" onclick="closePaUpgradeModal()" style="border-color: #666; color: #fff;">X CANCEL</button>
+        </div>
+        <p style="font-size: 0.78rem; color: var(--text-dim); margin-top: -6px; margin-bottom: 16px;">
+            * EVAL 계정을 PA로 승격합니다. PA 고유의 Consistency Rule, 목표치, DD 한도 및 수수료를 한 번에 설정하세요.
+        </p>
+
+        <input type="hidden" id="upgradeTargetAccountId">
+        
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+            <div class="field-group">
+                <label>원본 EVAL 계정 식별 태그 (역추적용)</label>
+                <input type="text" id="upOriginEval" readonly style="color: var(--text-dim); border-color: #333;">
+            </div>
+            <div class="field-group">
+                <label>새 PA 계정 ID 태그 (예: PA-01 또는 브로커 계좌번호)</label>
+                <input type="text" id="upPaTag" placeholder="PA-01">
+            </div>
+            <div class="field-group">
+                <label>PA 일관성 룰 (CONSISTENCY RULE)</label>
+                <select id="upConsistency">
+                    <option value="30%">30% Consistency (Apex 등 기본)</option>
+                    <option value="20%">20% Consistency</option>
+                    <option value="40%">40% Consistency</option>
+                    <option value="50%">50% Consistency</option>
+                    <option value="없음">없음 (No Consistency Rule)</option>
+                    <option value="CUSTOM">직접 입력 (CUSTOM)</option>
+                </select>
+            </div>
+            <div class="field-group" id="upCustomConsistencyWrap" style="display: none;">
+                <label>커스텀 일관성 룰 입력 (%)</label>
+                <input type="text" id="upCustomConsistency" placeholder="예: 35%">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="field-group">
+                    <label>PA 데일리 DD ($)</label>
+                    <input type="number" id="upDailyDd" placeholder="0이면 무제한">
+                </div>
+                <div class="field-group">
+                    <label>PA 하드/트레일링 DD ($)</label>
+                    <input type="number" id="upHardDd" placeholder="예: 2500">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="field-group">
+                    <label>PA 1차 출금/버퍼 타겟 ($)</label>
+                    <input type="number" id="upTarget" placeholder="예: 2600 또는 3000">
+                </div>
+                <div class="field-group">
+                    <label>PA 액티베이션 수수료 ($)</label>
+                    <input type="number" id="upFee" placeholder="예: 150">
+                </div>
+            </div>
+        </div>
+
+        <button class="cyber-btn" onclick="executePaUpgrade()" style="width: 100%; background: linear-gradient(135deg, var(--neon-green), #00aa44); color: #000;">
+            CONFIRM &amp; PROMOTE TO PA
+        </button>
+    </div>
+</div>
+
+<!-- RULE / DD INLINE EDIT MODAL -->
+<div class="cyber-modal" id="ruleEditModal">
+    <div class="cyber-modal-content" style="max-width: 480px; border-color: var(--neon-purple); box-shadow: 0 0 30px rgba(181, 23, 158, 0.25);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div class="panel-heading" style="margin: 0; color: var(--neon-purple);" id="ruleEditTitle">RULE &amp; RISK PARAMETERS</div>
+            <button class="cyber-btn-outline" onclick="closeRuleEditModal()" style="border-color: #666; color: #fff;">X CLOSE</button>
+        </div>
+        <input type="hidden" id="ruleEditAccountId">
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+            <div class="field-group">
+                <label>일관성 룰 (CONSISTENCY %)</label>
+                <input type="text" id="ruleConsistencyInput" placeholder="예: 30% 또는 없음">
+            </div>
+            <div class="field-group">
+                <label>데일리 DD ($)</label>
+                <input type="number" id="ruleDailyDdInput" placeholder="0">
+            </div>
+            <div class="field-group">
+                <label>하드 DD / Trailing Max DD ($)</label>
+                <input type="number" id="ruleHardDdInput" placeholder="2500">
+            </div>
+        </div>
+        <button class="cyber-btn" onclick="saveRuleEdit()" style="width: 100%; background: linear-gradient(135deg, var(--neon-purple), #7209b7); color: #fff;">
+            UPDATE PARAMETERS
+        </button>
+    </div>
+</div>
+
 <script>
     let accounts = [];
     try {
@@ -932,7 +1017,6 @@
     let pnlChartInstance = null;
     let progressChartInstance = null;
 
-    // 과거 버전 데이터 완벽 복원 보정 함수
     function sanitizeAccounts(accList) {
         accList.forEach(a => {
             if (a.isRetired === undefined) a.isRetired = false;
@@ -944,8 +1028,8 @@
             if (a.totalPnl === undefined) a.totalPnl = 0;
             if (a.initialBalance === undefined) a.initialBalance = 0;
             if (a.currentBalance === undefined) a.currentBalance = a.initialBalance + a.totalPnl;
+            if (a.consistency === undefined) a.consistency = '없음';
 
-            // 비용 분리 보정
             if (a.evalExpense === undefined || a.paExpense === undefined) {
                 const cat = a.expenses ? a.expenses.category : (a.status === 'FUNDED' ? 'PA' : 'EVAL');
                 const amt = a.expenses ? (a.expenses.amount || 0) : 0;
@@ -997,7 +1081,8 @@
         const dailyDd = parseFloat(document.getElementById('dailyDd').value) || 0;
         const hardDd = parseFloat(document.getElementById('hardDd').value) || 0;
         const target = parseFloat(document.getElementById('target').value) || 0;
-        const consistency = document.getElementById('consistency').value;
+        const consistencyVal = document.getElementById('consistency').value.trim();
+        const consistency = consistencyVal ? (consistencyVal.includes('%') ? consistencyVal : consistencyVal + '%') : '없음';
         const expenseCategory = document.getElementById('expenseCategory').value;
         const expenseAmount = parseFloat(document.getElementById('expenseAmount').value) || 0;
 
@@ -1018,7 +1103,7 @@
             pnlHistory: [],
             withdrawals: 0,
             withdrawalHistory: [],
-            consistency: consistency ? consistency + '%' : '없음',
+            consistency: consistency,
             status: 'EVAL',
             originEvalName: '',
             isRetired: false,
@@ -1212,6 +1297,107 @@
         }
     }
 
+    /* PA 승격 모달 핸들러 */
+    function openPaUpgradeModal(id) {
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+
+        document.getElementById('upgradeTargetAccountId').value = id;
+        document.getElementById('upOriginEval').value = acc.name;
+        document.getElementById('upPaTag').value = acc.accountNum ? `PA-${acc.accountNum}` : 'PA-01';
+        document.getElementById('upConsistency').value = '30%';
+        document.getElementById('upCustomConsistencyWrap').style.display = 'none';
+        document.getElementById('upDailyDd').value = acc.dailyDd || 0;
+        document.getElementById('upHardDd').value = acc.hardDd || 2500;
+        document.getElementById('upTarget').value = 2600; // PA 1차 출금/안전버퍼 기준치 디폴트
+        document.getElementById('upFee').value = 150;
+
+        document.getElementById('paUpgradeModal').style.display = 'flex';
+    }
+
+    document.getElementById('upConsistency').addEventListener('change', function() {
+        document.getElementById('upCustomConsistencyWrap').style.display = (this.value === 'CUSTOM') ? 'block' : 'none';
+    });
+
+    function closePaUpgradeModal() {
+        document.getElementById('paUpgradeModal').style.display = 'none';
+    }
+
+    function executePaUpgrade() {
+        const id = parseInt(document.getElementById('upgradeTargetAccountId').value);
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+
+        const newPaTag = document.getElementById('upPaTag').value.trim();
+        if (!newPaTag) {
+            alert('새 PA 계정 태그를 입력해 주세요.');
+            return;
+        }
+
+        const consistencyChoice = document.getElementById('upConsistency').value;
+        const customConsistency = document.getElementById('upCustomConsistency').value.trim();
+        const finalConsistency = (consistencyChoice === 'CUSTOM') 
+            ? (customConsistency ? (customConsistency.includes('%') ? customConsistency : customConsistency + '%') : '없음')
+            : consistencyChoice;
+
+        const fee = parseFloat(document.getElementById('upFee').value) || 0;
+        const newDailyDd = parseFloat(document.getElementById('upDailyDd').value) || 0;
+        const newHardDd = parseFloat(document.getElementById('upHardDd').value) || 0;
+        const newTarget = parseFloat(document.getElementById('upTarget').value) || 0;
+
+        // 원본 EVAL 계정 태그 보존
+        acc.originEvalName = acc.name;
+        acc.accountNum = newPaTag;
+        acc.name = `${acc.platform}-${newPaTag}`;
+        acc.status = 'FUNDED';
+        acc.consistency = finalConsistency;
+        acc.dailyDd = newDailyDd;
+        acc.hardDd = newHardDd;
+        acc.target = newTarget;
+
+        acc.paExpense = (acc.paExpense || 0) + fee;
+        if (!acc.expenses) acc.expenses = { category: 'PA', amount: 0 };
+        acc.expenses.amount += fee;
+        acc.expenses.category = 'PA';
+        acc.lastActivityDate = new Date().toISOString().slice(0, 10);
+
+        closePaUpgradeModal();
+        saveAndRender();
+        alert(`[${acc.name}] 계정이 PA로 성공적으로 승격되었습니다. 일관성 룰(${finalConsistency}) 및 타겟이 갱신되었습니다.`);
+    }
+
+    /* 인라인 룰 / DD 설정 모달 */
+    function openRuleEditModal(id) {
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+
+        document.getElementById('ruleEditAccountId').value = id;
+        document.getElementById('ruleEditTitle').innerText = `[${acc.name}] RULE & DD CONFIG`;
+        document.getElementById('ruleConsistencyInput').value = acc.consistency || '없음';
+        document.getElementById('ruleDailyDdInput').value = acc.dailyDd || 0;
+        document.getElementById('ruleHardDdInput').value = acc.hardDd || 0;
+
+        document.getElementById('ruleEditModal').style.display = 'flex';
+    }
+
+    function closeRuleEditModal() {
+        document.getElementById('ruleEditModal').style.display = 'none';
+    }
+
+    function saveRuleEdit() {
+        const id = parseInt(document.getElementById('ruleEditAccountId').value);
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+
+        const consistencyVal = document.getElementById('ruleConsistencyInput').value.trim();
+        acc.consistency = consistencyVal ? (consistencyVal.includes('%') || consistencyVal === '없음' ? consistencyVal : consistencyVal + '%') : '없음';
+        acc.dailyDd = parseFloat(document.getElementById('ruleDailyDdInput').value) || 0;
+        acc.hardDd = parseFloat(document.getElementById('ruleHardDdInput').value) || 0;
+
+        closeRuleEditModal();
+        saveAndRender();
+    }
+
     // EVAL 및 PA 공통 Retire (비밀번호: 0220)
     function retireAccount(id) {
         const acc = accounts.find(a => a.id === id);
@@ -1243,7 +1429,6 @@
         }
     }
 
-    // 은퇴 페이지 렌더링 (EVAL & PA 구분 결산)
     function renderRetiredView() {
         const tbody = document.getElementById('retiredTableBody');
         const filterEl = document.getElementById('retiredFilterSelect');
@@ -1257,7 +1442,6 @@
         let totalPaExp = 0;
         let totalWd = 0;
 
-        // 전체 은퇴 비용 누적 계산 (필터와 무관하게 상단 카드는 전체 은퇴 매몰비용 집계)
         retiredAccounts.forEach(acc => {
             const evalExp = acc.evalExpense !== undefined ? acc.evalExpense : (acc.expenses && acc.expenses.category === 'EVAL' ? acc.expenses.amount : 0);
             const paExp = acc.paExpense !== undefined ? acc.paExpense : (acc.expenses && acc.expenses.category === 'PA' ? acc.expenses.amount : 0);
@@ -1271,7 +1455,6 @@
         document.getElementById('retiredTotalCost').innerText = `$${(totalEvalExp + totalPaExp).toLocaleString()}`;
         document.getElementById('retiredHistoricalWithdrawals').innerText = `$${totalWd.toLocaleString()}`;
 
-        // 필터링 적용
         if (selectedFilter !== 'ALL') {
             retiredAccounts = retiredAccounts.filter(a => a.status === selectedFilter);
         }
@@ -1434,38 +1617,6 @@
         }
 
         acc.target = parsed;
-        saveAndRender();
-    }
-
-    function upgradeToFunded(id) {
-        const acc = accounts.find(a => a.id === id);
-        if (!acc) return;
-
-        const currentName = acc.name;
-        const originEval = prompt(
-            `[PA 전환: 역추적 데이터 설정]\n원본 Eval 계정명:`, 
-            acc.originEvalName || currentName
-        );
-        if (originEval === null) return;
-
-        const defaultPaTag = acc.accountNum ? `PA-${acc.accountNum}` : 'PA-01';
-        const newPaTag = prompt(`새 PA 계정 태그/번호:`, defaultPaTag);
-        if (newPaTag === null || newPaTag.trim() === '') return;
-
-        const fee = parseFloat(prompt('PA 수수료 ($):', '150')) || 0;
-        const paTarget = parseFloat(prompt('PA 출금/프로핏 목표액 ($):', '2600')) || 0;
-
-        acc.originEvalName = originEval.trim() || currentName;
-        acc.accountNum = newPaTag.trim();
-        acc.name = `${acc.platform}-${newPaTag.trim()}`;
-        acc.status = 'FUNDED';
-        acc.paExpense = (acc.paExpense || 0) + fee;
-        if (!acc.expenses) acc.expenses = { category: 'PA', amount: 0 };
-        acc.expenses.amount += fee;
-        acc.expenses.category = 'PA';
-        acc.lastActivityDate = new Date().toISOString().slice(0, 10);
-        if (paTarget > 0) acc.target = paTarget;
-
         saveAndRender();
     }
 
@@ -1738,7 +1889,9 @@
                     ` : '<span style="color: var(--text-dim);">- (타겟 미설정)</span>'}
                 </td>
                 <td>${(acc.dailyDd || 0) > 0 ? '$' + acc.dailyDd.toLocaleString() : '무제한'} / $${(acc.hardDd || 0).toLocaleString()}</td>
-                <td>${acc.consistency || '없음'}</td>
+                <td style="color: ${acc.consistency !== '없음' ? 'var(--neon-blue)' : 'var(--text-dim)'}; font-weight: bold;">
+                    ${acc.consistency || '없음'}
+                </td>
                 <td><span class="${isFunded ? 'badge-pa' : 'badge-eval'}">${acc.status}</span></td>
                 <td>
                     비용: $${expAmount.toLocaleString()}<br>
@@ -1748,9 +1901,10 @@
                     <div class="action-row">
                         <button class="btn-act btn-pnl" onclick="recordActualBalance(${acc.id})" title="실제 잔고(Ending Balance) 입력">밸런스입력</button>
                         <button class="btn-act btn-hist" onclick="openHistoryModal(${acc.id})" title="PnL/밸런스 내역 수정 및 삭제">내역/수정</button>
+                        <button class="btn-act btn-rule" onclick="openRuleEditModal(${acc.id})" title="일관성 룰 및 DD 파라미터 수정">룰/설정</button>
                         <button class="btn-act btn-note" onclick="addAccountNote(${acc.id})">노트</button>
                         <button class="btn-act btn-target" onclick="editTarget(${acc.id})">타겟</button>
-                        ${!isFunded ? `<button class="btn-act btn-upgrade" onclick="upgradeToFunded(${acc.id})">PA전환</button>` : ''}
+                        ${!isFunded ? `<button class="btn-act btn-upgrade" onclick="openPaUpgradeModal(${acc.id})">PA전환</button>` : ''}
                         ${isFunded ? `<button class="btn-act btn-wd" onclick="recordWithdrawal(${acc.id})">출금</button>` : ''}
                         <button class="btn-act btn-retire" onclick="retireAccount(${acc.id})" title="은퇴/탈락 처리">RETIRE</button>
                         <button class="btn-act btn-del" onclick="deleteAccount(${acc.id})">DEL</button>
@@ -1958,7 +2112,7 @@
 
     function exportData() {
         const fullBackup = {
-            version: '3.1',
+            version: '3.2',
             accounts: accounts,
             personalNotes: personalNotes,
             dismissedInactivity: dismissedInactivity,
@@ -1996,7 +2150,6 @@
                     return;
                 }
                 
-                // 이전 백업 구조 완벽 보정
                 sanitizeAccounts(accounts);
                 saveAndRender();
                 alert('원장 데이터가 안전하게 복원 및 최적화되었습니다.');
