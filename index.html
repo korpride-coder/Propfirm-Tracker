@@ -543,7 +543,6 @@
 
         .personal-blur { filter: blur(8px); user-select: none; }
 
-        /* 모달 오버레이 (History Editor) */
         .cyber-modal {
             display: none;
             position: fixed;
@@ -971,7 +970,7 @@
             hardDd: hardDd,
             target: target,
             totalPnl: 0,
-            pnlHistory: [], // { id, date, balance, amount }
+            pnlHistory: [],
             withdrawals: 0,
             withdrawalHistory: [],
             consistency: consistency ? consistency + '%' : '없음',
@@ -1020,7 +1019,6 @@
         }
     }
 
-    /* 밸런스 직접 입력 및 PnL 자동 산출 */
     function recordActualBalance(id) {
         const acc = accounts.find(a => a.id === id);
         if (!acc) return;
@@ -1037,7 +1035,6 @@
 
         const dateTag = prompt('적용 날짜 (YYYY-MM-DD):', new Date().toISOString().slice(0, 10)) || new Date().toISOString().slice(0, 10);
         
-        // 당일 손익 = 입력한 새 밸런스 - 직전 밸런스
         const netPnl = Math.round((newBalance - lastBalance) * 100) / 100;
 
         if (!acc.pnlHistory) acc.pnlHistory = [];
@@ -1055,7 +1052,6 @@
         saveAndRender();
     }
 
-    /* PnL 및 밸런스 히스토리 수정 모달 */
     function openHistoryModal(id) {
         activeEditingAccountId = id;
         const acc = accounts.find(a => a.id === id);
@@ -1143,7 +1139,6 @@
         }
     }
 
-    /* 수정/삭제 후 누적 밸런스 및 PnL 전면 동기화 */
     function recalculateAccountMetrics(acc) {
         let total = 0;
         acc.pnlHistory.forEach(h => {
