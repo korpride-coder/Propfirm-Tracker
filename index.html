@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로펌 계정 관리 대시보드</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --text-secondary: #aaaaaa;
+            --surface-color: #111111;
+            --border-color: #252525;
+            --hyper-green: #00ff66;
+            --hyper-pink: #ff0055;
+            --hyper-blue: #00e5ff;
+            --btn-bg: #222222;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--hyper-blue);
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .form-section {
+            background-color: var(--surface-color);
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+
+        input, select {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1em;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--hyper-blue);
+        }
+
+        button {
+            background-color: var(--hyper-blue);
+            color: #000;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            font-family: inherit;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .btn-secondary {
+            background-color: var(--btn-bg);
+            color: var(--text-color);
+            border: 1px solid var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--text-secondary);
+            color: #000;
+        }
+
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sort-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .data-management {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--surface-color);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #1a1a1a;
+            color: var(--hyper-green);
+            cursor: pointer;
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+
+        th:hover {
+            color: var(--text-color);
+        }
+
+        tr:hover {
+            background-color: #191919;
+        }
+
+        .status-eval {
+            color: var(--text-secondary);
+        }
+
+        .status-funded {
+            color: var(--hyper-pink);
+            font-weight: bold;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-funded {
+            background-color: var(--bg-color);
+            color: var(--hyper-green);
+            border: 1px solid var(--hyper-green);
+        }
+
+        .btn-funded:hover {
+            background-color: var(--hyper-green);
+            color: #000;
+        }
+
+        .btn-delete {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--text-secondary);
+        }
+
+        .btn-delete:hover {
+            background-color: var(--text-secondary);
+            color: #000;
+        }
+
+        .expenses-summary {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>프로펌 계정 관리 대시보드</h1>
+
+    <div class="data-management">
+        <button class="btn-secondary" onclick="exportData()">데이터 백업 (JSON)</button>
+        <button class="btn-secondary" onclick="document.getElementById('fileInput').click()">데이터 복원 (JSON)</button>
+        <input type="file" id="fileInput" accept=".json" onchange="importData(event)">
+    </div>
+
+    <div class="form-section">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="platform">프로펌 플랫폼</label>
+                <input type="text" id="platform" placeholder="예: APEX, TOPSTEP">
+            </div>
+            <div class="form-group">
+                <label for="accountNum">계정 끝자리</label>
+                <input type="text" id="accountNum" placeholder="예: 01">
+            </div>
+            <div class="form-group">
+                <label for="accountType">계정 사이즈</label>
+                <input type="text" id="accountType" placeholder="예: 50K">
+            </div>
+            <div class="form-group">
+                <label for="initialBalance">초기 밸런스 ($)</label>
+                <input type="number" id="initialBalance" placeholder="50000">
+            </div>
+            <div class="form-group">
+                <label for="dailyDd">데일리 드로우다운 ($)</label>
+                <input type="number" id="dailyDd" placeholder="1000">
+            </div>
+            <div class="form-group">
+                <label for="hardDd">하드 드로우다운 ($)</label>
+                <input type="number" id="hardDd" placeholder="2500">
+            </div>
+            <div class="form-group">
+                <label for="target">프로핏 타겟 ($)</label>
+                <input type="number" id="target" placeholder="3000">
+            </div>
+            <div class="form-group">
+                <label for="consistency">컨시스턴스 룰 (%)</label>
+                <input type="number" id="consistency" placeholder="30">
+            </div>
+            <div class="form-group">
+                <label for="expenseCategory">비용 카테고리</label>
+                <select id="expenseCategory">
+                    <option value="EVAL">EVAL</option>
+                    <option value="PA">PA</option>
+                    <option value="CUSTOM">CUSTOM</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="expenseAmount">비용 ($)</label>
+                <input type="number" id="expenseAmount" placeholder="150">
+            </div>
+        </div>
+        <button onclick="addAccount()">계정 추가</button>
+    </div>
+
+    <div class="filter-section">
+        <div class="sort-group">
+            <label for="sortBy">정렬 기준:</label>
+            <select id="sortBy" onchange="renderAccounts()">
+                <option value="id">추가순</option>
+                <option value="platform">플랫폼</option>
+                <option value="accountType">계정 사이즈</option>
+                <option value="dailyDd">데일리 드로우다운</option>
+                <option value="expenseAmount">비용</option>
+            </select>
+        </div>
+        <div class="expenses-summary">
+            <label>총 지출: </label>
+            <span id="totalExpenseDisplay" style="color: var(--hyper-pink); font-weight: bold;">$0</span>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th onclick="setSort('platform')">계정명</th>
+                <th onclick="setSort('accountType')">사이즈</th>
+                <th>초기 밸런스</th>
+                <th onclick="setSort('dailyDd')">데일리 DD</th>
+                <th>하드 DD</th>
+                <th>타겟</th>
+                <th>컨시스턴스 룰</th>
+                <th>상태</th>
+                <th>비용 내역</th>
+                <th>액션</th>
+            </tr>
+        </thead>
+        <tbody id="accountTableBody">
+        </tbody>
+    </table>
+</div>
+
+<script>
+    let accounts = JSON.parse(localStorage.getItem('tradingAccounts')) || [];
+    let currentSort = 'id';
+    let sortDirection = 'asc';
+
+    function addAccount() {
+        const platform = document.getElementById('platform').value.toUpperCase();
+        const accountNum = document.getElementById('accountNum').value;
+        const accountType = document.getElementById('accountType').value.toUpperCase();
+        const initialBalance = document.getElementById('initialBalance').value;
+        const dailyDd = document.getElementById('dailyDd').value;
+        const hardDd = document.getElementById('hardDd').value;
+        const target = document.getElementById('target').value;
+        const consistency = document.getElementById('consistency').value;
+        const expenseCategory = document.getElementById('expenseCategory').value;
+        const expenseAmount = document.getElementById('expenseAmount').value;
+
+        if (!platform || !accountNum || !accountType) {
+            alert('필수 정보를 모두 입력해주세요.');
+            return;
+        }
+
+        const newAccount = {
+            id: Date.now(),
+            name: `${platform}-${accountNum}`,
+            platform: platform,
+            accountType: accountType,
+            initialBalance: parseFloat(initialBalance) || 0,
+            dailyDd: parseFloat(dailyDd) || 0,
+            hardDd: parseFloat(hardDd) || 0,
+            target: parseFloat(target) || 0,
+            consistency: consistency ? parseFloat(consistency) + '%' : '없음',
+            status: 'EVAL',
+            expenses: {
+                category: expenseCategory,
+                amount: parseFloat(expenseAmount) || 0
+            }
+        };
+
+        accounts.push(newAccount);
+        saveAndRender();
+        clearForm();
+    }
+
+    function clearForm() {
+        document.getElementById('platform').value = '';
+        document.getElementById('accountNum').value = '';
+        document.getElementById('accountType').value = '';
+        document.getElementById('initialBalance').value = '';
+        document.getElementById('dailyDd').value = '';
+        document.getElementById('hardDd').value = '';
+        document.getElementById('target').value = '';
+        document.getElementById('consistency').value = '';
+        document.getElementById('expenseAmount').value = '';
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('tradingAccounts', JSON.stringify(accounts));
+        renderAccounts();
+        updateTotalExpense();
+    }
+
+    function setSort(criteria) {
+        if (currentSort === criteria) {
+            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSort = criteria;
+            sortDirection = 'asc';
+        }
+        renderAccounts();
+    }
+
+    function renderAccounts() {
+        const tableBody = document.getElementById('accountTableBody');
+        tableBody.innerHTML = '';
+
+        const sortBy = document.getElementById('sortBy').value;
+        
+        let sortedAccounts = [...accounts];
+        sortedAccounts.sort((a, b) => {
+            let valA = a[sortBy];
+            let valB = b[sortBy];
+
+            if (sortBy === 'expenseAmount') {
+                valA = a.expenses.amount;
+                valB = b.expenses.amount;
+            }
+
+            if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+            if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        sortedAccounts.forEach(account => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="color: var(--hyper-blue); font-weight: bold;">${account.name}</td>
+                <td>${account.accountType}</td>
+                <td>$${account.initialBalance.toLocaleString()}</td>
+                <td>${account.dailyDd > 0 ? '$' + account.dailyDd.toLocaleString() : '없음'}</td>
+                <td>$${account.hardDd.toLocaleString()}</td>
+                <td>$${account.target.toLocaleString()}</td>
+                <td>${account.consistency}</td>
+                <td class="${account.status === 'EVAL' ? 'status-eval' : 'status-funded'}">${account.status}</td>
+                <td>${account.expenses.category}: $${account.expenses.amount.toLocaleString()}</td>
+                <td class="action-buttons">
+                    ${account.status === 'EVAL' ? `<button class="btn-funded" onclick="upgradeToFunded(${account.id})">PA 전환</button>` : ''}
+                    <button class="btn-delete" onclick="deleteAccount(${account.id})">삭제</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    function upgradeToFunded(id) {
+        const account = accounts.find(acc => acc.id === id);
+        if (account) {
+            const paFee = parseFloat(prompt('PA 액티베이션 비용을 입력하세요 ($):')) || 0;
+            account.status = 'FUNDED';
+            account.expenses.category = 'PA';
+            account.expenses.amount += paFee;
+            saveAndRender();
+        }
+    }
+
+    function deleteAccount(id) {
+        if (confirm('정말로 이 계정을 삭제하시겠습니까?')) {
+            accounts = accounts.filter(acc => acc.id !== id);
+            saveAndRender();
+        }
+    }
+
+    function updateTotalExpense() {
+        const total = accounts.reduce((sum, acc) => sum + acc.expenses.amount, 0);
+        document.getElementById('totalExpenseDisplay').innerText = `$${total.toLocaleString()}`;
+    }
+
+    function exportData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(accounts));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "trading_accounts_backup.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedAccounts = JSON.parse(e.target.result);
+                if (Array.isArray(importedAccounts)) {
+                    accounts = importedAccounts;
+                    saveAndRender();
+                    alert('데이터가 성공적으로 복원되었습니다.');
+                } else {
+                    alert('유효하지 않은 파일 형식입니다.');
+                }
+            } catch (error) {
+                alert('파일을 읽는 도중 오류가 발생했습니다.');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    saveAndRender();
+</script>
+
+</body>
+</html>
