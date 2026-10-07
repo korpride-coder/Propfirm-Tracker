@@ -334,10 +334,7 @@
         .pill-positive { color: var(--neon-green); background: rgba(0, 255, 102, 0.12); }
         .pill-negative { color: var(--ff-red); background: rgba(255, 0, 85, 0.12); }
 
-        .cyber-tooltip-wrap {
-            position: relative;
-            display: inline-block;
-        }
+        .cyber-tooltip-wrap { position: relative; display: inline-block; }
 
         .cyber-tooltip-content {
             visibility: hidden;
@@ -504,6 +501,7 @@
         }
 
         .btn-pnl { color: var(--neon-blue); border: 1px solid var(--neon-blue); }
+        .btn-hist { color: var(--ff-orange); border: 1px solid var(--ff-orange); }
         .btn-note { color: var(--ff-yellow); border: 1px solid var(--ff-yellow); }
         .btn-target { color: var(--neon-blue); border: 1px solid #335577; }
         .btn-upgrade { color: var(--neon-green); border: 1px solid var(--neon-green); }
@@ -544,6 +542,33 @@
         }
 
         .personal-blur { filter: blur(8px); user-select: none; }
+
+        /* 모달 오버레이 (History Editor) */
+        .cyber-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .cyber-modal-content {
+            background: #0a0a0f;
+            border: 1px solid var(--ff-yellow);
+            box-shadow: 0 0 30px rgba(255, 183, 3, 0.35);
+            width: 90%;
+            max-width: 760px;
+            max-height: 85vh;
+            border-radius: 6px;
+            padding: 24px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -831,6 +856,32 @@
     </div>
 </div>
 
+<!-- HISTORY / EDIT MODAL -->
+<div class="cyber-modal" id="historyModal">
+    <div class="cyber-modal-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div class="panel-heading" style="margin: 0;" id="historyModalTitle">BALANCE &amp; PnL HISTORY</div>
+            <button class="cyber-btn-outline" onclick="closeHistoryModal()" style="border-color: #666; color: #fff;">X CLOSE</button>
+        </div>
+        <p style="font-size: 0.78rem; color: var(--text-dim); margin-top: -6px; margin-bottom: 14px;">
+            * 기록된 날짜, 실제 밸런스, 손익을 직접 수정하거나 불필요한 항목을 삭제할 수 있습니다.
+        </p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>날짜 (DATE)</th>
+                        <th>마감 밸런스 ($)</th>
+                        <th>당일 손익 (PnL)</th>
+                        <th>액션 (ACTION)</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <script>
     let accounts = [];
     try {
@@ -852,6 +903,7 @@
     let personalNotes = localStorage.getItem('ff_personal_notes') || '';
     let isPersonalBlurred = false;
     let currentMainTab = 'active';
+    let activeEditingAccountId = null;
 
     let currentCalendarDate = new Date();
     let currentSort = 'id';
@@ -919,7 +971,7 @@
             hardDd: hardDd,
             target: target,
             totalPnl: 0,
-            pnlHistory: [],
+            pnlHistory: [], // { id, date, balance, amount }
             withdrawals: 0,
             withdrawalHistory: [],
             consistency: consistency ? consistency + '%' : '없음',
@@ -965,6 +1017,143 @@
             checkInactivity();
         } else {
             renderRetiredView();
+        }
+    }
+
+    /* 밸런스 직접 입력 및 PnL 자동 산출 */
+    function recordActualBalance(id) {
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+
+        const lastBalance = acc.currentBalance || acc.initialBalance || 0;
+        const balInput = prompt(`[${acc.name}]\n현재 실제 마감 밸런스(Actual Balance)를 입력하세요 ($):\n(이전 밸런스: $${lastBalance.toLocaleString()})`, lastBalance);
+        if (balInput === null || balInput.trim() === '') return;
+
+        const newBalance = parseFloat(balInput);
+        if (isNaN(newBalance)) {
+            alert('올바른 숫자 밸런스를 입력해 주세요.');
+            return;
+        }
+
+        const dateTag = prompt('적용 날짜 (YYYY-MM-DD):', new Date().toISOString().slice(0, 10)) || new Date().toISOString().slice(0, 10);
+        
+        // 당일 손익 = 입력한 새 밸런스 - 직전 밸런스
+        const netPnl = Math.round((newBalance - lastBalance) * 100) / 100;
+
+        if (!acc.pnlHistory) acc.pnlHistory = [];
+        acc.pnlHistory.push({
+            id: Date.now(),
+            date: dateTag,
+            balance: newBalance,
+            amount: netPnl
+        });
+
+        acc.currentBalance = newBalance;
+        acc.totalPnl = (acc.totalPnl || 0) + netPnl;
+        acc.lastActivityDate = dateTag;
+
+        saveAndRender();
+    }
+
+    /* PnL 및 밸런스 히스토리 수정 모달 */
+    function openHistoryModal(id) {
+        activeEditingAccountId = id;
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+
+        document.getElementById('historyModalTitle').innerText = `[${acc.name}] HISTORY & EDIT LEDGER`;
+        renderHistoryRows();
+        document.getElementById('historyModal').style.display = 'flex';
+    }
+
+    function closeHistoryModal() {
+        document.getElementById('historyModal').style.display = 'none';
+        activeEditingAccountId = null;
+    }
+
+    function renderHistoryRows() {
+        const acc = accounts.find(a => a.id === activeEditingAccountId);
+        const tbody = document.getElementById('historyTableBody');
+        if (!acc || !tbody) return;
+
+        tbody.innerHTML = '';
+        if (!acc.pnlHistory || acc.pnlHistory.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-dim); padding:16px;">기록된 밸런스/손익 내역이 없습니다.</td></tr>`;
+            return;
+        }
+
+        acc.pnlHistory.forEach((item, index) => {
+            const pnlColor = item.amount >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
+            const balVal = item.balance !== undefined ? `$${item.balance.toLocaleString()}` : '-';
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="color: var(--ff-yellow); font-weight:bold;">${item.date}</td>
+                <td style="color: #fff;">${balVal}</td>
+                <td style="color: ${pnlColor}; font-weight:bold;">
+                    ${item.amount >= 0 ? '+' : ''}$${item.amount.toLocaleString()}
+                </td>
+                <td>
+                    <button class="btn-act btn-target" onclick="editHistoryItem(${index})">수정</button>
+                    <button class="btn-act btn-del" onclick="deleteHistoryItem(${index})">삭제</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function editHistoryItem(index) {
+        const acc = accounts.find(a => a.id === activeEditingAccountId);
+        if (!acc || !acc.pnlHistory || !acc.pnlHistory[index]) return;
+
+        const item = acc.pnlHistory[index];
+        const newDate = prompt('날짜 수정 (YYYY-MM-DD):', item.date);
+        if (newDate === null) return;
+
+        const newBalInput = prompt('마감 밸런스 ($) 수정 (옵션):', item.balance !== undefined ? item.balance : '');
+        const newPnlInput = prompt('손익 PnL ($) 수정 (수익은 양수, 손실은 음수):', item.amount);
+        if (newPnlInput === null) return;
+
+        const parsedPnl = parseFloat(newPnlInput);
+        if (isNaN(parsedPnl)) {
+            alert('올바른 손익 숫자를 입력해 주세요.');
+            return;
+        }
+
+        item.date = newDate.trim() || item.date;
+        item.amount = parsedPnl;
+        if (newBalInput !== null && newBalInput.trim() !== '') {
+            item.balance = parseFloat(newBalInput) || item.balance;
+        }
+
+        recalculateAccountMetrics(acc);
+        renderHistoryRows();
+        saveAndRender();
+    }
+
+    function deleteHistoryItem(index) {
+        const acc = accounts.find(a => a.id === activeEditingAccountId);
+        if (!acc || !acc.pnlHistory) return;
+
+        if (confirm('해당 기록을 삭제하시겠습니까?')) {
+            acc.pnlHistory.splice(index, 1);
+            recalculateAccountMetrics(acc);
+            renderHistoryRows();
+            saveAndRender();
+        }
+    }
+
+    /* 수정/삭제 후 누적 밸런스 및 PnL 전면 동기화 */
+    function recalculateAccountMetrics(acc) {
+        let total = 0;
+        acc.pnlHistory.forEach(h => {
+            total += (h.amount || 0);
+        });
+        acc.totalPnl = Math.round(total * 100) / 100;
+        acc.currentBalance = (acc.initialBalance || 0) + acc.totalPnl;
+
+        if (acc.pnlHistory.length > 0) {
+            acc.lastActivityDate = acc.pnlHistory[acc.pnlHistory.length - 1].date;
         }
     }
 
@@ -1113,30 +1302,6 @@
         dismissedInactivity[id] = new Date().toISOString();
         localStorage.setItem('dismissedInactivity', JSON.stringify(dismissedInactivity));
         checkInactivity();
-    }
-
-    function recordDailyPnl(id) {
-        const acc = accounts.find(a => a.id === id);
-        if (!acc) return;
-
-        const val = prompt(`[${acc.name}] 금일 손익(Daily PnL) 금액 ($):`);
-        if (val === null || val.trim() === '') return;
-
-        const pnl = parseFloat(val);
-        if (isNaN(pnl)) {
-            alert('숫자를 입력해 주세요.');
-            return;
-        }
-
-        const dateTag = prompt('적용 날짜 (YYYY-MM-DD):', new Date().toISOString().slice(0, 10)) || new Date().toISOString().slice(0, 10);
-        
-        if (!acc.pnlHistory) acc.pnlHistory = [];
-        acc.pnlHistory.push({ date: dateTag, amount: pnl });
-        acc.totalPnl = (acc.totalPnl || 0) + pnl;
-        acc.currentBalance = (acc.initialBalance || 0) + acc.totalPnl;
-        acc.lastActivityDate = dateTag;
-
-        saveAndRender();
     }
 
     function addAccountNote(id) {
@@ -1512,7 +1677,8 @@
                 </td>
                 <td>
                     <div class="action-row">
-                        <button class="btn-act btn-pnl" onclick="recordDailyPnl(${acc.id})">PnL</button>
+                        <button class="btn-act btn-pnl" onclick="recordActualBalance(${acc.id})" title="실제 잔고(Ending Balance) 입력">밸런스입력</button>
+                        <button class="btn-act btn-hist" onclick="openHistoryModal(${acc.id})" title="PnL/밸런스 내역 수정 및 삭제">내역/수정</button>
                         <button class="btn-act btn-note" onclick="addAccountNote(${acc.id})">노트</button>
                         <button class="btn-act btn-target" onclick="editTarget(${acc.id})">타겟</button>
                         ${!isFunded ? `<button class="btn-act btn-upgrade" onclick="upgradeToFunded(${acc.id})">PA전환</button>` : ''}
@@ -1723,7 +1889,7 @@
 
     function exportData() {
         const fullBackup = {
-            version: '2.5',
+            version: '3.0',
             accounts: accounts,
             personalNotes: personalNotes,
             dismissedInactivity: dismissedInactivity,
@@ -1769,7 +1935,6 @@
         reader.readAsText(file);
     }
 
-    // 초기화 루틴
     window.addEventListener('DOMContentLoaded', () => {
         loadPersonalNotes();
         saveAndRender();
