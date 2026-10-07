@@ -3,326 +3,522 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>프로펌 계정 관리 대시보드</title>
+    <title>FF PROP-FIRM COMMAND TERMINAL</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #000000;
-            --text-color: #ffffff;
-            --text-secondary: #aaaaaa;
-            --surface-color: #111111;
-            --border-color: #252525;
-            --hyper-green: #00ff66;
-            --hyper-pink: #ff0055;
-            --hyper-blue: #00e5ff;
-            --btn-bg: #222222;
+            --bg-pitch: #000000;
+            --panel-bg: rgba(6, 6, 8, 0.88);
+            --panel-border: rgba(255, 170, 0, 0.25);
+            --ff-yellow: #ffb703;
+            --ff-orange: #fb5607;
+            --ff-red: #ff0055;
+            --neon-green: #00ff66;
+            --neon-blue: #00f0ff;
+            --text-main: #ffffff;
+            --text-dim: #8e9297;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: 'Consolas', 'Courier New', monospace;
+            background-color: var(--bg-pitch);
+            color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
         }
 
-        h1 {
-            text-align: center;
-            color: var(--hyper-blue);
-            margin-bottom: 30px;
+        /* 몽키 트레이딩 룸 배경 (bg.png 매칭) */
+        .cyber-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(180deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.95) 100%),
+                        url('bg.png') center/cover no-repeat;
+            z-index: -1;
+            filter: contrast(115%) brightness(85%);
+        }
+
+        .container {
+            max-width: 1380px;
+            margin: 0 auto;
+            padding: 24px 20px 60px 20px;
+        }
+
+        /* 헤더: FF 로고 + 터미널 헤더 */
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 24px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 0 25px rgba(255, 183, 3, 0.12);
+        }
+
+        .brand-zone {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-logo {
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(255, 86, 7, 0.6));
+        }
+
+        .brand-title {
+            margin: 0;
+            font-size: 1.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, var(--ff-yellow), var(--ff-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+        }
+
+        .brand-subtitle {
+            margin: 2px 0 0 0;
+            font-size: 0.75rem;
+            color: var(--neon-blue);
             letter-spacing: 2px;
             text-transform: uppercase;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .form-section {
-            background-color: var(--surface-color);
+        /* 글래스모피즘 메탈릭 패널 */
+        .terminal-panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid var(--panel-border);
+            border-radius: 6px;
             padding: 20px;
-            border-radius: 4px;
-            margin-bottom: 30px;
-            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(8px);
         }
 
-        .form-row {
+        .panel-heading {
+            margin: 0 0 16px 0;
+            font-size: 0.95rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--neon-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-heading::before {
+            content: '■';
+            color: var(--ff-yellow);
+            font-size: 0.8rem;
+        }
+
+        /* 택스 & 파이낸스 스탯 그리드 */
+        .stat-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
-        .form-group {
+        .stat-card {
+            background: rgba(10, 10, 14, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 16px 20px;
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--ff-yellow);
+        }
+
+        .stat-card.green::after { background: var(--neon-green); }
+        .stat-card.pink::after { background: var(--ff-red); }
+        .stat-card.blue::after { background: var(--neon-blue); }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.7rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        /* 차트 그리드 */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+            gap: 20px;
+        }
+
+        .chart-box {
+            background: #040405;
+            border: 1px solid #1a1a20;
+            padding: 18px;
+            border-radius: 6px;
+        }
+
+        /* 인풋 폼 & 필드 */
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .field-group {
             display: flex;
             flex-direction: column;
+            gap: 6px;
         }
 
-        label {
-            margin-bottom: 5px;
-            color: var(--text-secondary);
-            font-size: 0.85em;
+        .field-group label {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            letter-spacing: 1.5px;
             text-transform: uppercase;
         }
 
         input, select {
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 10px;
-            border-radius: 4px;
+            background: #000000;
+            border: 1px solid #282830;
+            color: #ffffff;
+            padding: 10px 12px;
             font-family: inherit;
-            font-size: 1em;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.2s;
         }
 
         input:focus, select:focus {
-            outline: none;
-            border-color: var(--hyper-blue);
+            border-color: var(--ff-yellow);
+            box-shadow: 0 0 8px rgba(255, 183, 3, 0.3);
         }
 
-        button {
-            background-color: var(--hyper-blue);
-            color: #000;
-            padding: 10px 20px;
+        /* 버튼류 */
+        .cyber-btn {
+            background: linear-gradient(135deg, var(--ff-yellow), var(--ff-orange));
+            color: #000000;
             border: none;
-            border-radius: 4px;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: opacity 0.2s;
+            padding: 11px 22px;
             font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 900;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 183, 3, 0.4);
+            transition: all 0.2s ease;
         }
 
-        button:hover {
-            opacity: 0.8;
+        .cyber-btn:hover {
+            filter: brightness(1.2);
+            transform: translateY(-1px);
         }
 
-        .btn-secondary {
-            background-color: var(--btn-bg);
-            color: var(--text-color);
-            border: 1px solid var(--text-secondary);
+        .cyber-btn-outline {
+            background: transparent;
+            color: var(--ff-yellow);
+            border: 1px solid var(--ff-yellow);
+            padding: 8px 14px;
+            font-family: inherit;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            border-radius: 3px;
+            cursor: pointer;
         }
 
-        .btn-secondary:hover {
-            background-color: var(--text-secondary);
+        .cyber-btn-outline:hover {
+            background: var(--ff-yellow);
             color: #000;
         }
 
-        .filter-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .sort-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .data-management {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        #fileInput {
-            display: none;
+        /* 테이블 뷰 */
+        .table-wrap {
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: var(--surface-color);
-            border-radius: 4px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
+            font-size: 0.88rem;
         }
 
         th {
-            background-color: #1a1a1a;
-            color: var(--hyper-green);
+            background: #0a0a0f;
+            color: var(--ff-yellow);
+            text-align: left;
+            padding: 14px 10px;
+            font-size: 0.78rem;
+            letter-spacing: 1.5px;
+            border-bottom: 2px solid #22222a;
             cursor: pointer;
-            font-size: 0.9em;
-            text-transform: uppercase;
         }
 
-        th:hover {
-            color: var(--text-color);
+        td {
+            padding: 14px 10px;
+            border-bottom: 1px solid #14141c;
+            background: rgba(4, 4, 6, 0.7);
         }
 
-        tr:hover {
-            background-color: #191919;
+        tr:hover td {
+            background: rgba(255, 183, 3, 0.05);
         }
 
-        .status-eval {
-            color: var(--text-secondary);
+        .badge-eval {
+            color: var(--ff-yellow);
+            border: 1px solid var(--ff-yellow);
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            border-radius: 2px;
         }
 
-        .status-funded {
-            color: var(--hyper-pink);
+        .badge-pa {
+            color: var(--neon-green);
+            border: 1px solid var(--neon-green);
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            border-radius: 2px;
             font-weight: bold;
         }
 
-        .action-buttons {
+        /* 프로그레스 바 */
+        .prog-bg {
+            background: #111;
+            height: 8px;
+            width: 100%;
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+            border: 1px solid #222;
+        }
+
+        .prog-bar {
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-green));
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .action-row {
             display: flex;
-            gap: 10px;
+            gap: 6px;
+            flex-wrap: wrap;
         }
 
-        .btn-funded {
-            background-color: var(--bg-color);
-            color: var(--hyper-green);
-            border: 1px solid var(--hyper-green);
+        .btn-act {
+            padding: 4px 8px;
+            font-size: 0.72rem;
+            font-family: inherit;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 2px;
         }
 
-        .btn-funded:hover {
-            background-color: var(--hyper-green);
-            color: #000;
-        }
-
-        .btn-delete {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            border: 1px solid var(--text-secondary);
-        }
-
-        .btn-delete:hover {
-            background-color: var(--text-secondary);
-            color: #000;
-        }
-
-        .expenses-summary {
-            font-weight: bold;
-        }
+        .btn-pnl { color: var(--neon-blue); border: 1px solid var(--neon-blue); }
+        .btn-wd { color: var(--neon-green); border: 1px solid var(--neon-green); }
+        .btn-upgrade { color: var(--ff-yellow); border: 1px solid var(--ff-yellow); }
+        .btn-del { color: #555; border: 1px solid #333; }
+        .btn-del:hover { color: #fff; border-color: #888; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>프로펌 계정 관리 대시보드</h1>
+<div class="cyber-backdrop"></div>
 
-    <div class="data-management">
-        <button class="btn-secondary" onclick="exportData()">데이터 백업 (JSON)</button>
-        <button class="btn-secondary" onclick="document.getElementById('fileInput').click()">데이터 복원 (JSON)</button>
-        <input type="file" id="fileInput" accept=".json" onchange="importData(event)">
+<div class="container">
+    <!-- 헤더 -->
+    <header class="terminal-header">
+        <div class="brand-zone">
+            <!-- FF.png 적용 -->
+            <img src="FF.png" alt="FF Logo" class="brand-logo" onerror="this.style.display='none'">
+            <div>
+                <h1 class="brand-title">FF PROP TERMINAL</h1>
+                <p class="brand-subtitle">Automated Multi-Account Ledger &amp; Tax Tracker</p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button class="cyber-btn-outline" onclick="exportData()">EXPORT JSON</button>
+            <button class="cyber-btn-outline" onclick="document.getElementById('fileInput').click()">IMPORT JSON</button>
+            <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="importData(event)">
+        </div>
+    </header>
+
+    <!-- 세금 보고 & 누적 회계 스탯 -->
+    <div class="stat-grid">
+        <div class="stat-card pink">
+            <div class="stat-label">EXPENSE TOTAL (세금공제 비용)</div>
+            <div class="stat-value" id="taxExpense" style="color: var(--ff-red);">$0</div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-label">WITHDRAWAL TOTAL (PA 총 출금액)</div>
+            <div class="stat-value" id="taxWithdrawal" style="color: var(--neon-green);">$0</div>
+        </div>
+        <div class="stat-card blue">
+            <div class="stat-label">NET PROFIT (과세표준 순익)</div>
+            <div class="stat-value" id="taxNet" style="color: var(--neon-blue);">$0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">OPERATIONAL UNITS (EVAL / PA)</div>
+            <div class="stat-value" id="accountCounts" style="color: var(--text-main);">0 / 0</div>
+        </div>
     </div>
 
-    <div class="form-section">
-        <div class="form-row">
-            <div class="form-group">
-                <label for="platform">프로펌 플랫폼</label>
-                <input type="text" id="platform" placeholder="예: APEX, TOPSTEP">
+    <!-- 네온 볼드 차트 -->
+    <section class="terminal-panel">
+        <div class="panel-heading">NEON PERFORMANCE MONITORS</div>
+        <div class="charts-grid">
+            <div class="chart-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <span style="font-size: 0.8rem; color: var(--text-dim);">EVAL 일일 P&amp;L 추이 (최근 10회)</span>
+                    <select id="evalChartSelect" onchange="updatePnlChart()" style="padding: 3px 8px; font-size: 0.75rem;"></select>
+                </div>
+                <canvas id="dailyPnlChart" height="200"></canvas>
             </div>
-            <div class="form-group">
-                <label for="accountNum">계정 끝자리</label>
+            <div class="chart-box">
+                <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 12px;">EVAL 타겟 진행률 현황</div>
+                <canvas id="targetProgressChart" height="200"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- 계정 등록 폼 -->
+    <section class="terminal-panel">
+        <div class="panel-heading">ACCOUNT REGISTRATION PROTOCOL</div>
+        <div class="input-grid">
+            <div class="field-group">
+                <label>플랫폼 (PLATFORM)</label>
+                <input type="text" id="platform" placeholder="APEX, TOPSTEP 등">
+            </div>
+            <div class="field-group">
+                <label>계정 끝자리 (ID TAG)</label>
                 <input type="text" id="accountNum" placeholder="예: 01">
             </div>
-            <div class="form-group">
-                <label for="accountType">계정 사이즈</label>
+            <div class="field-group">
+                <label>사이즈 (SIZE)</label>
                 <input type="text" id="accountType" placeholder="예: 50K">
             </div>
-            <div class="form-group">
-                <label for="initialBalance">초기 밸런스 ($)</label>
+            <div class="field-group">
+                <label>초기 밸런스 ($)</label>
                 <input type="number" id="initialBalance" placeholder="50000">
             </div>
-            <div class="form-group">
-                <label for="dailyDd">데일리 드로우다운 ($)</label>
+            <div class="field-group">
+                <label>데일리 DD ($)</label>
                 <input type="number" id="dailyDd" placeholder="1000">
             </div>
-            <div class="form-group">
-                <label for="hardDd">하드 드로우다운 ($)</label>
+            <div class="field-group">
+                <label>하드 DD ($)</label>
                 <input type="number" id="hardDd" placeholder="2500">
             </div>
-            <div class="form-group">
-                <label for="target">프로핏 타겟 ($)</label>
+            <div class="field-group">
+                <label>프로핏 타겟 ($)</label>
                 <input type="number" id="target" placeholder="3000">
             </div>
-            <div class="form-group">
-                <label for="consistency">컨시스턴스 룰 (%)</label>
+            <div class="field-group">
+                <label>일관성 룰 (%)</label>
                 <input type="number" id="consistency" placeholder="30">
             </div>
-            <div class="form-group">
-                <label for="expenseCategory">비용 카테고리</label>
+            <div class="field-group">
+                <label>비용 구분</label>
                 <select id="expenseCategory">
                     <option value="EVAL">EVAL</option>
                     <option value="PA">PA</option>
                     <option value="CUSTOM">CUSTOM</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label for="expenseAmount">비용 ($)</label>
+            <div class="field-group">
+                <label>비용 액수 ($)</label>
                 <input type="number" id="expenseAmount" placeholder="150">
             </div>
         </div>
-        <button onclick="addAccount()">계정 추가</button>
-    </div>
+        <button class="cyber-btn" onclick="addAccount()">REGISTER UNIT</button>
+    </section>
 
-    <div class="filter-section">
-        <div class="sort-group">
-            <label for="sortBy">정렬 기준:</label>
-            <select id="sortBy" onchange="renderAccounts()">
-                <option value="id">추가순</option>
-                <option value="platform">플랫폼</option>
-                <option value="accountType">계정 사이즈</option>
-                <option value="dailyDd">데일리 드로우다운</option>
-                <option value="expenseAmount">비용</option>
-            </select>
+    <!-- 계정 원장 테이블 -->
+    <section class="terminal-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div class="panel-heading" style="margin: 0;">ACCOUNT INVENTORY RECORD</div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <span style="font-size: 0.75rem; color: var(--text-dim);">정렬:</span>
+                <select id="sortBy" onchange="renderAccounts()" style="padding: 4px 8px; font-size: 0.78rem;">
+                    <option value="id">등록순</option>
+                    <option value="platform">플랫폼명</option>
+                    <option value="dailyDd">데일리 DD</option>
+                    <option value="remainingTarget">남은 타겟 순</option>
+                </select>
+            </div>
         </div>
-        <div class="expenses-summary">
-            <label>총 지출: </label>
-            <span id="totalExpenseDisplay" style="color: var(--hyper-pink); font-weight: bold;">$0</span>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th onclick="setSort('platform')">계정 태그</th>
+                        <th>유형</th>
+                        <th>현재 밸런스 (누적손익)</th>
+                        <th>프로핏 타겟 갭</th>
+                        <th>DD 한도 (일일/하드)</th>
+                        <th>룰</th>
+                        <th>상태</th>
+                        <th>비용 / 총출금</th>
+                        <th>액션</th>
+                    </tr>
+                </thead>
+                <tbody id="accountTableBody"></tbody>
+            </table>
         </div>
-    </div>
-
-    <table>
-        <thead>
-            <tr>
-                <th onclick="setSort('platform')">계정명</th>
-                <th onclick="setSort('accountType')">사이즈</th>
-                <th>초기 밸런스</th>
-                <th onclick="setSort('dailyDd')">데일리 DD</th>
-                <th>하드 DD</th>
-                <th>타겟</th>
-                <th>컨시스턴스 룰</th>
-                <th>상태</th>
-                <th>비용 내역</th>
-                <th>액션</th>
-            </tr>
-        </thead>
-        <tbody id="accountTableBody">
-        </tbody>
-    </table>
+    </section>
 </div>
 
 <script>
     let accounts = JSON.parse(localStorage.getItem('tradingAccounts')) || [];
     let currentSort = 'id';
     let sortDirection = 'asc';
+    let pnlChartInstance = null;
+    let progressChartInstance = null;
 
     function addAccount() {
-        const platform = document.getElementById('platform').value.toUpperCase();
-        const accountNum = document.getElementById('accountNum').value;
-        const accountType = document.getElementById('accountType').value.toUpperCase();
-        const initialBalance = document.getElementById('initialBalance').value;
-        const dailyDd = document.getElementById('dailyDd').value;
-        const hardDd = document.getElementById('hardDd').value;
-        const target = document.getElementById('target').value;
+        const platform = document.getElementById('platform').value.toUpperCase().trim();
+        const accountNum = document.getElementById('accountNum').value.trim();
+        const accountType = document.getElementById('accountType').value.toUpperCase().trim();
+        const initialBalance = parseFloat(document.getElementById('initialBalance').value) || 0;
+        const dailyDd = parseFloat(document.getElementById('dailyDd').value) || 0;
+        const hardDd = parseFloat(document.getElementById('hardDd').value) || 0;
+        const target = parseFloat(document.getElementById('target').value) || 0;
         const consistency = document.getElementById('consistency').value;
         const expenseCategory = document.getElementById('expenseCategory').value;
-        const expenseAmount = document.getElementById('expenseAmount').value;
+        const expenseAmount = parseFloat(document.getElementById('expenseAmount').value) || 0;
 
         if (!platform || !accountNum || !accountType) {
-            alert('필수 정보를 모두 입력해주세요.');
+            alert('플랫폼, 번호, 계정 사이즈는 필수 입력입니다.');
             return;
         }
 
@@ -331,15 +527,20 @@
             name: `${platform}-${accountNum}`,
             platform: platform,
             accountType: accountType,
-            initialBalance: parseFloat(initialBalance) || 0,
-            dailyDd: parseFloat(dailyDd) || 0,
-            hardDd: parseFloat(hardDd) || 0,
-            target: parseFloat(target) || 0,
-            consistency: consistency ? parseFloat(consistency) + '%' : '없음',
+            initialBalance: initialBalance,
+            currentBalance: initialBalance,
+            dailyDd: dailyDd,
+            hardDd: hardDd,
+            target: target,
+            totalPnl: 0,
+            pnlHistory: [],
+            withdrawals: 0,
+            withdrawalHistory: [],
+            consistency: consistency ? consistency + '%' : '없음',
             status: 'EVAL',
             expenses: {
                 category: expenseCategory,
-                amount: parseFloat(expenseAmount) || 0
+                amount: expenseAmount
             }
         };
 
@@ -363,111 +564,289 @@
     function saveAndRender() {
         localStorage.setItem('tradingAccounts', JSON.stringify(accounts));
         renderAccounts();
-        updateTotalExpense();
+        updateSummary();
+        renderCharts();
     }
 
-    function setSort(criteria) {
-        if (currentSort === criteria) {
-            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            currentSort = criteria;
-            sortDirection = 'asc';
+    function recordDailyPnl(id) {
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+
+        const val = prompt(`[${acc.name}] 금일 손익(Daily PnL) 금액을 입력하세요 ($):`);
+        if (val === null || val.trim() === '') return;
+
+        const pnl = parseFloat(val);
+        if (isNaN(pnl)) {
+            alert('숫자를 입력해 주세요.');
+            return;
         }
-        renderAccounts();
+
+        const dateTag = new Date().toISOString().slice(5, 10);
+        acc.pnlHistory.push({ date: dateTag, amount: pnl });
+        acc.totalPnl = (acc.totalPnl || 0) + pnl;
+        acc.currentBalance = acc.initialBalance + acc.totalPnl;
+
+        saveAndRender();
     }
 
-    function renderAccounts() {
-        const tableBody = document.getElementById('accountTableBody');
-        tableBody.innerHTML = '';
+    function recordWithdrawal(id) {
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
 
-        const sortBy = document.getElementById('sortBy').value;
-        
-        let sortedAccounts = [...accounts];
-        sortedAccounts.sort((a, b) => {
-            let valA = a[sortBy];
-            let valB = b[sortBy];
+        const val = prompt(`[${acc.name}] 인출(Withdrawal) 금액을 입력하세요 ($):`);
+        if (val === null || val.trim() === '') return;
 
-            if (sortBy === 'expenseAmount') {
-                valA = a.expenses.amount;
-                valB = b.expenses.amount;
-            }
+        const amount = parseFloat(val);
+        if (isNaN(amount) || amount <= 0) {
+            alert('양수 금액을 입력해 주세요.');
+            return;
+        }
 
-            if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
-            if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
-            return 0;
-        });
+        const dateTag = new Date().toISOString().slice(0, 10);
+        acc.withdrawals = (acc.withdrawals || 0) + amount;
+        if (!acc.withdrawalHistory) acc.withdrawalHistory = [];
+        acc.withdrawalHistory.push({ date: dateTag, amount: amount });
 
-        sortedAccounts.forEach(account => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td style="color: var(--hyper-blue); font-weight: bold;">${account.name}</td>
-                <td>${account.accountType}</td>
-                <td>$${account.initialBalance.toLocaleString()}</td>
-                <td>${account.dailyDd > 0 ? '$' + account.dailyDd.toLocaleString() : '없음'}</td>
-                <td>$${account.hardDd.toLocaleString()}</td>
-                <td>$${account.target.toLocaleString()}</td>
-                <td>${account.consistency}</td>
-                <td class="${account.status === 'EVAL' ? 'status-eval' : 'status-funded'}">${account.status}</td>
-                <td>${account.expenses.category}: $${account.expenses.amount.toLocaleString()}</td>
-                <td class="action-buttons">
-                    ${account.status === 'EVAL' ? `<button class="btn-funded" onclick="upgradeToFunded(${account.id})">PA 전환</button>` : ''}
-                    <button class="btn-delete" onclick="deleteAccount(${account.id})">삭제</button>
-                </td>
-            `;
-            tableBody.appendChild(row);
-        });
+        saveAndRender();
     }
 
     function upgradeToFunded(id) {
-        const account = accounts.find(acc => acc.id === id);
-        if (account) {
-            const paFee = parseFloat(prompt('PA 액티베이션 비용을 입력하세요 ($):')) || 0;
-            account.status = 'FUNDED';
-            account.expenses.category = 'PA';
-            account.expenses.amount += paFee;
-            saveAndRender();
-        }
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+
+        const fee = parseFloat(prompt('PA 전환 액티베이션 수수료 ($):', '150')) || 0;
+        acc.status = 'FUNDED';
+        acc.expenses.amount += fee;
+        acc.expenses.category = 'PA';
+        saveAndRender();
     }
 
     function deleteAccount(id) {
-        if (confirm('정말로 이 계정을 삭제하시겠습니까?')) {
-            accounts = accounts.filter(acc => acc.id !== id);
+        if (confirm('계정을 원장에서 제거하시겠습니까?')) {
+            accounts = accounts.filter(a => a.id !== id);
             saveAndRender();
         }
     }
 
-    function updateTotalExpense() {
-        const total = accounts.reduce((sum, acc) => sum + acc.expenses.amount, 0);
-        document.getElementById('totalExpenseDisplay').innerText = `$${total.toLocaleString()}`;
+    function renderAccounts() {
+        const tbody = document.getElementById('accountTableBody');
+        tbody.innerHTML = '';
+
+        const sortBy = document.getElementById('sortBy').value;
+        let sorted = [...accounts];
+
+        sorted.sort((a, b) => {
+            let vA = a[sortBy];
+            let vB = b[sortBy];
+            if (sortBy === 'remainingTarget') {
+                vA = Math.max(0, (a.target || 0) - (a.totalPnl || 0));
+                vB = Math.max(0, (b.target || 0) - (b.totalPnl || 0));
+            }
+            if (vA < vB) return sortDirection === 'asc' ? -1 : 1;
+            if (vA > vB) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        sorted.forEach(acc => {
+            const row = document.createElement('tr');
+            const targetGap = acc.target > 0 ? Math.max(0, acc.target - (acc.totalPnl || 0)) : 0;
+            const progress = acc.target > 0 ? Math.min(100, Math.max(0, ((acc.totalPnl || 0) / acc.target) * 100)) : 0;
+            const pnlColor = (acc.totalPnl || 0) >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
+
+            row.innerHTML = `
+                <td style="color: var(--ff-yellow); font-weight: bold; letter-spacing: 1px;">${acc.name}</td>
+                <td>${acc.accountType}</td>
+                <td>
+                    $${(acc.currentBalance || acc.initialBalance).toLocaleString()}<br>
+                    <span style="color: ${pnlColor}; font-size: 0.8rem;">
+                        (${(acc.totalPnl || 0) >= 0 ? '+' : ''}${(acc.totalPnl || 0).toLocaleString()})
+                    </span>
+                </td>
+                <td>
+                    ${acc.status === 'EVAL' && acc.target > 0 ? `
+                        남음: $${targetGap.toLocaleString()} (${progress.toFixed(1)}%)
+                        <div class="prog-bg"><div class="prog-bar" style="width: ${progress}%;"></div></div>
+                    ` : '<span style="color: var(--text-dim);">-</span>'}
+                </td>
+                <td>${acc.dailyDd > 0 ? '$' + acc.dailyDd.toLocaleString() : '무제한'} / $${acc.hardDd.toLocaleString()}</td>
+                <td>${acc.consistency}</td>
+                <td><span class="${acc.status === 'EVAL' ? 'badge-eval' : 'badge-pa'}">${acc.status}</span></td>
+                <td>
+                    비용: $${acc.expenses.amount.toLocaleString()}<br>
+                    <span style="color: var(--neon-green); font-size: 0.8rem;">출금: $${(acc.withdrawals || 0).toLocaleString()}</span>
+                </td>
+                <td>
+                    <div class="action-row">
+                        <button class="btn-act btn-pnl" onclick="recordDailyPnl(${acc.id})">PnL</button>
+                        ${acc.status === 'EVAL' ? `<button class="btn-act btn-upgrade" onclick="upgradeToFunded(${acc.id})">PA전환</button>` : ''}
+                        ${acc.status === 'FUNDED' ? `<button class="btn-act btn-wd" onclick="recordWithdrawal(${acc.id})">출금</button>` : ''}
+                        <button class="btn-act btn-del" onclick="deleteAccount(${acc.id})">DEL</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function updateSummary() {
+        const totalExp = accounts.reduce((s, a) => s + (a.expenses.amount || 0), 0);
+        const totalWd = accounts.reduce((s, a) => s + (a.withdrawals || 0), 0);
+        const net = totalWd - totalExp;
+
+        document.getElementById('taxExpense').innerText = `$${totalExp.toLocaleString()}`;
+        document.getElementById('taxWithdrawal').innerText = `$${totalWd.toLocaleString()}`;
+        
+        const netEl = document.getElementById('taxNet');
+        netEl.innerText = `${net >= 0 ? '+' : ''}$${net.toLocaleString()}`;
+        netEl.style.color = net >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
+
+        const evals = accounts.filter(a => a.status === 'EVAL').length;
+        const pas = accounts.filter(a => a.status === 'FUNDED').length;
+        document.getElementById('accountCounts').innerText = `${evals} / ${pas}`;
+    }
+
+    function renderCharts() {
+        const evalAccounts = accounts.filter(a => a.status === 'EVAL');
+        const select = document.getElementById('evalChartSelect');
+        const selVal = select.value;
+        select.innerHTML = '';
+
+        evalAccounts.forEach(acc => {
+            const opt = document.createElement('option');
+            opt.value = acc.id;
+            opt.text = acc.name;
+            if (acc.id == selVal) opt.selected = true;
+            select.appendChild(opt);
+        });
+
+        updatePnlChart();
+        updateTargetProgressChart(evalAccounts);
+    }
+
+    function updatePnlChart() {
+        const select = document.getElementById('evalChartSelect');
+        const accId = parseInt(select.value);
+        const acc = accounts.find(a => a.id === accId);
+
+        const ctx = document.getElementById('dailyPnlChart').getContext('2d');
+        if (pnlChartInstance) pnlChartInstance.destroy();
+
+        if (!acc || !acc.pnlHistory || acc.pnlHistory.length === 0) {
+            pnlChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: ['NO RECORD'], datasets: [{ data: [0] }] },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+            return;
+        }
+
+        const history = acc.pnlHistory.slice(-10);
+        const labels = history.map(h => h.date);
+        const data = history.map(h => h.amount);
+        const colors = data.map(v => v >= 0 ? '#00ff66' : '#ff0055');
+
+        pnlChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'DAILY PnL ($)',
+                    data: data,
+                    backgroundColor: colors,
+                    borderColor: colors,
+                    borderWidth: 2,
+                    borderRadius: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                },
+                plugins: {
+                    legend: { labels: { color: '#ffb703' } }
+                }
+            }
+        });
+    }
+
+    function updateTargetProgressChart(evalAccounts) {
+        const ctx = document.getElementById('targetProgressChart').getContext('2d');
+        if (progressChartInstance) progressChartInstance.destroy();
+
+        if (evalAccounts.length === 0) {
+            progressChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: ['NO EVAL UNITS'], datasets: [{ data: [0] }] },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+            return;
+        }
+
+        const labels = evalAccounts.map(a => a.name);
+        const reached = evalAccounts.map(a => Math.max(0, a.totalPnl || 0));
+        const gaps = evalAccounts.map(a => Math.max(0, (a.target || 0) - (a.totalPnl || 0)));
+
+        progressChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '달성 손익 ($)',
+                        data: reached,
+                        backgroundColor: '#00f0ff',
+                        borderColor: '#00f0ff',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '목표 잔여 ($)',
+                        data: gaps,
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                        borderColor: 'rgba(255,255,255,0.2)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { stacked: true, ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { stacked: true, ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                },
+                plugins: {
+                    legend: { labels: { color: '#ffb703' } }
+                }
+            }
+        });
     }
 
     function exportData() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(accounts));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "trading_accounts_backup.json");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
+        const blob = new Blob([JSON.stringify(accounts, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `FF_Terminal_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
     }
 
-    function importData(event) {
-        const file = event.target.files[0];
+    function importData(e) {
+        const file = e.target.files[0];
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function(evt) {
             try {
-                const importedAccounts = JSON.parse(e.target.result);
-                if (Array.isArray(importedAccounts)) {
-                    accounts = importedAccounts;
+                const parsed = JSON.parse(evt.target.result);
+                if (Array.isArray(parsed)) {
+                    accounts = parsed;
                     saveAndRender();
-                    alert('데이터가 성공적으로 복원되었습니다.');
+                    alert('원장 데이터 복원 완료.');
                 } else {
-                    alert('유효하지 않은 파일 형식입니다.');
+                    alert('파일 파싱 에러 발생.');
                 }
-            } catch (error) {
-                alert('파일을 읽는 도중 오류가 발생했습니다.');
+            } catch(err) {
+                alert('파일 복원 중 오류가 발생했습니다.');
             }
         };
         reader.readAsText(file);
