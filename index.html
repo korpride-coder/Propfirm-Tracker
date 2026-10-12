@@ -61,7 +61,18 @@
             box-shadow: 0 0 25px rgba(255, 183, 3, 0.15);
         }
 
-        .brand-zone { display: flex; align-items: center; gap: 16px; }
+        .brand-zone {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-logo {
+            width: 52px;
+            height: 52px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(255, 86, 7, 0.6));
+        }
 
         .brand-title {
             margin: 0;
@@ -79,33 +90,6 @@
             font-size: 0.72rem;
             color: var(--neon-blue);
             letter-spacing: 2px;
-        }
-
-        .terminal-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .nav-tab-btn {
-            background: rgba(10, 10, 14, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: var(--text-dim);
-            padding: 10px 24px;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: bold;
-            letter-spacing: 1.5px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .nav-tab-btn.active {
-            color: #000;
-            background: linear-gradient(135deg, var(--ff-yellow), var(--ff-orange));
-            border-color: var(--ff-yellow);
-            box-shadow: 0 0 16px rgba(255, 183, 3, 0.4);
         }
 
         .terminal-panel {
@@ -169,6 +153,107 @@
             font-size: 1.6rem;
             font-weight: 900;
         }
+
+        /* 캘린더 인터페이스 */
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .cal-nav-btn {
+            background: transparent;
+            color: var(--ff-yellow);
+            border: 1px solid var(--ff-yellow);
+            padding: 5px 12px;
+            font-family: inherit;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+
+        .cal-day-header {
+            text-align: center;
+            padding: 8px 4px;
+            font-size: 0.75rem;
+            color: var(--ff-yellow);
+            background: rgba(255, 183, 3, 0.1);
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .cal-cell {
+            min-height: 80px;
+            background: rgba(5, 5, 8, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .cal-cell:hover {
+            border-color: var(--ff-yellow);
+            background: rgba(255, 183, 3, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .cal-cell.empty {
+            background: rgba(0, 0, 0, 0.3);
+            border-color: transparent;
+            cursor: default;
+        }
+
+        .cal-cell-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cal-date-num {
+            font-size: 0.76rem;
+            color: var(--text-dim);
+            font-weight: bold;
+        }
+
+        .cal-today {
+            border: 1px solid var(--neon-blue);
+            box-shadow: inset 0 0 8px rgba(0, 240, 255, 0.2);
+        }
+
+        /* 네온 그린 노트 인디케이터 점 */
+        .neon-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--neon-green);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px var(--neon-green);
+        }
+
+        .cal-pnl-pill {
+            font-size: 0.72rem;
+            font-weight: bold;
+            padding: 2px 4px;
+            border-radius: 2px;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        .pill-positive { color: var(--neon-green); background: rgba(0, 255, 102, 0.12); }
+        .pill-negative { color: var(--ff-red); background: rgba(255, 0, 85, 0.12); }
 
         .input-grid {
             display: grid;
@@ -281,19 +366,48 @@
 
         .btn-pnl { color: var(--neon-blue); border: 1px solid var(--neon-blue); }
         .btn-target { color: var(--ff-yellow); border: 1px solid var(--ff-yellow); }
-        .btn-note { color: var(--neon-purple); border: 1px solid var(--neon-purple); }
         .btn-del { color: #777; border: 1px solid #444; }
 
-        .metric-callout {
-            font-size: 0.75rem;
-            padding: 3px 6px;
-            border-radius: 3px;
-            background: rgba(255, 255, 255, 0.05);
-            display: inline-block;
-            margin-top: 3px;
+        /* 노트 카드 뷰 */
+        .notes-list-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 16px;
         }
 
-        /* MODAL */
+        .note-card {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 3px solid var(--neon-green);
+            border-radius: 4px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .note-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.74rem;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
+        .note-img-thumb {
+            max-width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-top: 8px;
+            border: 1px solid #333;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .note-img-thumb:hover { transform: scale(1.02); border-color: var(--ff-yellow); }
+
+        /* 모달 공통 */
         .cyber-modal {
             display: none;
             position: fixed;
@@ -312,6 +426,28 @@
             width: 90%; max-width: 650px;
             border-radius: 6px;
             padding: 24px;
+            max-height: 88vh;
+            overflow-y: auto;
+        }
+
+        /* 이미지 원본 모달 */
+        #imageOriginalModal .cyber-modal-content {
+            max-width: 95vw;
+            width: auto;
+            max-height: 95vh;
+            padding: 14px;
+            background: rgba(4, 4, 6, 0.96);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #originalImageDisplay {
+            max-width: 90vw;
+            max-height: 85vh;
+            object-fit: contain;
+            border: 1px solid #444;
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -322,15 +458,14 @@
 <div class="container">
     <header class="terminal-header">
         <div class="brand-zone">
+            <img src="FF.png" alt="FF Logo" class="brand-logo" onerror="this.style.display='none'">
             <div>
                 <h1 class="brand-title">FF PROP TERMINAL</h1>
-                <p class="brand-subtitle">1 NQ Metrics • Consistency Calculator • Detached Market Notes</p>
+                <p class="brand-subtitle">Interactive PnL Calendar • Neon Notes • 1 NQ Target Blueprint</p>
             </div>
         </div>
         <div style="display: flex; gap: 8px;">
-            <button class="cyber-btn" onclick="openPopoutNotesWindow()" style="background: linear-gradient(135deg, var(--neon-purple), #7209b7); color: #fff;">
-                📑 POP-OUT NOTES (WINDOW)
-            </button>
+            <button class="cyber-btn-outline" onclick="openNoteModalForDate(new Date().toISOString().slice(0, 10))">+ NEW NOTE (TODAY)</button>
             <button class="cyber-btn-outline" onclick="exportData()">EXPORT JSON</button>
             <button class="cyber-btn-outline" onclick="document.getElementById('fileInput').click()">IMPORT JSON</button>
             <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="importData(event)">
@@ -339,32 +474,62 @@
 
     <div class="stat-grid">
         <div class="stat-card blue">
-            <div class="stat-label">TOTAL OPERATIONAL ACCOUNTS</div>
+            <div class="stat-label">OPERATIONAL UNITS (EVAL / PA)</div>
             <div class="stat-value" id="accountCounts" style="color: var(--neon-blue);">0 / 0</div>
         </div>
         <div class="stat-card green">
-            <div class="stat-label">WITHDRAWAL REALIZED</div>
+            <div class="stat-label">TOTAL WITHDRAWAL</div>
             <div class="stat-value" id="taxWithdrawal" style="color: var(--neon-green);">$0</div>
         </div>
         <div class="stat-card pink">
-            <div class="stat-label">EXPENSE RECORDED</div>
+            <div class="stat-label">TOTAL EXPENSE</div>
             <div class="stat-value" id="taxExpense" style="color: var(--ff-red);">$0</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">STANDALONE NOTES FILED</div>
-            <div class="stat-value" id="notesCount" style="color: var(--ff-yellow);">0</div>
+            <div class="stat-label">FILED MARKET NOTES</div>
+            <div class="stat-value" id="notesCount" style="color: var(--neon-green);">0</div>
         </div>
     </div>
 
-    <!-- REGISTRATION -->
+    <!-- PNL CALENDAR WITH INTERACTIVE DATES & NEON GREEN DOTS -->
+    <section class="terminal-panel">
+        <div class="calendar-controls">
+            <div class="panel-heading" style="margin: 0;">TRADING ACTIVITY &amp; NOTES CALENDAR</div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <div style="display: flex; gap: 5px;">
+                    <button class="cal-nav-btn" onclick="shiftCalendar(-1)">&lt; PREV</button>
+                    <span id="calendarMonthTitle" style="color: var(--ff-yellow); font-weight: bold; padding: 4px 8px; font-size: 0.85rem;"></span>
+                    <button class="cal-nav-btn" onclick="shiftCalendar(1)">NEXT &gt;</button>
+                </div>
+                <select id="calAccountFilter" onchange="renderCalendar()" style="padding: 4px 8px; font-size: 0.75rem;">
+                    <option value="ALL">전체 계정 통합</option>
+                </select>
+            </div>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: -6px; margin-bottom: 12px;">
+            * 날짜 셀을 클릭하면 해당 일자의 트레이딩 노트를 작성하거나 확인할 수 있습니다. 노트가 존재하는 날짜는 날짜 번호 옆에 <span class="neon-dot" style="vertical-align: middle;"></span> 표시가 켜집니다.
+        </div>
+        <div class="cal-grid" id="calendarDays">
+            <div class="cal-day-header">SUN</div>
+            <div class="cal-day-header">MON</div>
+            <div class="cal-day-header">TUE</div>
+            <div class="cal-day-header">WED</div>
+            <div class="cal-day-header">THU</div>
+            <div class="cal-day-header">FRI</div>
+            <div class="cal-day-header">SAT</div>
+        </div>
+        <div class="cal-grid" id="calendarCells" style="margin-top: 6px;"></div>
+    </section>
+
+    <!-- ACCOUNT REGISTRATION -->
     <section class="terminal-panel">
         <div class="panel-heading">ACCOUNT REGISTRATION PROTOCOL</div>
         <div class="input-grid">
             <div class="field-group">
                 <label>자산군 (ASSET CLASS)</label>
                 <select id="assetClass">
-                    <option value="FUTURES">FUTURES (NQ/ES/CL)</option>
-                    <option value="CRYPTO">CRYPTO (Perpetuals)</option>
+                    <option value="FUTURES">FUTURES (나스닥/골드 등)</option>
+                    <option value="CRYPTO">CRYPTO (하이퍼리퀴드 등)</option>
                 </select>
             </div>
             <div class="field-group">
@@ -372,8 +537,8 @@
                 <input type="text" id="platform" placeholder="APEX, TRADEIFY, BREAKOUT">
             </div>
             <div class="field-group">
-                <label>계정 ID/태그</label>
-                <input type="text" id="accountNum" placeholder="예: 01 또는 250K-PA">
+                <label>계정 식별 태그</label>
+                <input type="text" id="accountNum" placeholder="예: 01 또는 93821">
             </div>
             <div class="field-group">
                 <label>사이즈 (SIZE)</label>
@@ -404,10 +569,10 @@
                 <input type="number" id="expenseAmount" placeholder="150">
             </div>
         </div>
-        <button class="cyber-btn" type="button" onclick="addAccount()">REGISTER ACCOUNT</button>
+        <button class="cyber-btn" type="button" onclick="addAccount()">REGISTER UNIT</button>
     </section>
 
-    <!-- ACTIVE ACCOUNTS WITH 1 NQ METRICS & DRAWDOWN BUFFER -->
+    <!-- ACTIVE PROP ACCOUNTS TABLE -->
     <section class="terminal-panel">
         <div class="panel-heading">PROP ACCOUNT PERFORMANCE &amp; RISK RADAR</div>
         <div class="table-wrap">
@@ -427,16 +592,67 @@
             </table>
         </div>
     </section>
+
+    <!-- MASTER NOTES DESK SECTION (VIEW, EDIT, DELETE & PREVIEW) -->
+    <section class="terminal-panel" id="masterNotesSection">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+            <div class="panel-heading" style="margin: 0; color: var(--neon-green);">MARKET NOTES DESK &amp; LEDGER</div>
+            <div style="display: flex; gap: 8px;">
+                <select id="notesFilterSelect" onchange="renderNotesList()" style="padding: 4px 8px; font-size: 0.75rem;">
+                    <option value="ALL">전체 노트 보기</option>
+                </select>
+            </div>
+        </div>
+        <div id="notesContainer" class="notes-list-grid"></div>
+    </section>
 </div>
 
-<!-- INLINE NOTE / TARGET DETAIL MODAL -->
-<div class="cyber-modal" id="metricDetailModal">
+<!-- NOTE MODAL (INPUT & EDIT) -->
+<div class="cyber-modal" id="noteInputModal">
     <div class="cyber-modal-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div class="panel-heading" style="margin: 0;" id="metricModalTitle">ACCOUNT METRICS &amp; NQ BLUEPRINT</div>
-            <button class="cyber-btn-outline" onclick="closeMetricModal()">X CLOSE</button>
+            <div class="panel-heading" style="margin: 0;" id="noteModalTitle">WRITE / EDIT TRADING NOTE</div>
+            <button class="cyber-btn-outline" onclick="closeNoteModal()">X CLOSE</button>
         </div>
-        <div id="metricModalBody" style="font-size: 0.85rem; line-height: 1.6; color: #ddd;"></div>
+        <input type="hidden" id="editingNoteId">
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="field-group">
+                    <label>적용 계정 (DEFAULT: NONE)</label>
+                    <select id="noteAccountSelect"></select>
+                </div>
+                <div class="field-group">
+                    <label>날짜 (DATE)</label>
+                    <input type="date" id="noteDateInput">
+                </div>
+            </div>
+            <div class="field-group">
+                <label>디스코드 / 차트 이미지 링크 (IMAGE URL)</label>
+                <input type="text" id="noteImageUrlInput" placeholder="https://cdn.discordapp.com/attachments/... 또는 웹 이미지 링크" oninput="updateModalImagePreview()">
+                <div id="modalImagePreviewWrap" style="margin-top: 6px; display: none;">
+                    <img id="modalImagePreview" src="" style="max-height: 120px; border-radius: 4px; border: 1px solid #444;">
+                </div>
+            </div>
+            <div class="field-group">
+                <label>노트 내용 (ANALYSIS, LEVELS, PSYCHOLOGY)</label>
+                <textarea id="noteTextInput" rows="5" placeholder="NQ 매매 근거, 주요 레벨, 지켜야 할 원칙 등을 기록하세요..."></textarea>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+            <button class="cyber-btn-outline" onclick="closeNoteModal()">취소</button>
+            <button class="cyber-btn" onclick="saveNoteFromModal()">SAVE NOTE</button>
+        </div>
+    </div>
+</div>
+
+<!-- ORIGINAL IMAGE VIEWER MODAL -->
+<div class="cyber-modal" id="imageOriginalModal" onclick="closeImageOriginalModal()">
+    <div class="cyber-modal-content" onclick="event.stopPropagation()">
+        <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 8px;">
+            <span style="color: var(--ff-yellow); font-size: 0.8rem; font-weight: bold;">ORIGINAL RESOLUTION VIEW</span>
+            <button class="cyber-btn-outline" onclick="closeImageOriginalModal()">X CLOSE</button>
+        </div>
+        <img id="originalImageDisplay" src="" alt="Original Resolution">
     </div>
 </div>
 
@@ -455,7 +671,7 @@
         if (!Array.isArray(globalNotes)) globalNotes = [];
     } catch(e) { globalNotes = []; }
 
-    let popoutWindowRef = null;
+    let currentCalendarDate = new Date();
 
     function sanitizeAccounts(list) {
         list.forEach(a => {
@@ -472,6 +688,25 @@
     }
     sanitizeAccounts(accounts);
 
+    function saveData() {
+        localStorage.setItem('tradingAccounts', JSON.stringify(accounts));
+        localStorage.setItem('ff_market_notes', JSON.stringify(globalNotes));
+        updateSummary();
+    }
+
+    function updateSummary() {
+        const active = accounts.filter(a => !a.isRetired);
+        const evals = active.filter(a => a.status !== 'FUNDED').length;
+        const pas = active.filter(a => a.status === 'FUNDED').length;
+        document.getElementById('accountCounts').innerText = `${evals} / ${pas}`;
+        
+        const totalExp = active.reduce((s, a) => s + (a.expenses ? (a.expenses.amount || 0) : 0), 0);
+        const totalWd = active.reduce((s, a) => s + (a.withdrawals || 0), 0);
+        document.getElementById('taxExpense').innerText = `$${totalExp.toLocaleString()}`;
+        document.getElementById('taxWithdrawal').innerText = `$${totalWd.toLocaleString()}`;
+        document.getElementById('notesCount').innerText = globalNotes.length;
+    }
+
     function addAccount() {
         const assetClass = document.getElementById('assetClass').value;
         const platform = document.getElementById('platform').value.toUpperCase().trim();
@@ -485,7 +720,7 @@
         const expenseAmount = parseFloat(document.getElementById('expenseAmount').value) || 0;
 
         if (!platform || !accountNum) {
-            alert('플랫폼과 계정 식별값을 입력해주세요.');
+            alert('플랫폼명과 계정 식별값을 입력해주세요.');
             return;
         }
 
@@ -512,26 +747,8 @@
         accounts.push(newAccount);
         saveData();
         renderAccounts();
-        broadcastNotesUpdate();
-    }
-
-    function saveData() {
-        localStorage.setItem('tradingAccounts', JSON.stringify(accounts));
-        localStorage.setItem('ff_market_notes', JSON.stringify(globalNotes));
-        updateSummary();
-    }
-
-    function updateSummary() {
-        const active = accounts.filter(a => !a.isRetired);
-        const evals = active.filter(a => a.status !== 'FUNDED').length;
-        const pas = active.filter(a => a.status === 'FUNDED').length;
-        document.getElementById('accountCounts').innerText = `${evals} / ${pas}`;
-        
-        const totalExp = active.reduce((s, a) => s + (a.expenses ? (a.expenses.amount || 0) : 0), 0);
-        const totalWd = active.reduce((s, a) => s + (a.withdrawals || 0), 0);
-        document.getElementById('taxExpense').innerText = `$${totalExp.toLocaleString()}`;
-        document.getElementById('taxWithdrawal').innerText = `$${totalWd.toLocaleString()}`;
-        document.getElementById('notesCount').innerText = globalNotes.length;
+        populateAccountDropdowns();
+        renderCalendar();
     }
 
     function recordActualBalance(id) {
@@ -546,7 +763,7 @@
 
         const prevBal = acc.currentBalance;
         const diff = Math.round((newBal - prevBal) * 100) / 100;
-        const dateTag = prompt('날짜 (YYYY-MM-DD):', new Date().toISOString().slice(0, 10)) || new Date().toISOString().slice(0, 10);
+        const dateTag = prompt('적용 날짜 (YYYY-MM-DD):', new Date().toISOString().slice(0, 10)) || new Date().toISOString().slice(0, 10);
 
         acc.currentBalance = newBal;
         acc.totalPnl = Math.round((acc.totalPnl + diff) * 100) / 100;
@@ -554,6 +771,7 @@
 
         saveData();
         renderAccounts();
+        renderCalendar();
     }
 
     function renderAccounts() {
@@ -568,11 +786,11 @@
             const target = acc.target || 0;
             const remainingTarget = Math.max(0, target - currentPnl);
 
-            // 1 NQ calculations (1 pt = $20, 1 tick = 0.25 pt = $5)
+            // 1 NQ 환산 계산 (1 pt = $20, 1 tick = $5)
             const ptsNeeded = (remainingTarget / 20).toFixed(2);
             const ticksNeeded = Math.round(remainingTarget / 5);
 
-            // Consistency Diagnostics
+            // 일관성 룰 진단
             let consistencyMaxDay = '-';
             let consistencyStatus = '규정 없음';
             if (acc.consistency && acc.consistency !== '없음') {
@@ -582,28 +800,25 @@
                     consistencyMaxDay = `$${maxAllowedInSingleDay.toLocaleString()}`;
                     const highestDayPnl = acc.pnlHistory.reduce((max, h) => Math.max(max, h.amount || 0), 0);
                     if (highestDayPnl > maxAllowedInSingleDay) {
-                        consistencyStatus = `<span style="color:var(--ff-red);">위반/초과 ($${highestDayPnl})</span>`;
+                        consistencyStatus = `<span style="color:var(--ff-red);">위반/초과 ($${highestDayPnl.toLocaleString()})</span>`;
                     } else {
-                        consistencyStatus = `<span style="color:var(--neon-green);">준수중 (최대일: $${highestDayPnl})</span>`;
+                        consistencyStatus = `<span style="color:var(--neon-green);">준수중 (최고: $${highestDayPnl.toLocaleString()})</span>`;
                     }
                 }
             }
 
-            // Drawdown Buffer calculations
-            // Daily Drawdown: today's loss relative to daily limit
+            // 드로우다운 안전 버퍼
             const todayStr = new Date().toISOString().slice(0, 10);
             const todayTrades = acc.pnlHistory.filter(h => h.date === todayStr);
             const todayPnl = todayTrades.reduce((s, h) => s + (h.amount || 0), 0);
             
             let dailyDdBuffer = '무제한';
             if (acc.dailyDd > 0) {
-                const remDaily = acc.dailyDd + todayPnl; // If lost $400 of $1000, 1000 + (-400) = $600 remaining
+                const remDaily = acc.dailyDd + todayPnl;
                 dailyDdBuffer = `$${Math.max(0, remDaily).toLocaleString()} 남음`;
             }
 
-            // Hard / Max Drawdown Buffer
             const maxDdBuffer = acc.hardDd > 0 ? `$${Math.max(0, acc.hardDd + currentPnl).toLocaleString()} 남음` : '-';
-
             const progress = target > 0 ? Math.min(100, Math.max(0, (currentPnl / target) * 100)) : 0;
             const pnlColor = currentPnl >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
 
@@ -622,7 +837,7 @@
                 </td>
                 <td>
                     <div><strong>$${remainingTarget.toLocaleString()}</strong> 남음 (${progress.toFixed(1)}%)</div>
-                    <div class="metric-callout" style="color: var(--neon-blue);">
+                    <div style="font-size:0.75rem; color: var(--neon-blue); margin-top:2px;">
                         1 NQ: <strong>${ptsNeeded} pts</strong> (${ticksNeeded.toLocaleString()} ticks)
                     </div>
                     <div class="prog-bg"><div class="prog-bar eval" style="width: ${progress}%;"></div></div>
@@ -639,8 +854,7 @@
                 <td>
                     <div class="action-row">
                         <button class="btn-act btn-pnl" onclick="recordActualBalance(${acc.id})">잔고입력</button>
-                        <button class="btn-act btn-target" onclick="showMetricModal(${acc.id})">상세분석</button>
-                        <button class="btn-act btn-note" onclick="openPopoutNotesWindow(${acc.id})">노트작성</button>
+                        <button class="btn-act btn-target" onclick="openNoteModalForAccount(${acc.id})">노트</button>
                         <button class="btn-act btn-del" onclick="deleteAccount(${acc.id})">삭제</button>
                     </div>
                 </td>
@@ -649,282 +863,288 @@
         });
     }
 
-    function showMetricModal(id) {
-        const acc = accounts.find(a => a.id === id);
-        if (!acc) return;
-
-        const currentPnl = acc.totalPnl || 0;
-        const target = acc.target || 0;
-        const remainingTarget = Math.max(0, target - currentPnl);
-        const ptsNeeded = (remainingTarget / 20).toFixed(2);
-        const ticksNeeded = Math.round(remainingTarget / 5);
-
-        let consistencyHtml = '일관성 룰이 설정되지 않았습니다.';
-        if (acc.consistency && acc.consistency !== '없음') {
-            const pct = parseFloat(acc.consistency.replace('%', '')) / 100;
-            const maxProfitPerDay = Math.round(target * pct);
-            const nqPtsCap = (maxProfitPerDay / 20).toFixed(2);
-            consistencyHtml = `
-                • <strong>${acc.consistency} 일관성 상한:</strong> 하루 최대 이익 <strong>$${maxProfitPerDay.toLocaleString()}</strong> 까지만 유효 인정.<br>
-                • <strong>1 NQ 기준 일일 권장 캡:</strong> 하루에 <strong>+${nqPtsCap} 포인트 (${Math.round(maxProfitPerDay / 5)} 틱)</strong> 이상은 무리해서 홀딩하지 말고 분할/종료 권장.
-            `;
-        }
-
-        document.getElementById('metricModalTitle').innerText = `[${acc.name}] NQ TRADING BLUEPRINT`;
-        document.getElementById('metricModalBody').innerHTML = `
-            <div style="background: rgba(0,0,0,0.5); padding: 12px; border-left: 3px solid var(--neon-blue); margin-bottom: 12px;">
-                <strong>▶ 1 NQ Mini 타겟 도달 계산표 ($20 per Pt / $5 per Tick)</strong><br>
-                • 목표 잔여액: <strong style="color:var(--ff-yellow);">$${remainingTarget.toLocaleString()}</strong><br>
-                • 1 NQ 계약 필요 포인트: <strong style="color:var(--neon-green);">${ptsNeeded} Points</strong><br>
-                • 1 NQ 계약 필요 틱 수: <strong style="color:var(--neon-green);">${ticksNeeded.toLocaleString()} Ticks</strong>
-            </div>
-            <div style="background: rgba(0,0,0,0.5); padding: 12px; border-left: 3px solid var(--ff-yellow); margin-bottom: 12px;">
-                <strong>▶ 일관성 룰 (Consistency Rule) 전략</strong><br>
-                ${consistencyHtml}
-            </div>
-            <div style="background: rgba(0,0,0,0.5); padding: 12px; border-left: 3px solid var(--ff-red);">
-                <strong>▶ 드로우다운(DD) 리스크 버퍼 상태</strong><br>
-                • 현재 잔고: <strong>$${acc.currentBalance.toLocaleString()}</strong> (시작: $${acc.initialBalance.toLocaleString()})<br>
-                • 하드/맥스 DD 한도: <strong>$${acc.hardDd.toLocaleString()}</strong> (남은 생명력: <strong style="color:var(--neon-green);">$${Math.max(0, acc.hardDd + currentPnl).toLocaleString()}</strong>)<br>
-                • 데일리 DD 한도: <strong>${acc.dailyDd > 0 ? '$' + acc.dailyDd.toLocaleString() : '무제한'}</strong>
-            </div>
-        `;
-        document.getElementById('metricDetailModal').style.display = 'flex';
-    }
-
-    function closeMetricModal() {
-        document.getElementById('metricDetailModal').style.display = 'none';
-    }
-
     function deleteAccount(id) {
         if (confirm('계정을 삭제하시겠습니까?')) {
             accounts = accounts.filter(a => a.id !== id);
             saveData();
             renderAccounts();
-            broadcastNotesUpdate();
+            populateAccountDropdowns();
+            renderCalendar();
         }
     }
 
-    /* -------------------------------------------------------------
-       POPOUT NOTE WINDOW LOGIC (Market Hours Multi-Monitor Pop-Out)
-       ------------------------------------------------------------- */
-    function openPopoutNotesWindow(presetAccountId = null) {
-        const url = 'about:blank';
-        const winFeatures = 'width=520,height=780,resizable=yes,scrollbars=yes,status=no,toolbar=no,menubar=no,location=no';
-        
-        if (popoutWindowRef && !popoutWindowRef.closed) {
-            popoutWindowRef.focus();
-            if (presetAccountId) {
-                popoutWindowRef.selectAccount(presetAccountId);
-            }
-            return;
+    /* 캘린더 네온 그린 도트 렌더링 */
+    function shiftCalendar(delta) {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+        renderCalendar();
+    }
+
+    function renderCalendar() {
+        const calMonthEl = document.getElementById('calendarMonthTitle');
+        const grid = document.getElementById('calendarCells');
+        const accSelect = document.getElementById('calAccountFilter');
+        if (!calMonthEl || !grid || !accSelect) return;
+
+        const year = currentCalendarDate.getFullYear();
+        const month = currentCalendarDate.getMonth();
+        const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+        calMonthEl.innerText = `${monthNames[month]} ${year}`;
+
+        const activeAccounts = accounts.filter(a => !a.isRetired);
+        const selVal = accSelect.value;
+        accSelect.innerHTML = '<option value="ALL">전체 계정 통합</option>';
+        activeAccounts.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id;
+            opt.text = `[${a.assetClass}] ${a.name}`;
+            if (a.id == selVal) opt.selected = true;
+            accSelect.appendChild(opt);
+        });
+
+        const targetAccId = accSelect.value;
+        let targetAccounts = [...activeAccounts];
+        if (targetAccId !== 'ALL') {
+            targetAccounts = targetAccounts.filter(a => a.id == targetAccId);
         }
 
-        popoutWindowRef = window.open(url, 'FF_NOTES_POPOUT', winFeatures);
-        if (!popoutWindowRef) {
-            alert('팝업 창이 차단되었습니다. 팝업 차단을 허용해 주세요.');
-            return;
+        const firstDayIdx = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        grid.innerHTML = '';
+
+        for (let i = 0; i < firstDayIdx; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.className = 'cal-cell empty';
+            grid.appendChild(emptyCell);
         }
 
-        const html = `
-        <!DOCTYPE html>
-        <html lang="ko">
-        <head>
-            <meta charset="UTF-8">
-            <title>FF NOTES DESK (POP-OUT)</title>
-            <style>
-                body {
-                    margin: 0; padding: 14px;
-                    background: #08080c; color: #fff;
-                    font-family: 'Consolas', 'Courier New', monospace;
-                    font-size: 13px;
-                }
-                * { box-sizing: border-box; }
-                h3 { margin: 0 0 10px 0; color: #ffb703; letter-spacing: 1.5px; font-size: 14px; text-transform: uppercase; }
-                .input-box { display: flex; flex-direction: column; gap: 8px; background: #101016; padding: 12px; border-radius: 6px; border: 1px solid #333; margin-bottom: 14px; }
-                label { font-size: 11px; color: #888; text-transform: uppercase; }
-                input, select, textarea {
-                    background: #000; border: 1px solid #333; color: #fff;
-                    padding: 8px; font-family: inherit; font-size: 12px; border-radius: 4px; outline: none;
-                }
-                input:focus, select:focus, textarea:focus { border-color: #ffb703; }
-                .btn-add {
-                    background: linear-gradient(135deg, #ffb703, #fb5607);
-                    color: #000; font-weight: bold; border: none; padding: 10px;
-                    border-radius: 4px; cursor: pointer; letter-spacing: 1px;
-                }
-                .notes-list { display: flex; flex-direction: column; gap: 10px; max-height: 480px; overflow-y: auto; }
-                .note-item {
-                    background: #14141c; border-left: 3px solid #ffb703;
-                    border: 1px solid #222; border-left-width: 3px;
-                    border-radius: 4px; padding: 10px; font-size: 12px;
-                }
-                .note-top { display: flex; justify-content: space-between; align-items: center; color: #888; font-size: 11px; margin-bottom: 6px; }
-                .btn-del { background: transparent; border: 1px solid #555; color: #aaa; cursor: pointer; border-radius: 2px; padding: 2px 6px; font-size: 10px; }
-                .btn-del:hover { color: #ff0055; border-color: #ff0055; }
-                .img-preview { max-width: 100%; border-radius: 4px; margin-top: 8px; border: 1px solid #444; display: block; }
-            </style>
-        </head>
-        <body>
-            <h3>⚡ Live Market Notes Desk</h3>
-            <div class="input-box">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <div>
-                        <label>적용 계정 (Default: None)</label>
-                        <select id="popAccountSelect" style="width: 100%;"></select>
-                    </div>
-                    <div>
-                        <label>날짜 (Default: Today)</label>
-                        <input type="date" id="popDateInput" style="width: 100%;">
-                    </div>
-                </div>
-                <div>
-                    <label>디스코드 / 이미지 링크 (Discord Image URL)</label>
-                    <input type="text" id="popImageUrl" placeholder="https://cdn.discordapp.com/attachments/..." style="width: 100%;">
-                </div>
-                <div>
-                    <label>노트 내용 (Trade Plan, Psychology, Levels)</label>
-                    <textarea id="popNoteText" rows="3" placeholder="NQ 지지저항, 진입 근거, 심리 상태 기록..." style="width: 100%;"></textarea>
-                </div>
-                <button class="btn-add" onclick="submitNote()">ADD TO TERMINAL LEDGER</button>
-            </div>
+        const todayStr = new Date().toISOString().slice(0, 10);
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="color: #aaa; font-size: 11px;">RECORDS FEED</span>
-                <span id="popCountNotice" style="color: #00ff66; font-size: 11px;"></span>
-            </div>
-            <div class="notes-list" id="popNotesContainer"></div>
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            const cell = document.createElement('div');
+            cell.className = 'cal-cell';
+            if (dayStr === todayStr) cell.classList.add('cal-today');
 
-            <script>
-                const openerRef = window.opener;
+            cell.onclick = () => openNoteModalForDate(dayStr);
 
-                function initPopout() {
-                    document.getElementById('popDateInput').value = new Date().toISOString().slice(0, 10);
-                    refreshAccountsDropdown();
-                    renderNotesFeed();
-                }
+            let dailySum = 0;
+            let hasTrades = false;
 
-                function refreshAccountsDropdown() {
-                    const sel = document.getElementById('popAccountSelect');
-                    sel.innerHTML = '<option value="NONE" selected>NONE (General / Non-Account)</option>';
-                    if (openerRef && openerRef.accounts) {
-                        openerRef.accounts.filter(a => !a.isRetired).forEach(a => {
-                            const opt = document.createElement('option');
-                            opt.value = a.id;
-                            opt.text = '[' + a.assetClass + '] ' + a.name;
-                            sel.appendChild(opt);
-                        });
-                    }
-                }
-
-                function selectAccount(accId) {
-                    const sel = document.getElementById('popAccountSelect');
-                    if (sel) sel.value = accId;
-                }
-
-                function submitNote() {
-                    const accId = document.getElementById('popAccountSelect').value;
-                    const date = document.getElementById('popDateInput').value || new Date().toISOString().slice(0, 10);
-                    const imgUrl = document.getElementById('popImageUrl').value.trim();
-                    const text = document.getElementById('popNoteText').value.trim();
-
-                    if (!text && !imgUrl) {
-                        alert('내용이나 이미지 링크 중 하나는 입력해야 합니다.');
-                        return;
-                    }
-
-                    let accLabel = 'GENERAL';
-                    if (accId !== 'NONE' && openerRef) {
-                        const target = openerRef.accounts.find(a => a.id == accId);
-                        if (target) accLabel = target.name;
-                    }
-
-                    const newNote = {
-                        id: Date.now(),
-                        accountId: accId,
-                        accountLabel: accLabel,
-                        date: date,
-                        text: text,
-                        imageUrl: imgUrl
-                    };
-
-                    if (openerRef) {
-                        openerRef.globalNotes.unshift(newNote);
-                        openerRef.saveData();
-                    }
-
-                    document.getElementById('popNoteText').value = '';
-                    document.getElementById('popImageUrl').value = '';
-                    renderNotesFeed();
-                }
-
-                function renderNotesFeed() {
-                    const cont = document.getElementById('popNotesContainer');
-                    cont.innerHTML = '';
-                    if (!openerRef || !openerRef.globalNotes) return;
-
-                    openerRef.globalNotes.forEach(n => {
-                        const item = document.createElement('div');
-                        item.className = 'note-item';
-                        
-                        let imgBlock = '';
-                        if (n.imageUrl) {
-                            imgBlock = '<a href="' + n.imageUrl + '" target="_blank"><img src="' + n.imageUrl + '" class="img-preview" onerror="this.style.display=\\'none\\'"></a>';
+            targetAccounts.forEach(a => {
+                if (a.pnlHistory) {
+                    a.pnlHistory.forEach(h => {
+                        if (h.date === dayStr) {
+                            dailySum += h.amount;
+                            hasTrades = true;
                         }
-
-                        item.innerHTML = \`
-                            <div class="note-top">
-                                <span><strong style="color: #ffb703;">[\${n.accountLabel}]</strong> \${n.date}</span>
-                                <button class="btn-del" onclick="deleteNote(\${n.id})">DELETE</button>
-                            </div>
-                            <div style="line-height: 1.4; color: #eee; white-space: pre-wrap;">\${n.text}</div>
-                            \${imgBlock}
-                        \`;
-                        cont.appendChild(item);
                     });
-
-                    document.getElementById('popCountNotice').innerText = openerRef.globalNotes.length + ' Total';
                 }
+            });
 
-                function deleteNote(id) {
-                    if (confirm('이 노트를 삭제하시겠습니까?')) {
-                        if (openerRef) {
-                            openerRef.globalNotes = openerRef.globalNotes.filter(n => n.id !== id);
-                            openerRef.saveData();
-                        }
-                        renderNotesFeed();
-                    }
-                }
+            const hasNotes = globalNotes.some(n => n.date === dayStr);
 
-                window.onload = initPopout;
-            <\/script>
-        </body>
-        </html>
-        `;
+            let pnlHtml = '';
+            if (hasTrades) {
+                const pnlClass = dailySum >= 0 ? 'pill-positive' : 'pill-negative';
+                pnlHtml = `<div class="cal-pnl-pill ${pnlClass}">${dailySum >= 0 ? '+' : ''}$${dailySum.toLocaleString()}</div>`;
+            }
 
-        popoutWindowRef.document.open();
-        popoutWindowRef.document.write(html);
-        popoutWindowRef.document.close();
-
-        if (presetAccountId) {
-            setTimeout(() => {
-                if (popoutWindowRef && popoutWindowRef.selectAccount) {
-                    popoutWindowRef.selectAccount(presetAccountId);
-                }
-            }, 300);
+            cell.innerHTML = `
+                <div class="cal-cell-top">
+                    <span class="cal-date-num">${d}</span>
+                    ${hasNotes ? '<span class="neon-dot" title="노트 작성됨"></span>' : '<span></span>'}
+                </div>
+                <div>${pnlHtml}</div>
+            `;
+            grid.appendChild(cell);
         }
     }
 
-    function broadcastNotesUpdate() {
-        if (popoutWindowRef && !popoutWindowRef.closed) {
-            popoutWindowRef.refreshAccountsDropdown();
-            popoutWindowRef.renderNotesFeed();
+    /* 통합 마스터 노트 관리 (모달, 수정, 삭제, 이미지 프리뷰 및 원본 팝업) */
+    function populateAccountDropdowns() {
+        const modalSelect = document.getElementById('noteAccountSelect');
+        const filterSelect = document.getElementById('notesFilterSelect');
+        if (!modalSelect) return;
+
+        modalSelect.innerHTML = '<option value="NONE" selected>NONE (General / Non-Account)</option>';
+        if (filterSelect) {
+            filterSelect.innerHTML = '<option value="ALL">전체 노트 보기</option><option value="NONE">General (Non-Account)</option>';
         }
+
+        const active = accounts.filter(a => !a.isRetired);
+        active.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id;
+            opt.text = `[${a.assetClass}] ${a.name}`;
+            modalSelect.appendChild(opt);
+
+            if (filterSelect) {
+                const fOpt = document.createElement('option');
+                fOpt.value = a.id;
+                fOpt.text = `[${a.assetClass}] ${a.name}`;
+                filterSelect.appendChild(fOpt);
+            }
+        });
+    }
+
+    function openNoteModalForDate(dateStr) {
+        document.getElementById('editingNoteId').value = '';
+        document.getElementById('noteModalTitle').innerText = `WRITE NOTE (${dateStr})`;
+        document.getElementById('noteAccountSelect').value = 'NONE';
+        document.getElementById('noteDateInput').value = dateStr;
+        document.getElementById('noteImageUrlInput').value = '';
+        document.getElementById('noteTextInput').value = '';
+        updateModalImagePreview();
+        document.getElementById('noteInputModal').style.display = 'flex';
+    }
+
+    function openNoteModalForAccount(accId) {
+        openNoteModalForDate(new Date().toISOString().slice(0, 10));
+        document.getElementById('noteAccountSelect').value = accId;
+    }
+
+    function editNote(noteId) {
+        const note = globalNotes.find(n => n.id === noteId);
+        if (!note) return;
+
+        document.getElementById('editingNoteId').value = note.id;
+        document.getElementById('noteModalTitle').innerText = `EDIT NOTE (${note.date})`;
+        document.getElementById('noteAccountSelect').value = note.accountId || 'NONE';
+        document.getElementById('noteDateInput').value = note.date;
+        document.getElementById('noteImageUrlInput').value = note.imageUrl || '';
+        document.getElementById('noteTextInput').value = note.text || '';
+        updateModalImagePreview();
+        document.getElementById('noteInputModal').style.display = 'flex';
+    }
+
+    function closeNoteModal() {
+        document.getElementById('noteInputModal').style.display = 'none';
+    }
+
+    function updateModalImagePreview() {
+        const url = document.getElementById('noteImageUrlInput').value.trim();
+        const wrap = document.getElementById('modalImagePreviewWrap');
+        const img = document.getElementById('modalImagePreview');
+        if (url) {
+            img.src = url;
+            wrap.style.display = 'block';
+            img.onerror = () => { wrap.style.display = 'none'; };
+        } else {
+            wrap.style.display = 'none';
+        }
+    }
+
+    function saveNoteFromModal() {
+        const editingId = document.getElementById('editingNoteId').value;
+        const accId = document.getElementById('noteAccountSelect').value;
+        const date = document.getElementById('noteDateInput').value || new Date().toISOString().slice(0, 10);
+        const imageUrl = document.getElementById('noteImageUrlInput').value.trim();
+        const text = document.getElementById('noteTextInput').value.trim();
+
+        if (!text && !imageUrl) {
+            alert('노트 내용이나 이미지 링크 중 하나는 작성해야 합니다.');
+            return;
+        }
+
+        let accLabel = 'NONE (General)';
+        if (accId !== 'NONE') {
+            const target = accounts.find(a => a.id == accId);
+            if (target) accLabel = target.name;
+        }
+
+        if (editingId) {
+            const targetNote = globalNotes.find(n => n.id == editingId);
+            if (targetNote) {
+                targetNote.accountId = accId;
+                targetNote.accountLabel = accLabel;
+                targetNote.date = date;
+                targetNote.imageUrl = imageUrl;
+                targetNote.text = text;
+            }
+        } else {
+            const newNote = {
+                id: Date.now(),
+                accountId: accId,
+                accountLabel: accLabel,
+                date: date,
+                imageUrl: imageUrl,
+                text: text
+            };
+            globalNotes.unshift(newNote);
+        }
+
+        saveData();
+        closeNoteModal();
+        renderCalendar();
+        renderNotesList();
+    }
+
+    function deleteNote(noteId) {
+        if (confirm('해당 노트를 삭제하시겠습니까?')) {
+            globalNotes = globalNotes.filter(n => n.id !== noteId);
+            saveData();
+            renderCalendar();
+            renderNotesList();
+        }
+    }
+
+    function renderNotesList() {
+        const container = document.getElementById('notesContainer');
+        const filter = document.getElementById('notesFilterSelect').value;
+        if (!container) return;
+        container.innerHTML = '';
+
+        let filtered = [...globalNotes];
+        if (filter !== 'ALL') {
+            filtered = filtered.filter(n => n.accountId == filter);
+        }
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<div style="color: var(--text-dim); font-size: 0.8rem; padding: 14px;">기록된 노트가 없습니다.</div>`;
+            return;
+        }
+
+        filtered.forEach(note => {
+            const card = document.createElement('div');
+            card.className = 'note-card';
+
+            let imgHtml = '';
+            if (note.imageUrl) {
+                imgHtml = `<img src="${note.imageUrl}" class="note-img-thumb" alt="Preview" onclick="showOriginalImage('${note.imageUrl}')" onerror="this.style.display='none'">`;
+            }
+
+            card.innerHTML = `
+                <div>
+                    <div class="note-card-top">
+                        <strong style="color: var(--ff-yellow);">[${note.accountLabel}]</strong>
+                        <span>${note.date}</span>
+                    </div>
+                    <div style="font-size: 0.85rem; line-height: 1.5; color: #eee; white-space: pre-wrap; margin-bottom: 8px;">${note.text}</div>
+                    ${imgHtml}
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 10px;">
+                    <button class="btn-act btn-pnl" onclick="editNote(${note.id})">EDIT</button>
+                    <button class="btn-act btn-del" onclick="deleteNote(${note.id})">DELETE</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function showOriginalImage(url) {
+        const modal = document.getElementById('imageOriginalModal');
+        const img = document.getElementById('originalImageDisplay');
+        img.src = url;
+        modal.style.display = 'flex';
+    }
+
+    function closeImageOriginalModal() {
+        document.getElementById('imageOriginalModal').style.display = 'none';
     }
 
     function exportData() {
         const fullBackup = {
-            version: '3.4',
+            version: '3.5',
             accounts: accounts,
             globalNotes: globalNotes,
             exportedAt: new Date().toISOString()
@@ -949,7 +1169,9 @@
                 sanitizeAccounts(accounts);
                 saveData();
                 renderAccounts();
-                broadcastNotesUpdate();
+                populateAccountDropdowns();
+                renderCalendar();
+                renderNotesList();
                 alert('원장 및 노트 데이터 복원이 완료되었습니다.');
             } catch(err) {
                 alert('파일 파싱 중 오류가 발생했습니다.');
@@ -960,6 +1182,9 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         renderAccounts();
+        populateAccountDropdowns();
+        renderCalendar();
+        renderNotesList();
         updateSummary();
     });
 </script>
