@@ -233,7 +233,6 @@
             box-shadow: inset 0 0 8px rgba(0, 240, 255, 0.2);
         }
 
-        /* 네온 그린 노트 인디케이터 점 */
         .neon-dot {
             width: 8px;
             height: 8px;
@@ -491,7 +490,7 @@
         </div>
     </div>
 
-    <!-- PNL CALENDAR WITH INTERACTIVE DATES & NEON GREEN DOTS -->
+    <!-- 1. PNL CALENDAR WITH INTERACTIVE DATES & NEON GREEN DOTS -->
     <section class="terminal-panel">
         <div class="calendar-controls">
             <div class="panel-heading" style="margin: 0;">TRADING ACTIVITY &amp; NOTES CALENDAR</div>
@@ -521,7 +520,20 @@
         <div class="cal-grid" id="calendarCells" style="margin-top: 6px;"></div>
     </section>
 
-    <!-- ACCOUNT REGISTRATION -->
+    <!-- 2. MARKET NOTES DESK SECTION (PLACED DIRECTLY BETWEEN CALENDAR AND REGISTRATION) -->
+    <section class="terminal-panel" id="masterNotesSection">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+            <div class="panel-heading" style="margin: 0; color: var(--neon-green);">MARKET NOTES DESK &amp; LEDGER</div>
+            <div style="display: flex; gap: 8px;">
+                <select id="notesFilterSelect" onchange="renderNotesList()" style="padding: 4px 8px; font-size: 0.75rem;">
+                    <option value="ALL">전체 노트 보기</option>
+                </select>
+            </div>
+        </div>
+        <div id="notesContainer" class="notes-list-grid"></div>
+    </section>
+
+    <!-- 3. ACCOUNT REGISTRATION PROTOCOL -->
     <section class="terminal-panel">
         <div class="panel-heading">ACCOUNT REGISTRATION PROTOCOL</div>
         <div class="input-grid">
@@ -572,7 +584,7 @@
         <button class="cyber-btn" type="button" onclick="addAccount()">REGISTER UNIT</button>
     </section>
 
-    <!-- ACTIVE PROP ACCOUNTS TABLE -->
+    <!-- 4. ACTIVE PROP ACCOUNTS TABLE -->
     <section class="terminal-panel">
         <div class="panel-heading">PROP ACCOUNT PERFORMANCE &amp; RISK RADAR</div>
         <div class="table-wrap">
@@ -591,19 +603,6 @@
                 <tbody id="accountTableBody"></tbody>
             </table>
         </div>
-    </section>
-
-    <!-- MASTER NOTES DESK SECTION (VIEW, EDIT, DELETE & PREVIEW) -->
-    <section class="terminal-panel" id="masterNotesSection">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
-            <div class="panel-heading" style="margin: 0; color: var(--neon-green);">MARKET NOTES DESK &amp; LEDGER</div>
-            <div style="display: flex; gap: 8px;">
-                <select id="notesFilterSelect" onchange="renderNotesList()" style="padding: 4px 8px; font-size: 0.75rem;">
-                    <option value="ALL">전체 노트 보기</option>
-                </select>
-            </div>
-        </div>
-        <div id="notesContainer" class="notes-list-grid"></div>
     </section>
 </div>
 
@@ -786,11 +785,9 @@
             const target = acc.target || 0;
             const remainingTarget = Math.max(0, target - currentPnl);
 
-            // 1 NQ 환산 계산 (1 pt = $20, 1 tick = $5)
             const ptsNeeded = (remainingTarget / 20).toFixed(2);
             const ticksNeeded = Math.round(remainingTarget / 5);
 
-            // 일관성 룰 진단
             let consistencyMaxDay = '-';
             let consistencyStatus = '규정 없음';
             if (acc.consistency && acc.consistency !== '없음') {
@@ -807,7 +804,6 @@
                 }
             }
 
-            // 드로우다운 안전 버퍼
             const todayStr = new Date().toISOString().slice(0, 10);
             const todayTrades = acc.pnlHistory.filter(h => h.date === todayStr);
             const todayPnl = todayTrades.reduce((s, h) => s + (h.amount || 0), 0);
@@ -1144,7 +1140,7 @@
 
     function exportData() {
         const fullBackup = {
-            version: '3.5',
+            version: '3.6',
             accounts: accounts,
             globalNotes: globalNotes,
             exportedAt: new Date().toISOString()
