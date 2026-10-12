@@ -92,6 +92,73 @@
             letter-spacing: 2px;
         }
 
+        .terminal-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .nav-tab-btn {
+            background: rgba(10, 10, 14, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-dim);
+            padding: 10px 24px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-tab-btn.active {
+            color: #000;
+            background: linear-gradient(135deg, var(--ff-yellow), var(--ff-orange));
+            border-color: var(--ff-yellow);
+            box-shadow: 0 0 16px rgba(255, 183, 3, 0.4);
+        }
+
+        .nav-tab-btn.danger-tab.active {
+            background: linear-gradient(135deg, var(--ff-red), #990033);
+            color: #fff;
+            border-color: var(--ff-red);
+            box-shadow: 0 0 16px rgba(255, 0, 85, 0.5);
+        }
+
+        #inactivityBanner {
+            display: none;
+            background: rgba(255, 0, 85, 0.15);
+            border: 1px solid var(--ff-red);
+            border-left: 5px solid var(--ff-red);
+            padding: 14px 18px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.25);
+        }
+
+        .alert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 0.82rem;
+            color: #ffccd5;
+        }
+        .alert-item:last-child { margin-bottom: 0; }
+
+        .btn-dismiss {
+            background: transparent;
+            color: var(--ff-red);
+            border: 1px solid var(--ff-red);
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            font-family: inherit;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .btn-dismiss:hover { background: var(--ff-red); color: #000; }
+
         .terminal-panel {
             background: var(--panel-bg);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -154,7 +221,6 @@
             font-weight: 900;
         }
 
-        /* 캘린더 인터페이스 */
         .calendar-controls {
             display: flex;
             justify-content: space-between;
@@ -253,6 +319,19 @@
 
         .pill-positive { color: var(--neon-green); background: rgba(0, 255, 102, 0.12); }
         .pill-negative { color: var(--ff-red); background: rgba(255, 0, 85, 0.12); }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+            gap: 20px;
+        }
+
+        .chart-box {
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 18px;
+            border-radius: 6px;
+        }
 
         .input-grid {
             display: grid;
@@ -364,10 +443,16 @@
         }
 
         .btn-pnl { color: var(--neon-blue); border: 1px solid var(--neon-blue); }
+        .btn-hist { color: var(--ff-orange); border: 1px solid var(--ff-orange); }
+        .btn-rule { color: var(--neon-purple); border: 1px solid var(--neon-purple); }
+        .btn-upgrade { color: var(--neon-green); border: 1px solid var(--neon-green); font-weight: bold; }
         .btn-target { color: var(--ff-yellow); border: 1px solid var(--ff-yellow); }
+        .btn-wd { color: var(--neon-green); border: 1px solid var(--neon-green); }
+        .btn-retire { color: var(--ff-red); border: 1px solid var(--ff-red); font-weight: bold; }
+        .btn-retire:hover { background: var(--ff-red); color: #000; }
+        .btn-reactivate { color: var(--neon-blue); border: 1px solid var(--neon-blue); }
         .btn-del { color: #777; border: 1px solid #444; }
 
-        /* 노트 카드 뷰 */
         .notes-list-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
@@ -406,7 +491,8 @@
         }
         .note-img-thumb:hover { transform: scale(1.02); border-color: var(--ff-yellow); }
 
-        /* 모달 공통 */
+        .personal-blur { filter: blur(8px); user-select: none; }
+
         .cyber-modal {
             display: none;
             position: fixed;
@@ -422,14 +508,13 @@
             background: #0a0a0f;
             border: 1px solid var(--ff-yellow);
             box-shadow: 0 0 30px rgba(255, 183, 3, 0.35);
-            width: 90%; max-width: 650px;
+            width: 90%; max-width: 720px;
             border-radius: 6px;
             padding: 24px;
             max-height: 88vh;
             overflow-y: auto;
         }
 
-        /* 이미지 원본 모달 */
         #imageOriginalModal .cyber-modal-content {
             max-width: 95vw;
             width: auto;
@@ -463,147 +548,374 @@
                 <p class="brand-subtitle">Interactive PnL Calendar • Neon Notes • 1 NQ Target Blueprint</p>
             </div>
         </div>
-        <div style="display: flex; gap: 8px;">
-            <button class="cyber-btn-outline" onclick="openNoteModalForDate(new Date().toISOString().slice(0, 10))">+ NEW NOTE (TODAY)</button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <!-- POP-UP FINANCIAL AUDIT BUTTON -->
+            <button class="cyber-btn" onclick="openFinanceAuditModal()" style="background: linear-gradient(135deg, #00f0ff, #00ff66); color: #000; font-size: 0.78rem; padding: 7px 14px;">
+                💰 FINANCIAL AUDIT (EXP/WD/REV)
+            </button>
+            <button class="cyber-btn-outline" onclick="openNoteModalForDate(new Date().toISOString().slice(0, 10))">+ NEW NOTE</button>
             <button class="cyber-btn-outline" onclick="exportData()">EXPORT JSON</button>
             <button class="cyber-btn-outline" onclick="document.getElementById('fileInput').click()">IMPORT JSON</button>
             <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="importData(event)">
         </div>
     </header>
 
-    <div class="stat-grid">
-        <div class="stat-card blue">
-            <div class="stat-label">OPERATIONAL UNITS (EVAL / PA)</div>
-            <div class="stat-value" id="accountCounts" style="color: var(--neon-blue);">0 / 0</div>
-        </div>
-        <div class="stat-card green">
-            <div class="stat-label">TOTAL WITHDRAWAL</div>
-            <div class="stat-value" id="taxWithdrawal" style="color: var(--neon-green);">$0</div>
-        </div>
-        <div class="stat-card pink">
-            <div class="stat-label">TOTAL EXPENSE</div>
-            <div class="stat-value" id="taxExpense" style="color: var(--ff-red);">$0</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">FILED MARKET NOTES</div>
-            <div class="stat-value" id="notesCount" style="color: var(--neon-green);">0</div>
-        </div>
+    <div class="terminal-tabs">
+        <button class="nav-tab-btn active" id="tabActiveBtn" onclick="switchMainTab('active')">ACTIVE TERMINAL</button>
+        <button class="nav-tab-btn danger-tab" id="tabRetiredBtn" onclick="switchMainTab('retired')">RETIRED ARCHIVE (BLOWN PA / FAILED EVAL)</button>
     </div>
 
-    <!-- 1. PNL CALENDAR WITH INTERACTIVE DATES & NEON GREEN DOTS -->
-    <section class="terminal-panel">
-        <div class="calendar-controls">
-            <div class="panel-heading" style="margin: 0;">TRADING ACTIVITY &amp; NOTES CALENDAR</div>
-            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <div style="display: flex; gap: 5px;">
-                    <button class="cal-nav-btn" onclick="shiftCalendar(-1)">&lt; PREV</button>
-                    <span id="calendarMonthTitle" style="color: var(--ff-yellow); font-weight: bold; padding: 4px 8px; font-size: 0.85rem;"></span>
-                    <button class="cal-nav-btn" onclick="shiftCalendar(1)">NEXT &gt;</button>
+    <!-- VIEW 1: ACTIVE DASHBOARD -->
+    <div id="activeDashboardView">
+        <div id="inactivityBanner">
+            <div style="font-weight: bold; color: var(--ff-red); font-size: 0.88rem; margin-bottom: 8px; letter-spacing: 1px;">
+                ⚠ WARNING: 5-DAY INACTIVITY DETECTED
+            </div>
+            <div id="inactivityList"></div>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-card pink">
+                <div class="stat-label">EXPENSE TOTAL (세금공제 비용)</div>
+                <div class="stat-value" id="taxExpense" style="color: var(--ff-red);">$0</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-label">WITHDRAWAL TOTAL (PA 총 출금액)</div>
+                <div class="stat-value" id="taxWithdrawal" style="color: var(--neon-green);">$0</div>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-label">NET PROFIT (과세표준 순익)</div>
+                <div class="stat-value" id="taxNet" style="color: var(--neon-blue);">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">OPERATIONAL UNITS (EVAL / PA)</div>
+                <div class="stat-value" id="accountCounts" style="color: var(--text-main);">0 / 0</div>
+            </div>
+        </div>
+
+        <!-- NEON PERFORMANCE MONITORS -->
+        <section class="terminal-panel">
+            <div class="panel-heading">NEON PERFORMANCE MONITORS</div>
+            <div class="charts-grid">
+                <div class="chart-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap;">
+                        <span style="font-size: 0.8rem; color: var(--text-dim);">계정별 일일 P&amp;L 추이 (최근 10회)</span>
+                        <div style="display: flex; gap: 6px;">
+                            <select id="pnlAssetFilter" onchange="updatePnlAccountList()" style="padding: 3px 6px; font-size: 0.75rem;">
+                                <option value="ALL">전체 자산</option>
+                                <option value="FUTURES">선물만</option>
+                                <option value="CRYPTO">크립토만</option>
+                            </select>
+                            <select id="pnlAccountSelect" onchange="updatePnlChart()" style="padding: 3px 8px; font-size: 0.75rem;"></select>
+                        </div>
+                    </div>
+                    <canvas id="dailyPnlChart" height="200"></canvas>
                 </div>
-                <select id="calAccountFilter" onchange="renderCalendar()" style="padding: 4px 8px; font-size: 0.75rem;">
-                    <option value="ALL">전체 계정 통합</option>
-                </select>
+                <div class="chart-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap;">
+                        <span style="font-size: 0.8rem; color: var(--text-dim);">타겟 달성률 (0% ~ 100% 정규화 게이지)</span>
+                        <div style="display: flex; gap: 6px;">
+                            <select id="targetAssetFilter" onchange="updateTargetProgressChart()" style="padding: 3px 6px; font-size: 0.75rem;">
+                                <option value="ALL">전체 자산</option>
+                                <option value="FUTURES">선물만</option>
+                                <option value="CRYPTO">크립토만</option>
+                            </select>
+                            <select id="targetFilterSelect" onchange="updateTargetProgressChart()" style="padding: 3px 8px; font-size: 0.75rem;">
+                                <option value="ALL">전체 (EVAL + PA)</option>
+                                <option value="EVAL">EVAL만 보기</option>
+                                <option value="FUNDED">PA만 보기</option>
+                            </select>
+                        </div>
+                    </div>
+                    <canvas id="targetProgressChart" height="200"></canvas>
+                </div>
             </div>
-        </div>
-        <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: -6px; margin-bottom: 12px;">
-            * 날짜 셀을 클릭하면 해당 일자의 트레이딩 노트를 작성하거나 확인할 수 있습니다. 노트가 존재하는 날짜는 날짜 번호 옆에 <span class="neon-dot" style="vertical-align: middle;"></span> 표시가 켜집니다.
-        </div>
-        <div class="cal-grid" id="calendarDays">
-            <div class="cal-day-header">SUN</div>
-            <div class="cal-day-header">MON</div>
-            <div class="cal-day-header">TUE</div>
-            <div class="cal-day-header">WED</div>
-            <div class="cal-day-header">THU</div>
-            <div class="cal-day-header">FRI</div>
-            <div class="cal-day-header">SAT</div>
-        </div>
-        <div class="cal-grid" id="calendarCells" style="margin-top: 6px;"></div>
-    </section>
+        </section>
 
-    <!-- 2. MARKET NOTES DESK SECTION (PLACED DIRECTLY BETWEEN CALENDAR AND REGISTRATION) -->
-    <section class="terminal-panel" id="masterNotesSection">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
-            <div class="panel-heading" style="margin: 0; color: var(--neon-green);">MARKET NOTES DESK &amp; LEDGER</div>
-            <div style="display: flex; gap: 8px;">
-                <select id="notesFilterSelect" onchange="renderNotesList()" style="padding: 4px 8px; font-size: 0.75rem;">
-                    <option value="ALL">전체 노트 보기</option>
-                </select>
+        <!-- 1. PNL CALENDAR -->
+        <section class="terminal-panel">
+            <div class="calendar-controls">
+                <div class="panel-heading" style="margin: 0;">TRADING ACTIVITY &amp; NOTES CALENDAR</div>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 5px;">
+                        <button class="cal-nav-btn" onclick="shiftCalendar(-1)">&lt; PREV</button>
+                        <span id="calendarMonthTitle" style="color: var(--ff-yellow); font-weight: bold; padding: 4px 8px; font-size: 0.85rem;"></span>
+                        <button class="cal-nav-btn" onclick="shiftCalendar(1)">NEXT &gt;</button>
+                    </div>
+                    <select id="calAccountFilter" onchange="renderCalendar()" style="padding: 4px 8px; font-size: 0.75rem;">
+                        <option value="ALL">전체 계정 통합</option>
+                    </select>
+                </div>
             </div>
-        </div>
-        <div id="notesContainer" class="notes-list-grid"></div>
-    </section>
+            <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: -6px; margin-bottom: 12px;">
+                * 날짜 셀을 클릭하면 해당 일자의 트레이딩 노트를 작성하거나 확인할 수 있습니다. 노트가 존재하는 날짜는 날짜 번호 옆에 <span class="neon-dot" style="vertical-align: middle;"></span> 표시가 켜집니다.
+            </div>
+            <div class="cal-grid" id="calendarDays">
+                <div class="cal-day-header">SUN</div>
+                <div class="cal-day-header">MON</div>
+                <div class="cal-day-header">TUE</div>
+                <div class="cal-day-header">WED</div>
+                <div class="cal-day-header">THU</div>
+                <div class="cal-day-header">FRI</div>
+                <div class="cal-day-header">SAT</div>
+            </div>
+            <div class="cal-grid" id="calendarCells" style="margin-top: 6px;"></div>
+        </section>
 
-    <!-- 3. ACCOUNT REGISTRATION PROTOCOL -->
-    <section class="terminal-panel">
-        <div class="panel-heading">ACCOUNT REGISTRATION PROTOCOL</div>
-        <div class="input-grid">
-            <div class="field-group">
-                <label>자산군 (ASSET CLASS)</label>
-                <select id="assetClass">
-                    <option value="FUTURES">FUTURES (나스닥/골드 등)</option>
-                    <option value="CRYPTO">CRYPTO (하이퍼리퀴드 등)</option>
-                </select>
+        <!-- 2. MARKET NOTES DESK SECTION -->
+        <section class="terminal-panel" id="masterNotesSection">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                <div class="panel-heading" style="margin: 0; color: var(--neon-green);">MARKET NOTES DESK &amp; LEDGER</div>
+                <div style="display: flex; gap: 8px;">
+                    <select id="notesFilterSelect" onchange="renderNotesList()" style="padding: 4px 8px; font-size: 0.75rem;">
+                        <option value="ALL">전체 노트 보기</option>
+                    </select>
+                </div>
             </div>
-            <div class="field-group">
-                <label>플랫폼 (PLATFORM)</label>
-                <input type="text" id="platform" placeholder="APEX, TRADEIFY, BREAKOUT">
-            </div>
-            <div class="field-group">
-                <label>계정 식별 태그</label>
-                <input type="text" id="accountNum" placeholder="예: 01 또는 93821">
-            </div>
-            <div class="field-group">
-                <label>사이즈 (SIZE)</label>
-                <input type="text" id="accountType" placeholder="50K / 150K / 250K">
-            </div>
-            <div class="field-group">
-                <label>초기 밸런스 ($)</label>
-                <input type="number" id="initialBalance" placeholder="50000">
-            </div>
-            <div class="field-group">
-                <label>데일리 DD ($)</label>
-                <input type="number" id="dailyDd" placeholder="1000 (0이면 무제한)">
-            </div>
-            <div class="field-group">
-                <label>하드/트레일링 DD ($)</label>
-                <input type="number" id="hardDd" placeholder="2500">
-            </div>
-            <div class="field-group">
-                <label>프로핏 타겟 ($)</label>
-                <input type="number" id="target" placeholder="3000">
-            </div>
-            <div class="field-group">
-                <label>일관성 룰 (%)</label>
-                <input type="text" id="consistency" placeholder="30% 또는 없음">
-            </div>
-            <div class="field-group">
-                <label>비용 ($)</label>
-                <input type="number" id="expenseAmount" placeholder="150">
-            </div>
-        </div>
-        <button class="cyber-btn" type="button" onclick="addAccount()">REGISTER UNIT</button>
-    </section>
+            <div id="notesContainer" class="notes-list-grid"></div>
+        </section>
 
-    <!-- 4. ACTIVE PROP ACCOUNTS TABLE -->
-    <section class="terminal-panel">
-        <div class="panel-heading">PROP ACCOUNT PERFORMANCE &amp; RISK RADAR</div>
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>계정 식별</th>
-                        <th>현재 잔고 / 누적 PnL</th>
-                        <th>1 NQ 타겟 요구량 (Target &amp; 1 NQ)</th>
-                        <th>일관성 룰 진단 (Consistency Rule)</th>
-                        <th>DD 안전 버퍼 (Daily / Max DD)</th>
-                        <th>상태</th>
-                        <th>액션</th>
-                    </tr>
-                </thead>
-                <tbody id="accountTableBody"></tbody>
-            </table>
+        <!-- PRIVATE CONFIDENTIAL NOTES -->
+        <section class="terminal-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div class="panel-heading" style="margin: 0; color: var(--neon-purple);">PRIVATE CONFIDENTIAL NOTES</div>
+                <button class="cyber-btn-outline" onclick="togglePersonalPrivacy()" id="privacyToggleBtn" style="border-color: var(--neon-purple); color: var(--neon-purple);">
+                    🔒 HIDE
+                </button>
+            </div>
+            <div id="personalNotesWrapper">
+                <textarea id="personalNotesArea" rows="4" placeholder="비공개 매매 원칙, 멘탈 점검 등을 기록하세요 (자동 저장)..." oninput="savePersonalNotes()" style="width: 100%; resize: vertical;"></textarea>
+            </div>
+            <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 6px; display: flex; justify-content: space-between;">
+                <span>* JSON 백업 시 함께 보존됩니다.</span>
+                <span id="personalSaveNotice" style="color: var(--neon-green);"></span>
+            </div>
+        </section>
+
+        <!-- 3. ACCOUNT REGISTRATION PROTOCOL -->
+        <section class="terminal-panel">
+            <div class="panel-heading">ACCOUNT REGISTRATION PROTOCOL</div>
+            <div class="input-grid">
+                <div class="field-group">
+                    <label>자산군 (ASSET CLASS)</label>
+                    <select id="assetClass">
+                        <option value="FUTURES">FUTURES (나스닥/골드 등)</option>
+                        <option value="CRYPTO">CRYPTO (하이퍼리퀴드 등)</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label>플랫폼 (PLATFORM)</label>
+                    <input type="text" id="platform" placeholder="APEX, TRADEIFY, BREAKOUT">
+                </div>
+                <div class="field-group">
+                    <label>계정 식별 태그</label>
+                    <input type="text" id="accountNum" placeholder="예: 01 또는 93821">
+                </div>
+                <div class="field-group">
+                    <label>사이즈 (SIZE)</label>
+                    <input type="text" id="accountType" placeholder="50K / 150K / 250K">
+                </div>
+                <div class="field-group">
+                    <label>초기 밸런스 ($)</label>
+                    <input type="number" id="initialBalance" placeholder="50000">
+                </div>
+                <div class="field-group">
+                    <label>데일리 DD ($)</label>
+                    <input type="number" id="dailyDd" placeholder="1000 (0이면 무제한)">
+                </div>
+                <div class="field-group">
+                    <label>하드/트레일링 DD ($)</label>
+                    <input type="number" id="hardDd" placeholder="2500">
+                </div>
+                <div class="field-group">
+                    <label>프로핏 타겟 ($)</label>
+                    <input type="number" id="target" placeholder="3000">
+                </div>
+                <div class="field-group">
+                    <label>일관성 룰 (%)</label>
+                    <input type="text" id="consistency" placeholder="30% 또는 없음">
+                </div>
+                <div class="field-group">
+                    <label>비용 구분</label>
+                    <select id="expenseCategory">
+                        <option value="EVAL">EVAL</option>
+                        <option value="PA">PA</option>
+                        <option value="CUSTOM">CUSTOM</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label>비용 액수 ($)</label>
+                    <input type="number" id="expenseAmount" placeholder="150">
+                </div>
+            </div>
+            <button class="cyber-btn" type="button" onclick="addAccount()">REGISTER UNIT</button>
+        </section>
+
+        <!-- 4. ACTIVE PROP ACCOUNTS TABLE -->
+        <section class="terminal-panel">
+            <div class="panel-heading">PROP ACCOUNT PERFORMANCE &amp; RISK RADAR</div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>계정 식별</th>
+                            <th>현재 잔고 / 누적 PnL</th>
+                            <th>1 NQ 타겟 요구량 (Target &amp; 1 NQ)</th>
+                            <th>일관성 룰 진단 (Consistency Rule)</th>
+                            <th>DD 안전 버퍼 (Daily / Max DD)</th>
+                            <th>상태</th>
+                            <th>액션</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accountTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- VIEW 2: RETIRED ARCHIVE -->
+    <div id="retiredArchiveView" style="display: none;">
+        <div class="stat-grid">
+            <div class="stat-card" style="border-top: 1px solid var(--ff-yellow);">
+                <div class="stat-label">FAILED EVAL EXPENSES (실패한 Eval 총비용)</div>
+                <div class="stat-value" id="retiredEvalExpense" style="color: var(--ff-yellow);">$0</div>
+            </div>
+            <div class="stat-card pink">
+                <div class="stat-label">BLOWN PA EXPENSES (날린 PA 총비용)</div>
+                <div class="stat-value" id="retiredPaExpense" style="color: var(--ff-red);">$0</div>
+            </div>
+            <div class="stat-card" style="border-top: 1px solid #ff4444;">
+                <div class="stat-label">TOTAL SUNK COST (은퇴/탈락 총 매몰비용)</div>
+                <div class="stat-value" id="retiredTotalCost" style="color: #ff4444;">$0</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-label">HISTORICAL WITHDRAWALS (은퇴 전 총 출금액)</div>
+                <div class="stat-value" id="retiredHistoricalWithdrawals" style="color: var(--neon-green);">$0</div>
+            </div>
         </div>
-    </section>
+
+        <section class="terminal-panel" style="border-top: 2px solid var(--ff-red);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                <div class="panel-heading" style="color: var(--ff-red); margin: 0;">
+                    ■ RETIRED ARCHIVE (BLOWN PA / FAILED EVAL LEDGER)
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span style="font-size: 0.75rem; color: var(--text-dim);">자산군:</span>
+                    <select id="retiredAssetFilterSelect" onchange="renderRetiredView()" style="padding: 4px 8px; font-size: 0.78rem;">
+                        <option value="ALL">전체 자산</option>
+                        <option value="FUTURES">선물만</option>
+                        <option value="CRYPTO">크립토만</option>
+                    </select>
+                    <span style="font-size: 0.75rem; color: var(--text-dim); margin-left: 6px;">유형:</span>
+                    <select id="retiredFilterSelect" onchange="renderRetiredView()" style="padding: 4px 8px; font-size: 0.78rem;">
+                        <option value="ALL">전체 은퇴 계좌</option>
+                        <option value="EVAL">실패한 EVAL만</option>
+                        <option value="FUNDED">날린 PA만</option>
+                    </select>
+                </div>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: -6px; margin-bottom: 16px;">
+                * 비밀번호(0220) 인증을 통해 보관된 탈락 EVAL 및 은퇴 PA 계좌 목록입니다. 지출액 결산 및 필요시 복원(RESTORE)이 가능합니다.
+            </p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>계정 태그</th>
+                            <th>자산</th>
+                            <th>상태</th>
+                            <th>사이즈</th>
+                            <th>최종 손익 (Final PnL)</th>
+                            <th>EVAL 지출액</th>
+                            <th>PA 지출액</th>
+                            <th>계정 총비용</th>
+                            <th>총 인출액</th>
+                            <th>은퇴일시</th>
+                            <th>관리 액션</th>
+                        </tr>
+                    </thead>
+                    <tbody id="retiredTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- ==========================================
+     POP-UP FINANCIAL AUDIT MODAL (EXPENSE, WITHDRAWAL, REVENUE)
+     ========================================== -->
+<div class="cyber-modal" id="financialAuditModal">
+    <div class="cyber-modal-content" style="max-width: 900px; border-color: var(--neon-green); box-shadow: 0 0 35px rgba(0, 255, 102, 0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div class="panel-heading" style="margin: 0; color: var(--neon-green);">
+                💰 FINANCIAL AUDIT: EXPENSE, WITHDRAWAL &amp; REVENUE LEDGER
+            </div>
+            <button class="cyber-btn-outline" onclick="closeFinanceAuditModal()">X CLOSE</button>
+        </div>
+
+        <!-- REVENUE / TAX SUMMARY CARDS -->
+        <div class="stat-grid" style="margin-bottom: 20px;">
+            <div class="stat-card pink">
+                <div class="stat-label">TOTAL EXPENSES (총 지출/세금공제)</div>
+                <div class="stat-value" id="auditTotalExpense" style="color: var(--ff-red); font-size: 1.4rem;">$0</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-label">TOTAL WITHDRAWALS (PA 총 출금액)</div>
+                <div class="stat-value" id="auditTotalWithdrawal" style="color: var(--neon-green); font-size: 1.4rem;">$0</div>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-label">NET REVENUE (순이익 / 과세표준)</div>
+                <div class="stat-value" id="auditNetRevenue" style="color: var(--neon-blue); font-size: 1.4rem;">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">PROFIT MARGIN / ROI</div>
+                <div class="stat-value" id="auditRoi" style="color: var(--ff-yellow); font-size: 1.4rem;">0%</div>
+            </div>
+        </div>
+
+        <!-- 1. FUNDED ACCOUNT WITHDRAWALS TABLE -->
+        <div style="margin-bottom: 24px;">
+            <div style="font-size: 0.82rem; color: var(--neon-green); font-weight: bold; letter-spacing: 1px; margin-bottom: 8px;">
+                ■ FUNDED (PA) WITHDRAWAL LOGS
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>계정명</th>
+                            <th>자산군</th>
+                            <th>인출 날짜</th>
+                            <th>인출 금액 ($)</th>
+                            <th>계정 총 누적 인출</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditWithdrawalsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 2. EXPENSES AUDIT TABLE -->
+        <div>
+            <div style="font-size: 0.82rem; color: var(--ff-red); font-weight: bold; letter-spacing: 1px; margin-bottom: 8px;">
+                ■ EXPENSE AUDIT BREAKDOWN (EVAL / PA FEES)
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>계정명</th>
+                            <th>자산군</th>
+                            <th>계정 상태</th>
+                            <th>EVAL 비용 ($)</th>
+                            <th>PA 비용 ($)</th>
+                            <th>총 지출 합계 ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditExpensesTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- NOTE MODAL (INPUT & EDIT) -->
@@ -644,6 +956,116 @@
     </div>
 </div>
 
+<!-- HISTORY / EDIT MODAL -->
+<div class="cyber-modal" id="historyModal">
+    <div class="cyber-modal-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div class="panel-heading" style="margin: 0;" id="historyModalTitle">BALANCE &amp; PnL HISTORY</div>
+            <button class="cyber-btn-outline" onclick="closeHistoryModal()">X CLOSE</button>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>날짜 (DATE)</th>
+                        <th>마감 밸런스 ($)</th>
+                        <th>당일 손익 (PnL)</th>
+                        <th>액션 (ACTION)</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- PA PROMOTION PROTOCOL MODAL -->
+<div class="cyber-modal" id="paUpgradeModal">
+    <div class="cyber-modal-content" style="max-width: 580px; border-color: var(--neon-green);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div class="panel-heading" style="margin: 0; color: var(--neon-green);" id="paUpgradeTitle">PA PROMOTION CONFIGURATION</div>
+            <button class="cyber-btn-outline" onclick="closePaUpgradeModal()">X CANCEL</button>
+        </div>
+        <input type="hidden" id="upgradeTargetAccountId">
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+            <div class="field-group">
+                <label>원본 EVAL 계정 식별 태그</label>
+                <input type="text" id="upOriginEval" readonly style="color: var(--text-dim); border-color: #333;">
+            </div>
+            <div class="field-group">
+                <label>새 PA 계정 ID 태그</label>
+                <input type="text" id="upPaTag" placeholder="PA-01">
+            </div>
+            <div class="field-group">
+                <label>PA 일관성 룰 (CONSISTENCY RULE)</label>
+                <select id="upConsistency">
+                    <option value="30%">30% Consistency (Apex 등 기본)</option>
+                    <option value="20%">20% Consistency</option>
+                    <option value="40%">40% Consistency</option>
+                    <option value="50%">50% Consistency</option>
+                    <option value="없음">없음 (No Consistency Rule)</option>
+                    <option value="CUSTOM">직접 입력 (CUSTOM)</option>
+                </select>
+            </div>
+            <div class="field-group" id="upCustomConsistencyWrap" style="display: none;">
+                <label>커스텀 일관성 룰 입력 (%)</label>
+                <input type="text" id="upCustomConsistency" placeholder="예: 35%">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="field-group">
+                    <label>PA 데일리 DD ($)</label>
+                    <input type="number" id="upDailyDd" placeholder="0이면 무제한">
+                </div>
+                <div class="field-group">
+                    <label>PA 하드/트레일링 DD ($)</label>
+                    <input type="number" id="upHardDd" placeholder="예: 2500">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="field-group">
+                    <label>PA 1차 출금/버퍼 타겟 ($)</label>
+                    <input type="number" id="upTarget" placeholder="예: 2600">
+                </div>
+                <div class="field-group">
+                    <label>PA 액티베이션 수수료 ($)</label>
+                    <input type="number" id="upFee" placeholder="예: 150">
+                </div>
+            </div>
+        </div>
+        <button class="cyber-btn" onclick="executePaUpgrade()" style="width: 100%; background: linear-gradient(135deg, var(--neon-green), #00aa44); color: #000;">
+            CONFIRM &amp; PROMOTE TO PA
+        </button>
+    </div>
+</div>
+
+<!-- RULE / DD INLINE EDIT MODAL -->
+<div class="cyber-modal" id="ruleEditModal">
+    <div class="cyber-modal-content" style="max-width: 480px; border-color: var(--neon-purple);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div class="panel-heading" style="margin: 0; color: var(--neon-purple);" id="ruleEditTitle">RULE &amp; RISK PARAMETERS</div>
+            <button class="cyber-btn-outline" onclick="closeRuleEditModal()">X CLOSE</button>
+        </div>
+        <input type="hidden" id="ruleEditAccountId">
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+            <div class="field-group">
+                <label>일관성 룰 (CONSISTENCY %)</label>
+                <input type="text" id="ruleConsistencyInput" placeholder="예: 30% 또는 없음">
+            </div>
+            <div class="field-group">
+                <label>데일리 DD ($)</label>
+                <input type="number" id="ruleDailyDdInput" placeholder="0">
+            </div>
+            <div class="field-group">
+                <label>하드 DD / Trailing Max DD ($)</label>
+                <input type="number" id="ruleHardDdInput" placeholder="2500">
+            </div>
+        </div>
+        <button class="cyber-btn" onclick="saveRuleEdit()" style="width: 100%; background: linear-gradient(135deg, var(--neon-purple), #7209b7); color: #fff;">
+            UPDATE PARAMETERS
+        </button>
+    </div>
+</div>
+
 <!-- ORIGINAL IMAGE VIEWER MODAL -->
 <div class="cyber-modal" id="imageOriginalModal" onclick="closeImageOriginalModal()">
     <div class="cyber-modal-content" onclick="event.stopPropagation()">
@@ -670,11 +1092,26 @@
         if (!Array.isArray(globalNotes)) globalNotes = [];
     } catch(e) { globalNotes = []; }
 
+    let dismissedInactivity = {};
+    try {
+        const stored = localStorage.getItem('dismissedInactivity');
+        dismissedInactivity = stored ? JSON.parse(stored) : {};
+    } catch(e) { dismissedInactivity = {}; }
+
+    let personalNotes = localStorage.getItem('ff_personal_notes') || '';
+    let isPersonalBlurred = false;
+    let currentMainTab = 'active';
     let currentCalendarDate = new Date();
+    let activeEditingAccountId = null;
+    let pnlChartInstance = null;
+    let progressChartInstance = null;
 
     function sanitizeAccounts(list) {
         list.forEach(a => {
+            if (a.isRetired === undefined) a.isRetired = false;
+            if (a.retiredDate === undefined) a.retiredDate = null;
             if (a.pnlHistory === undefined) a.pnlHistory = [];
+            if (a.withdrawalHistory === undefined) a.withdrawalHistory = [];
             if (a.totalPnl === undefined) a.totalPnl = 0;
             if (a.initialBalance === undefined) a.initialBalance = 0;
             if (a.currentBalance === undefined) a.currentBalance = a.initialBalance + a.totalPnl;
@@ -682,14 +1119,48 @@
             if (a.hardDd === undefined) a.hardDd = 0;
             if (a.target === undefined) a.target = 0;
             if (a.consistency === undefined) a.consistency = '없음';
-            if (a.isRetired === undefined) a.isRetired = false;
+            if (a.withdrawals === undefined) a.withdrawals = 0;
+            if (a.evalExpense === undefined || a.paExpense === undefined) {
+                const cat = a.expenses ? a.expenses.category : (a.status === 'FUNDED' ? 'PA' : 'EVAL');
+                const amt = a.expenses ? (a.expenses.amount || 0) : 0;
+                a.evalExpense = (cat === 'EVAL' || a.status === 'EVAL') ? amt : 0;
+                a.paExpense = (cat === 'PA' || a.status === 'FUNDED') ? amt : 0;
+            }
         });
     }
     sanitizeAccounts(accounts);
 
+    function switchMainTab(tabName) {
+        currentMainTab = tabName;
+        const activeView = document.getElementById('activeDashboardView');
+        const retiredView = document.getElementById('retiredArchiveView');
+        const tabActiveBtn = document.getElementById('tabActiveBtn');
+        const tabRetiredBtn = document.getElementById('tabRetiredBtn');
+
+        if (tabName === 'active') {
+            activeView.style.display = 'block';
+            retiredView.style.display = 'none';
+            tabActiveBtn.classList.add('active');
+            tabRetiredBtn.classList.remove('active');
+            renderAccounts();
+            renderCharts();
+            renderCalendar();
+            renderNotesList();
+            updateSummary();
+            checkInactivity();
+        } else {
+            activeView.style.display = 'none';
+            retiredView.style.display = 'block';
+            tabActiveBtn.classList.remove('active');
+            tabRetiredBtn.classList.add('active');
+            renderRetiredView();
+        }
+    }
+
     function saveData() {
         localStorage.setItem('tradingAccounts', JSON.stringify(accounts));
         localStorage.setItem('ff_market_notes', JSON.stringify(globalNotes));
+        localStorage.setItem('dismissedInactivity', JSON.stringify(dismissedInactivity));
         updateSummary();
     }
 
@@ -699,11 +1170,206 @@
         const pas = active.filter(a => a.status === 'FUNDED').length;
         document.getElementById('accountCounts').innerText = `${evals} / ${pas}`;
         
-        const totalExp = active.reduce((s, a) => s + (a.expenses ? (a.expenses.amount || 0) : 0), 0);
-        const totalWd = active.reduce((s, a) => s + (a.withdrawals || 0), 0);
+        const totalExp = accounts.reduce((s, a) => s + ((a.evalExpense || 0) + (a.paExpense || 0)), 0);
+        const totalWd = accounts.reduce((s, a) => s + (a.withdrawals || 0), 0);
+        const net = totalWd - totalExp;
+
         document.getElementById('taxExpense').innerText = `$${totalExp.toLocaleString()}`;
         document.getElementById('taxWithdrawal').innerText = `$${totalWd.toLocaleString()}`;
-        document.getElementById('notesCount').innerText = globalNotes.length;
+        const netEl = document.getElementById('taxNet');
+        if (netEl) {
+            netEl.innerText = `${net >= 0 ? '+' : ''}$${net.toLocaleString()}`;
+            netEl.style.color = net >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
+        }
+    }
+
+    /* ========================================================
+       FINANCIAL AUDIT POPUP LOGIC (Expense / Withdrawal / Revenue)
+       ======================================================== */
+    function openFinanceAuditModal() {
+        const totalExp = accounts.reduce((s, a) => s + ((a.evalExpense || 0) + (a.paExpense || 0)), 0);
+        const totalWd = accounts.reduce((s, a) => s + (a.withdrawals || 0), 0);
+        const net = totalWd - totalExp;
+        const roi = totalExp > 0 ? ((net / totalExp) * 100).toFixed(1) : '0';
+
+        document.getElementById('auditTotalExpense').innerText = `$${totalExp.toLocaleString()}`;
+        document.getElementById('auditTotalWithdrawal').innerText = `$${totalWd.toLocaleString()}`;
+        
+        const netEl = document.getElementById('auditNetRevenue');
+        netEl.innerText = `${net >= 0 ? '+' : ''}$${net.toLocaleString()}`;
+        netEl.style.color = net >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
+        
+        const roiEl = document.getElementById('auditRoi');
+        roiEl.innerText = `${roi}%`;
+        roiEl.style.color = net >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
+
+        // Render Withdrawals Table
+        const wdTbody = document.getElementById('auditWithdrawalsTableBody');
+        wdTbody.innerHTML = '';
+        let hasWithdrawals = false;
+
+        accounts.forEach(acc => {
+            if (acc.withdrawalHistory && acc.withdrawalHistory.length > 0) {
+                acc.withdrawalHistory.forEach(w => {
+                    hasWithdrawals = true;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="color: var(--neon-green); font-weight: bold;">${acc.name}</td>
+                        <td>${acc.assetClass}</td>
+                        <td style="color: var(--ff-yellow);">${w.date}</td>
+                        <td style="color: var(--neon-green); font-weight: bold;">+$${w.amount.toLocaleString()}</td>
+                        <td>$${(acc.withdrawals || 0).toLocaleString()}</td>
+                    `;
+                    wdTbody.appendChild(tr);
+                });
+            }
+        });
+
+        if (!hasWithdrawals) {
+            wdTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 14px;">기록된 PA 출금 내역이 없습니다.</td></tr>`;
+        }
+
+        // Render Expenses Table
+        const expTbody = document.getElementById('auditExpensesTableBody');
+        expTbody.innerHTML = '';
+
+        accounts.forEach(acc => {
+            const evalFee = acc.evalExpense || 0;
+            const paFee = acc.paExpense || 0;
+            const totalAccExp = evalFee + paFee;
+            if (totalAccExp > 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: bold; color: ${acc.isRetired ? 'var(--ff-red)' : 'var(--ff-yellow)'};">
+                        ${acc.name} ${acc.isRetired ? '(RETIRED)' : ''}
+                    </td>
+                    <td>${acc.assetClass}</td>
+                    <td><span class="${acc.status === 'FUNDED' ? 'badge-pa' : 'badge-eval'}">${acc.status}</span></td>
+                    <td style="color: var(--ff-yellow);">$${evalFee.toLocaleString()}</td>
+                    <td style="color: var(--ff-red);">$${paFee.toLocaleString()}</td>
+                    <td style="color: #ff6688; font-weight: bold;">$${totalAccExp.toLocaleString()}</td>
+                `;
+                expTbody.appendChild(tr);
+            }
+        });
+
+        if (expTbody.innerHTML === '') {
+            expTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-dim); padding: 14px;">기록된 비용 지출이 없습니다.</td></tr>`;
+        }
+
+        document.getElementById('financialAuditModal').style.display = 'flex';
+    }
+
+    function closeFinanceAuditModal() {
+        document.getElementById('financialAuditModal').style.display = 'none';
+    }
+
+    function recordWithdrawal(id) {
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+
+        const val = prompt(`[${acc.name}] 인출(Withdrawal) 금액을 입력하세요 ($):`);
+        if (val === null || val.trim() === '') return;
+
+        const amount = parseFloat(val);
+        if (isNaN(amount) || amount <= 0) {
+            alert('올바른 양수 금액을 입력해 주세요.');
+            return;
+        }
+
+        const dateTag = prompt('출금 적용 날짜 (YYYY-MM-DD):', new Date().toISOString().slice(0, 10)) || new Date().toISOString().slice(0, 10);
+        acc.withdrawals = (acc.withdrawals || 0) + amount;
+        if (!acc.withdrawalHistory) acc.withdrawalHistory = [];
+        acc.withdrawalHistory.push({ date: dateTag, amount: amount });
+        acc.lastActivityDate = dateTag;
+
+        saveData();
+        renderAccounts();
+        alert(`[${acc.name}] $${amount.toLocaleString()} 출금이 기록되었습니다.`);
+    }
+
+    function checkInactivity() {
+        const banner = document.getElementById('inactivityBanner');
+        const list = document.getElementById('inactivityList');
+        if (!banner || !list) return;
+        list.innerHTML = '';
+
+        const now = new Date();
+        const inactiveAccounts = [];
+        const activeAccounts = accounts.filter(a => !a.isRetired);
+
+        activeAccounts.forEach(acc => {
+            let latestDateStr = acc.lastActivityDate;
+            if (acc.pnlHistory && acc.pnlHistory.length > 0) {
+                const lastPnlDate = acc.pnlHistory[acc.pnlHistory.length - 1].date;
+                if (!latestDateStr || lastPnlDate > latestDateStr) latestDateStr = lastPnlDate;
+            }
+
+            if (!latestDateStr) return;
+            const lastDate = new Date(latestDateStr);
+            const diffDays = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
+
+            if (diffDays >= 5) {
+                const dismissedTime = dismissedInactivity[acc.id];
+                if (dismissedTime && new Date(dismissedTime) >= lastDate) return;
+                inactiveAccounts.push({ acc, diffDays, latestDateStr });
+            }
+        });
+
+        if (inactiveAccounts.length === 0) {
+            banner.style.display = 'none';
+            return;
+        }
+
+        banner.style.display = 'block';
+        inactiveAccounts.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'alert-item';
+            div.innerHTML = `
+                <span>
+                    <strong>[${item.acc.name}]</strong> (${item.acc.status}) - 지난 <strong>${item.diffDays}일간</strong> 매매 기록 없음 (마지막: ${item.latestDateStr})
+                </span>
+                <button class="btn-dismiss" onclick="dismissAlert(${item.acc.id})">해제</button>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function dismissAlert(id) {
+        dismissedInactivity[id] = new Date().toISOString();
+        saveData();
+        checkInactivity();
+    }
+
+    function loadPersonalNotes() {
+        const el = document.getElementById('personalNotesArea');
+        if (el) el.value = personalNotes;
+    }
+
+    function savePersonalNotes() {
+        const el = document.getElementById('personalNotesArea');
+        if (!el) return;
+        personalNotes = el.value;
+        localStorage.setItem('ff_personal_notes', personalNotes);
+        const notice = document.getElementById('personalSaveNotice');
+        if (notice) {
+            notice.innerText = '저장됨 ✓';
+            setTimeout(() => { notice.innerText = ''; }, 1500);
+        }
+    }
+
+    function togglePersonalPrivacy() {
+        const area = document.getElementById('personalNotesArea');
+        const btn = document.getElementById('privacyToggleBtn');
+        if (!area || !btn) return;
+        isPersonalBlurred = !isPersonalBlurred;
+        if (isPersonalBlurred) {
+            area.classList.add('personal-blur');
+            btn.innerText = '👁 SHOW';
+        } else {
+            area.classList.remove('personal-blur');
+            btn.innerText = '🔒 HIDE';
+        }
     }
 
     function addAccount() {
@@ -716,6 +1382,7 @@
         const hardDd = parseFloat(document.getElementById('hardDd').value) || 0;
         const target = parseFloat(document.getElementById('target').value) || 0;
         const consistencyVal = document.getElementById('consistency').value.trim() || '없음';
+        const expenseCategory = document.getElementById('expenseCategory').value;
         const expenseAmount = parseFloat(document.getElementById('expenseAmount').value) || 0;
 
         if (!platform || !accountNum) {
@@ -737,10 +1404,17 @@
             hardDd,
             target,
             consistency: consistencyVal.includes('%') || consistencyVal === '없음' ? consistencyVal : consistencyVal + '%',
-            expenses: { amount: expenseAmount },
+            expenses: { category: expenseCategory, amount: expenseAmount },
+            evalExpense: expenseCategory === 'EVAL' ? expenseAmount : 0,
+            paExpense: expenseCategory === 'PA' ? expenseAmount : 0,
             pnlHistory: [],
             withdrawals: 0,
-            isRetired: false
+            withdrawalHistory: [],
+            status: expenseCategory === 'PA' ? 'FUNDED' : 'EVAL',
+            originEvalName: '',
+            isRetired: false,
+            retiredDate: null,
+            lastActivityDate: new Date().toISOString().slice(0, 10)
         };
 
         accounts.push(newAccount);
@@ -748,6 +1422,8 @@
         renderAccounts();
         populateAccountDropdowns();
         renderCalendar();
+        renderCharts();
+        checkInactivity();
     }
 
     function recordActualBalance(id) {
@@ -766,11 +1442,207 @@
 
         acc.currentBalance = newBal;
         acc.totalPnl = Math.round((acc.totalPnl + diff) * 100) / 100;
+        acc.lastActivityDate = dateTag;
         acc.pnlHistory.push({ id: Date.now(), date: dateTag, amount: diff, balance: newBal });
 
         saveData();
         renderAccounts();
         renderCalendar();
+        renderCharts();
+        checkInactivity();
+    }
+
+    function openHistoryModal(id) {
+        activeEditingAccountId = id;
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+        document.getElementById('historyModalTitle').innerText = `[${acc.name}] HISTORY & EDIT LEDGER`;
+        renderHistoryRows();
+        document.getElementById('historyModal').style.display = 'flex';
+    }
+
+    function closeHistoryModal() {
+        document.getElementById('historyModal').style.display = 'none';
+        activeEditingAccountId = null;
+    }
+
+    function renderHistoryRows() {
+        const acc = accounts.find(a => a.id === activeEditingAccountId);
+        const tbody = document.getElementById('historyTableBody');
+        if (!acc || !tbody) return;
+        tbody.innerHTML = '';
+
+        if (!acc.pnlHistory || acc.pnlHistory.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-dim); padding:16px;">기록된 밸런스/손익 내역이 없습니다.</td></tr>`;
+            return;
+        }
+
+        acc.pnlHistory.forEach((item, index) => {
+            const pnlColor = item.amount >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
+            const balVal = item.balance !== undefined ? `$${item.balance.toLocaleString()}` : '-';
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="color: var(--ff-yellow); font-weight:bold;">${item.date}</td>
+                <td style="color: #fff;">${balVal}</td>
+                <td style="color: ${pnlColor}; font-weight:bold;">
+                    ${item.amount >= 0 ? '+' : ''}$${item.amount.toLocaleString()}
+                </td>
+                <td>
+                    <button class="btn-act btn-target" onclick="editHistoryItem(${index})">수정</button>
+                    <button class="btn-act btn-del" onclick="deleteHistoryItem(${index})">삭제</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function editHistoryItem(index) {
+        const acc = accounts.find(a => a.id === activeEditingAccountId);
+        if (!acc || !acc.pnlHistory || !acc.pnlHistory[index]) return;
+
+        const item = acc.pnlHistory[index];
+        const newDate = prompt('날짜 수정 (YYYY-MM-DD):', item.date);
+        if (newDate === null) return;
+
+        const newBalInput = prompt('마감 밸런스 ($) 수정:', item.balance !== undefined ? item.balance : '');
+        const newPnlInput = prompt('손익 PnL ($) 수정 (수익 양수, 손실 음수):', item.amount);
+        if (newPnlInput === null) return;
+
+        const parsedPnl = parseFloat(newPnlInput);
+        if (isNaN(parsedPnl)) return;
+
+        item.date = newDate.trim() || item.date;
+        item.amount = parsedPnl;
+        if (newBalInput !== null && newBalInput.trim() !== '') {
+            item.balance = parseFloat(newBalInput) || item.balance;
+        }
+
+        let total = 0;
+        acc.pnlHistory.forEach(h => { total += (h.amount || 0); });
+        acc.totalPnl = Math.round(total * 100) / 100;
+        const lastEntry = acc.pnlHistory[acc.pnlHistory.length - 1];
+        acc.currentBalance = lastEntry.balance !== undefined ? lastEntry.balance : (acc.initialBalance + acc.totalPnl);
+
+        saveData();
+        renderHistoryRows();
+        renderAccounts();
+        renderCalendar();
+        renderCharts();
+    }
+
+    function deleteHistoryItem(index) {
+        const acc = accounts.find(a => a.id === activeEditingAccountId);
+        if (!acc || !acc.pnlHistory) return;
+
+        if (confirm('해당 기록을 삭제하시겠습니까?')) {
+            acc.pnlHistory.splice(index, 1);
+            let total = 0;
+            acc.pnlHistory.forEach(h => { total += (h.amount || 0); });
+            acc.totalPnl = Math.round(total * 100) / 100;
+            if (acc.pnlHistory.length > 0) {
+                const lastEntry = acc.pnlHistory[acc.pnlHistory.length - 1];
+                acc.currentBalance = lastEntry.balance !== undefined ? lastEntry.balance : (acc.initialBalance + acc.totalPnl);
+            } else {
+                acc.currentBalance = acc.initialBalance;
+            }
+            saveData();
+            renderHistoryRows();
+            renderAccounts();
+            renderCalendar();
+            renderCharts();
+        }
+    }
+
+    function openPaUpgradeModal(id) {
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+        document.getElementById('upgradeTargetAccountId').value = id;
+        document.getElementById('upOriginEval').value = acc.name;
+        document.getElementById('upPaTag').value = acc.accountNum ? `PA-${acc.accountNum}` : 'PA-01';
+        document.getElementById('upConsistency').value = '30%';
+        document.getElementById('upCustomConsistencyWrap').style.display = 'none';
+        document.getElementById('upDailyDd').value = acc.dailyDd || 0;
+        document.getElementById('upHardDd').value = acc.hardDd || 2500;
+        document.getElementById('upTarget').value = 2600;
+        document.getElementById('upFee').value = 150;
+        document.getElementById('paUpgradeModal').style.display = 'flex';
+    }
+
+    document.getElementById('upConsistency').addEventListener('change', function() {
+        document.getElementById('upCustomConsistencyWrap').style.display = (this.value === 'CUSTOM') ? 'block' : 'none';
+    });
+
+    function closePaUpgradeModal() {
+        document.getElementById('paUpgradeModal').style.display = 'none';
+    }
+
+    function executePaUpgrade() {
+        const id = parseInt(document.getElementById('upgradeTargetAccountId').value);
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+
+        const newPaTag = document.getElementById('upPaTag').value.trim();
+        if (!newPaTag) return alert('새 PA 계정 태그를 입력해 주세요.');
+
+        const consistencyChoice = document.getElementById('upConsistency').value;
+        const customConsistency = document.getElementById('upCustomConsistency').value.trim();
+        const finalConsistency = (consistencyChoice === 'CUSTOM') 
+            ? (customConsistency ? (customConsistency.includes('%') || customConsistency === '없음' ? customConsistency : customConsistency + '%') : '없음')
+            : consistencyChoice;
+
+        const fee = parseFloat(document.getElementById('upFee').value) || 0;
+        acc.originEvalName = acc.name;
+        acc.accountNum = newPaTag;
+        acc.name = `${acc.platform}-${newPaTag}`;
+        acc.status = 'FUNDED';
+        acc.consistency = finalConsistency;
+        acc.dailyDd = parseFloat(document.getElementById('upDailyDd').value) || 0;
+        acc.hardDd = parseFloat(document.getElementById('upHardDd').value) || 0;
+        acc.target = parseFloat(document.getElementById('upTarget').value) || 0;
+        acc.paExpense = (acc.paExpense || 0) + fee;
+        if (!acc.expenses) acc.expenses = { category: 'PA', amount: 0 };
+        acc.expenses.amount += fee;
+        acc.expenses.category = 'PA';
+
+        closePaUpgradeModal();
+        saveData();
+        renderAccounts();
+        populateAccountDropdowns();
+        renderCalendar();
+        renderCharts();
+        alert(`[${acc.name}] 계정이 PA로 성공적으로 승격되었습니다.`);
+    }
+
+    function openRuleEditModal(id) {
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+        document.getElementById('ruleEditAccountId').value = id;
+        document.getElementById('ruleEditTitle').innerText = `[${acc.name}] RULE & DD CONFIG`;
+        document.getElementById('ruleConsistencyInput').value = acc.consistency || '없음';
+        document.getElementById('ruleDailyDdInput').value = acc.dailyDd || 0;
+        document.getElementById('ruleHardDdInput').value = acc.hardDd || 0;
+        document.getElementById('ruleEditModal').style.display = 'flex';
+    }
+
+    function closeRuleEditModal() {
+        document.getElementById('ruleEditModal').style.display = 'none';
+    }
+
+    function saveRuleEdit() {
+        const id = parseInt(document.getElementById('ruleEditAccountId').value);
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+
+        const consistencyVal = document.getElementById('ruleConsistencyInput').value.trim();
+        acc.consistency = consistencyVal ? (consistencyVal.includes('%') || consistencyVal === '없음' ? consistencyVal : consistencyVal + '%') : '없음';
+        acc.dailyDd = parseFloat(document.getElementById('ruleDailyDdInput').value) || 0;
+        acc.hardDd = parseFloat(document.getElementById('ruleHardDdInput').value) || 0;
+
+        closeRuleEditModal();
+        saveData();
+        renderAccounts();
+        renderCharts();
     }
 
     function renderAccounts() {
@@ -817,6 +1689,7 @@
             const maxDdBuffer = acc.hardDd > 0 ? `$${Math.max(0, acc.hardDd + currentPnl).toLocaleString()} 남음` : '-';
             const progress = target > 0 ? Math.min(100, Math.max(0, (currentPnl / target) * 100)) : 0;
             const pnlColor = currentPnl >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
+            const isFunded = acc.status === 'FUNDED';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -836,7 +1709,7 @@
                     <div style="font-size:0.75rem; color: var(--neon-blue); margin-top:2px;">
                         1 NQ: <strong>${ptsNeeded} pts</strong> (${ticksNeeded.toLocaleString()} ticks)
                     </div>
-                    <div class="prog-bg"><div class="prog-bar eval" style="width: ${progress}%;"></div></div>
+                    <div class="prog-bg"><div class="prog-bar ${isFunded ? 'pa' : 'eval'}" style="width: ${progress}%;"></div></div>
                 </td>
                 <td>
                     <div>한도: <strong>${acc.consistency}</strong> (일일 상한: ${consistencyMaxDay})</div>
@@ -846,11 +1719,16 @@
                     <div>일일 DD: <span style="color: var(--ff-yellow);">${dailyDdBuffer}</span></div>
                     <div>맥스 DD: <span style="color: var(--ff-red);">${maxDdBuffer}</span></div>
                 </td>
-                <td><span class="${acc.status === 'FUNDED' ? 'badge-pa' : 'badge-eval'}">${acc.status || 'EVAL'}</span></td>
+                <td><span class="${isFunded ? 'badge-pa' : 'badge-eval'}">${acc.status}</span></td>
                 <td>
                     <div class="action-row">
-                        <button class="btn-act btn-pnl" onclick="recordActualBalance(${acc.id})">잔고입력</button>
+                        <button class="btn-act btn-pnl" onclick="recordActualBalance(${acc.id})" title="마감 잔고 입력">밸런스</button>
+                        <button class="btn-act btn-hist" onclick="openHistoryModal(${acc.id})" title="PnL 내역 수정">내역/수정</button>
+                        <button class="btn-act btn-rule" onclick="openRuleEditModal(${acc.id})" title="룰/DD 파라미터 수정">룰/설정</button>
+                        ${!isFunded ? `<button class="btn-act btn-upgrade" onclick="openPaUpgradeModal(${acc.id})">PA전환</button>` : ''}
+                        ${isFunded ? `<button class="btn-act btn-wd" onclick="recordWithdrawal(${acc.id})" title="출금 기록">출금</button>` : ''}
                         <button class="btn-act btn-target" onclick="openNoteModalForAccount(${acc.id})">노트</button>
+                        <button class="btn-act btn-retire" onclick="retireAccount(${acc.id})" title="은퇴/탈락 보관소로 이동">RETIRE</button>
                         <button class="btn-act btn-del" onclick="deleteAccount(${acc.id})">삭제</button>
                     </div>
                 </td>
@@ -859,17 +1737,267 @@
         });
     }
 
-    function deleteAccount(id) {
-        if (confirm('계정을 삭제하시겠습니까?')) {
-            accounts = accounts.filter(a => a.id !== id);
+    function retireAccount(id) {
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+
+        const promptTitle = acc.status === 'FUNDED' ? 'PA 은퇴/탈락(Blown)' : 'EVAL 탈락/종료(Failed)';
+        const enteredPasscode = prompt(`[보안 확인]\n[${acc.name}] ${promptTitle} 처리하시겠습니까?\n보안 비밀번호 4자리(0220)를 입력하세요:`);
+        if (enteredPasscode === null) return;
+
+        if (enteredPasscode.trim() !== '0220') {
+            alert('비밀번호가 일치하지 않습니다.');
+            return;
+        }
+
+        acc.isRetired = true;
+        acc.retiredDate = new Date().toISOString().slice(0, 10);
+        saveData();
+        renderAccounts();
+        populateAccountDropdowns();
+        renderCalendar();
+        renderCharts();
+        alert(`[${acc.name}] 계좌가 RETIRED ARCHIVE로 안전하게 이동되었습니다.`);
+    }
+
+    function reactivateAccount(id) {
+        const acc = accounts.find(a => a.id === id);
+        if (!acc) return;
+
+        if (confirm(`[${acc.name}] 계좌를 활성 터미널(ACTIVE TERMINAL)로 다시 복원하시겠습니까?`)) {
+            acc.isRetired = false;
+            acc.retiredDate = null;
             saveData();
-            renderAccounts();
-            populateAccountDropdowns();
-            renderCalendar();
+            renderRetiredView();
         }
     }
 
-    /* 캘린더 네온 그린 도트 렌더링 */
+    function renderRetiredView() {
+        const tbody = document.getElementById('retiredTableBody');
+        const assetFilterEl = document.getElementById('retiredAssetFilterSelect');
+        const filterEl = document.getElementById('retiredFilterSelect');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        const selectedAsset = assetFilterEl ? assetFilterEl.value : 'ALL';
+        const selectedFilter = filterEl ? filterEl.value : 'ALL';
+        let retiredAccounts = accounts.filter(a => a.isRetired === true);
+
+        let totalEvalExp = 0;
+        let totalPaExp = 0;
+        let totalWd = 0;
+
+        retiredAccounts.forEach(acc => {
+            const evalExp = acc.evalExpense !== undefined ? acc.evalExpense : (acc.expenses && acc.expenses.category === 'EVAL' ? acc.expenses.amount : 0);
+            const paExp = acc.paExpense !== undefined ? acc.paExpense : (acc.expenses && acc.expenses.category === 'PA' ? acc.expenses.amount : 0);
+            totalEvalExp += evalExp;
+            totalPaExp += paExp;
+            totalWd += (acc.withdrawals || 0);
+        });
+
+        document.getElementById('retiredEvalExpense').innerText = `$${totalEvalExp.toLocaleString()}`;
+        document.getElementById('retiredPaExpense').innerText = `$${totalPaExp.toLocaleString()}`;
+        document.getElementById('retiredTotalCost').innerText = `$${(totalEvalExp + totalPaExp).toLocaleString()}`;
+        document.getElementById('retiredHistoricalWithdrawals').innerText = `$${totalWd.toLocaleString()}`;
+
+        if (selectedAsset !== 'ALL') {
+            retiredAccounts = retiredAccounts.filter(a => a.assetClass === selectedAsset);
+        }
+        if (selectedFilter !== 'ALL') {
+            retiredAccounts = retiredAccounts.filter(a => a.status === selectedFilter);
+        }
+
+        retiredAccounts.forEach(acc => {
+            const evalExp = acc.evalExpense !== undefined ? acc.evalExpense : (acc.expenses && acc.expenses.category === 'EVAL' ? acc.expenses.amount : 0);
+            const paExp = acc.paExpense !== undefined ? acc.paExpense : (acc.expenses && acc.expenses.category === 'PA' ? acc.expenses.amount : 0);
+            const totalExp = evalExp + paExp;
+            const wd = acc.withdrawals || 0;
+
+            const row = document.createElement('tr');
+            const isCrypto = acc.assetClass === 'CRYPTO';
+
+            row.innerHTML = `
+                <td style="color: var(--ff-red); font-weight: bold; letter-spacing: 1px;">
+                    ${acc.name}
+                </td>
+                <td><span class="${isCrypto ? 'badge-crypto' : 'badge-futures'}">${acc.assetClass}</span></td>
+                <td><span class="${acc.status === 'FUNDED' ? 'badge-pa' : 'badge-eval'}">${acc.status}</span></td>
+                <td>${acc.accountType}</td>
+                <td>
+                    $${(acc.currentBalance || acc.initialBalance || 0).toLocaleString()}<br>
+                    <span style="color: ${(acc.totalPnl || 0) >= 0 ? 'var(--neon-green)' : 'var(--ff-red)'}; font-size: 0.8rem;">
+                        (${(acc.totalPnl || 0) >= 0 ? '+' : ''}${(acc.totalPnl || 0).toLocaleString()})
+                    </span>
+                </td>
+                <td style="color: var(--ff-yellow); font-weight: bold;">$${evalExp.toLocaleString()}</td>
+                <td style="color: var(--ff-red); font-weight: bold;">$${paExp.toLocaleString()}</td>
+                <td style="color: #ff6688; font-weight: bold;">$${totalExp.toLocaleString()}</td>
+                <td style="color: var(--neon-green); font-weight: bold;">$${wd.toLocaleString()}</td>
+                <td style="color: var(--text-dim); font-size: 0.8rem;">${acc.retiredDate || '-'}</td>
+                <td>
+                    <button class="btn-act btn-reactivate" onclick="reactivateAccount(${acc.id})">복원</button>
+                    <button class="btn-act btn-del" onclick="deleteAccount(${acc.id})">영구삭제</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        if (retiredAccounts.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; color: var(--text-dim); padding: 24px;">해당 조건의 은퇴/탈락 계좌가 없습니다.</td></tr>`;
+        }
+    }
+
+    function deleteAccount(id) {
+        if (confirm('계정을 영구 삭제하시겠습니까?')) {
+            accounts = accounts.filter(a => a.id !== id);
+            saveData();
+            if (currentMainTab === 'active') {
+                renderAccounts();
+            } else {
+                renderRetiredView();
+            }
+            populateAccountDropdowns();
+            renderCalendar();
+            renderCharts();
+        }
+    }
+
+    function renderCharts() {
+        updatePnlAccountList();
+        updateTargetProgressChart();
+    }
+
+    function updatePnlAccountList() {
+        const select = document.getElementById('pnlAccountSelect');
+        const assetFilterEl = document.getElementById('pnlAssetFilter');
+        if (!select || !assetFilterEl) return;
+
+        const assetFilter = assetFilterEl.value;
+        let activeAccounts = accounts.filter(a => !a.isRetired);
+        if (assetFilter !== 'ALL') {
+            activeAccounts = activeAccounts.filter(a => a.assetClass === assetFilter);
+        }
+
+        const selVal = select.value;
+        select.innerHTML = '';
+        activeAccounts.forEach(acc => {
+            const opt = document.createElement('option');
+            opt.value = acc.id;
+            opt.text = `[${acc.assetClass}|${acc.status}] ${acc.name}`;
+            if (acc.id == selVal) opt.selected = true;
+            select.appendChild(opt);
+        });
+
+        updatePnlChart();
+    }
+
+    function updatePnlChart() {
+        if (typeof Chart === 'undefined') return;
+        const select = document.getElementById('pnlAccountSelect');
+        const canvas = document.getElementById('dailyPnlChart');
+        if (!select || !canvas) return;
+
+        const accId = parseInt(select.value);
+        const acc = accounts.find(a => a.id === accId && !a.isRetired);
+        const ctx = canvas.getContext('2d');
+
+        if (pnlChartInstance) {
+            pnlChartInstance.destroy();
+            pnlChartInstance = null;
+        }
+
+        if (!acc || !acc.pnlHistory || acc.pnlHistory.length === 0) {
+            pnlChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: ['NO RECORD'], datasets: [{ data: [0], backgroundColor: '#333' }] },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+            return;
+        }
+
+        const history = acc.pnlHistory.slice(-10);
+        const labels = history.map(h => h.date);
+        const data = history.map(h => h.amount);
+        const colors = data.map(v => v >= 0 ? '#00ff66' : '#ff0055');
+
+        pnlChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'DAILY PnL ($)',
+                    data: data,
+                    backgroundColor: colors,
+                    borderColor: colors,
+                    borderWidth: 2,
+                    borderRadius: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                },
+                plugins: { legend: { labels: { color: '#ffb703' } } }
+            }
+        });
+    }
+
+    function updateTargetProgressChart() {
+        if (typeof Chart === 'undefined') return;
+        const assetFilterEl = document.getElementById('targetAssetFilter');
+        const filterEl = document.getElementById('targetFilterSelect');
+        const canvas = document.getElementById('targetProgressChart');
+        if (!filterEl || !canvas || !assetFilterEl) return;
+
+        const assetFilter = assetFilterEl.value;
+        const filter = filterEl.value;
+        const ctx = canvas.getContext('2d');
+
+        if (progressChartInstance) {
+            progressChartInstance.destroy();
+            progressChartInstance = null;
+        }
+
+        let filtered = accounts.filter(a => !a.isRetired && (a.target || 0) > 0);
+        if (assetFilter !== 'ALL') filtered = filtered.filter(a => a.assetClass === assetFilter);
+        if (filter !== 'ALL') filtered = filtered.filter(a => a.status === filter);
+
+        if (filtered.length === 0) {
+            progressChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: ['타겟 설정 계정 없음'], datasets: [{ data: [0], backgroundColor: '#333' }] },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+            return;
+        }
+
+        const labels = filtered.map(a => `[${a.assetClass}|${a.status}] ${a.name}`);
+        const percentReached = filtered.map(a => Math.min(100, Math.max(0, ((a.totalPnl || 0) / a.target) * 100)));
+        const percentRemaining = percentReached.map(pct => Math.max(0, 100 - pct));
+        const barColors = filtered.map(a => a.status === 'FUNDED' ? '#00ff66' : '#00f0ff');
+
+        progressChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: '달성률 (%)', data: percentReached, backgroundColor: barColors, borderWidth: 1 },
+                    { label: '목표 잔여율 (%)', data: percentRemaining, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1 }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { stacked: true, ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { stacked: true, min: 0, max: 100, ticks: { color: '#888', callback: val => val + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                },
+                plugins: { legend: { labels: { color: '#ffb703' } } }
+            }
+        });
+    }
+
     function shiftCalendar(delta) {
         currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
         renderCalendar();
@@ -956,7 +2084,6 @@
         }
     }
 
-    /* 통합 마스터 노트 관리 (모달, 수정, 삭제, 이미지 프리뷰 및 원본 팝업) */
     function populateAccountDropdowns() {
         const modalSelect = document.getElementById('noteAccountSelect');
         const filterSelect = document.getElementById('notesFilterSelect');
@@ -1045,7 +2172,10 @@
         let accLabel = 'NONE (General)';
         if (accId !== 'NONE') {
             const target = accounts.find(a => a.id == accId);
-            if (target) accLabel = target.name;
+            if (target) {
+                accLabel = target.name;
+                target.lastActivityDate = date;
+            }
         }
 
         if (editingId) {
@@ -1073,6 +2203,7 @@
         closeNoteModal();
         renderCalendar();
         renderNotesList();
+        checkInactivity();
     }
 
     function deleteNote(noteId) {
@@ -1140,9 +2271,11 @@
 
     function exportData() {
         const fullBackup = {
-            version: '3.6',
+            version: '4.1',
             accounts: accounts,
             globalNotes: globalNotes,
+            personalNotes: personalNotes,
+            dismissedInactivity: dismissedInactivity,
             exportedAt: new Date().toISOString()
         };
         const blob = new Blob([JSON.stringify(fullBackup, null, 2)], { type: 'application/json' });
@@ -1162,13 +2295,23 @@
                 const parsed = JSON.parse(evt.target.result);
                 if (parsed.accounts) accounts = parsed.accounts;
                 if (parsed.globalNotes) globalNotes = parsed.globalNotes;
+                if (parsed.personalNotes !== undefined) {
+                    personalNotes = parsed.personalNotes;
+                    localStorage.setItem('ff_personal_notes', personalNotes);
+                    loadPersonalNotes();
+                }
+                if (parsed.dismissedInactivity) {
+                    dismissedInactivity = parsed.dismissedInactivity;
+                }
                 sanitizeAccounts(accounts);
                 saveData();
                 renderAccounts();
                 populateAccountDropdowns();
                 renderCalendar();
                 renderNotesList();
-                alert('원장 및 노트 데이터 복원이 완료되었습니다.');
+                renderCharts();
+                checkInactivity();
+                alert('원장, 차트, 비공개 메모 및 출금/비용 데이터 복원이 완료되었습니다.');
             } catch(err) {
                 alert('파일 파싱 중 오류가 발생했습니다.');
             }
@@ -1177,11 +2320,14 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+        loadPersonalNotes();
         renderAccounts();
         populateAccountDropdowns();
         renderCalendar();
         renderNotesList();
+        renderCharts();
         updateSummary();
+        checkInactivity();
     });
 </script>
 
