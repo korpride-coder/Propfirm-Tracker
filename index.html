@@ -508,7 +508,7 @@
             background: #0a0a0f;
             border: 1px solid var(--ff-yellow);
             box-shadow: 0 0 30px rgba(255, 183, 3, 0.35);
-            width: 90%; max-width: 720px;
+            width: 90%; max-width: 820px;
             border-radius: 6px;
             padding: 24px;
             max-height: 88vh;
@@ -533,6 +533,62 @@
             border: 1px solid #444;
             border-radius: 4px;
         }
+
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+            }
+            .cyber-backdrop, .terminal-header, .terminal-tabs, #activeDashboardView, #retiredArchiveView, 
+            .cyber-modal:not(#reportPrintModal), #reportControlsArea, #reportActionBtnGroup {
+                display: none !important;
+            }
+            #reportPrintModal {
+                display: block !important;
+                position: static !important;
+                background: #ffffff !important;
+                padding: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+            }
+            #reportPrintModal .cyber-modal-content {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border: none !important;
+                box-shadow: none !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+            table {
+                border-collapse: collapse !important;
+                width: 100% !important;
+                margin-top: 15px !important;
+            }
+            th, td {
+                border: 1px solid #333333 !important;
+                color: #000000 !important;
+                background: #ffffff !important;
+                padding: 6px 8px !important;
+                font-size: 11px !important;
+            }
+            th {
+                background: #eeeeee !important;
+            }
+            .stat-card {
+                border: 1px solid #333 !important;
+                background: #fafafa !important;
+            }
+            .stat-value {
+                color: #000 !important;
+            }
+            .badge-eval, .badge-pa, .badge-crypto, .badge-futures {
+                border: 1px solid #333 !important;
+                color: #000 !important;
+                padding: 1px 3px !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -545,13 +601,15 @@
             <img src="FF.png" alt="FF Logo" class="brand-logo" onerror="this.style.display='none'">
             <div>
                 <h1 class="brand-title">FF PROP TERMINAL</h1>
-                <p class="brand-subtitle">Interactive PnL Calendar • Neon Notes • 1 NQ Target Blueprint</p>
+                <p class="brand-subtitle">Interactive PnL Calendar • Multi-Firm Reporting • 1 NQ Target Blueprint</p>
             </div>
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <!-- POP-UP FINANCIAL AUDIT BUTTON -->
-            <button class="cyber-btn" onclick="openFinanceAuditModal()" style="background: linear-gradient(135deg, #00f0ff, #00ff66); color: #000; font-size: 0.78rem; padding: 7px 14px;">
-                💰 FINANCIAL AUDIT (EXP/WD/REV)
+            <button class="cyber-btn" onclick="openReportModal()" style="background: linear-gradient(135deg, var(--neon-blue), var(--ff-yellow)); color: #000; font-size: 0.78rem; padding: 7px 14px;">
+                📊 REPORT &amp; PRINT DESK
+            </button>
+            <button class="cyber-btn-outline" onclick="openFinanceAuditModal()" style="border-color: var(--neon-green); color: var(--neon-green);">
+                💰 AUDIT LEDGER
             </button>
             <button class="cyber-btn-outline" onclick="openNoteModalForDate(new Date().toISOString().slice(0, 10))">+ NEW NOTE</button>
             <button class="cyber-btn-outline" onclick="exportData()">EXPORT JSON</button>
@@ -841,9 +899,138 @@
     </div>
 </div>
 
-<!-- ==========================================
-     POP-UP FINANCIAL AUDIT MODAL (EXPENSE, WITHDRAWAL, REVENUE)
-     ========================================== -->
+<!-- REPORT & PRINT MODAL DESK -->
+<div class="cyber-modal" id="reportPrintModal">
+    <div class="cyber-modal-content" style="max-width: 980px; border-color: var(--neon-blue); box-shadow: 0 0 35px rgba(0, 240, 255, 0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div class="panel-heading" style="margin: 0; color: var(--neon-blue);">
+                📊 PROP AUDIT REPORT &amp; PRINT DESK
+            </div>
+            <button class="cyber-btn-outline" onclick="closeReportModal()">X CLOSE</button>
+        </div>
+
+        <div id="reportControlsArea" style="background: rgba(0,0,0,0.6); padding: 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; margin-bottom: 18px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 10px;">
+                <div class="field-group">
+                    <label>프랍펌 (PROP FIRM)</label>
+                    <select id="repFirmFilter" onchange="generateReport()"></select>
+                </div>
+                <div class="field-group">
+                    <label>계정 유형 (TYPE)</label>
+                    <select id="repTypeFilter" onchange="generateReport()">
+                        <option value="ALL">전체 (EVAL + PA)</option>
+                        <option value="EVAL">EVAL만</option>
+                        <option value="FUNDED">PA / FUNDED만</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label>기간 템플릿 (RANGE PRESET)</label>
+                    <select id="repPresetFilter" onchange="applyReportDatePreset()">
+                        <option value="ALL">전체 기간 (All-Time)</option>
+                        <option value="WEEK">이번 주 (This Week)</option>
+                        <option value="MONTH">이번 달 (This Month)</option>
+                        <option value="YTD">올해 누적 (YTD / This Year)</option>
+                        <option value="CUSTOM">사용자 지정 (Custom Range)</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label>시작일 (FROM)</label>
+                    <input type="date" id="repStartDate" onchange="generateReport()">
+                </div>
+                <div class="field-group">
+                    <label>종료일 (TO)</label>
+                    <input type="date" id="repEndDate" onchange="generateReport()">
+                </div>
+            </div>
+
+            <div id="reportActionBtnGroup" style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap;">
+                <button class="cyber-btn" onclick="generateReport()" style="padding: 6px 14px; font-size: 0.75rem;">보고서 새로고침</button>
+                <button class="cyber-btn" onclick="printReportDocument()" style="background: linear-gradient(135deg, var(--neon-green), #00aa44); color: #000; padding: 6px 16px; font-size: 0.75rem;">
+                    🖨 PRINT STATEMENT (인쇄 / PDF 저장)
+                </button>
+                <button class="cyber-btn" onclick="printActiveUnitsDocument()" style="background: linear-gradient(135deg, var(--neon-blue), #0088cc); color: #000; padding: 6px 16px; font-size: 0.75rem;">
+                    🖨 PRINT ACTIVE ROSTER (활성 계정 출력)
+                </button>
+            </div>
+        </div>
+
+        <div id="printableDocument">
+            <div style="border-bottom: 2px solid var(--ff-yellow); padding-bottom: 10px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h2 style="margin: 0; color: var(--ff-yellow); font-size: 1.3rem; letter-spacing: 2px;">FF PROP TRADING STATEMENT</h2>
+                    <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 3px;" id="repPrintMetaSubtitle">Multi-Account Prop Performance Ledger</div>
+                </div>
+                <div style="text-align: right; font-size: 0.72rem; color: var(--text-dim);">
+                    발행일시: <span id="repGeneratedTimestamp"></span>
+                </div>
+            </div>
+
+            <div class="stat-grid" style="margin-bottom: 18px;">
+                <div class="stat-card blue">
+                    <div class="stat-label">GROSS P&amp;L (필터 기간 실현손익)</div>
+                    <div class="stat-value" id="repGrossPnl" style="color: var(--neon-blue); font-size: 1.3rem;">$0</div>
+                </div>
+                <div class="stat-card pink">
+                    <div class="stat-label">EXPENSE TOTAL (비용/세금공제)</div>
+                    <div class="stat-value" id="repTotalExpenses" style="color: var(--ff-red); font-size: 1.3rem;">$0</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-label">WITHDRAWAL REALIZED (PA 출금)</div>
+                    <div class="stat-value" id="repTotalWithdrawals" style="color: var(--neon-green); font-size: 1.3rem;">$0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">NET REVENUE (순이익 / 과세표준)</div>
+                    <div class="stat-value" id="repNetRevenue" style="color: var(--ff-yellow); font-size: 1.3rem;">$0</div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 22px;">
+                <div style="font-size: 0.82rem; color: var(--ff-yellow); font-weight: bold; margin-bottom: 8px;">
+                    ■ ACCOUNT ROSTER &amp; NQ METRICS SUMMARY
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>계정 태그</th>
+                                <th>프랍펌</th>
+                                <th>자산</th>
+                                <th>유형</th>
+                                <th>현재 잔고</th>
+                                <th>기간 손익 (PnL)</th>
+                                <th>목표 잔여액 (1 NQ Ticks)</th>
+                                <th>DD 버퍼 (Daily / Max)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="repAccountsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <div style="font-size: 0.82rem; color: var(--neon-blue); font-weight: bold; margin-bottom: 8px;">
+                    ■ DETAILED DAILY PnL AUDIT TRAIL
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>거래일자</th>
+                                <th>계정명</th>
+                                <th>프랍펌</th>
+                                <th>마감 밸런스 ($)</th>
+                                <th>당일 손익 (PnL)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="repDailyLogsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FINANCIAL AUDIT MODAL -->
 <div class="cyber-modal" id="financialAuditModal">
     <div class="cyber-modal-content" style="max-width: 900px; border-color: var(--neon-green); box-shadow: 0 0 35px rgba(0, 255, 102, 0.3);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -853,7 +1040,6 @@
             <button class="cyber-btn-outline" onclick="closeFinanceAuditModal()">X CLOSE</button>
         </div>
 
-        <!-- REVENUE / TAX SUMMARY CARDS -->
         <div class="stat-grid" style="margin-bottom: 20px;">
             <div class="stat-card pink">
                 <div class="stat-label">TOTAL EXPENSES (총 지출/세금공제)</div>
@@ -873,7 +1059,6 @@
             </div>
         </div>
 
-        <!-- 1. FUNDED ACCOUNT WITHDRAWALS TABLE -->
         <div style="margin-bottom: 24px;">
             <div style="font-size: 0.82rem; color: var(--neon-green); font-weight: bold; letter-spacing: 1px; margin-bottom: 8px;">
                 ■ FUNDED (PA) WITHDRAWAL LOGS
@@ -894,7 +1079,6 @@
             </div>
         </div>
 
-        <!-- 2. EXPENSES AUDIT TABLE -->
         <div>
             <div style="font-size: 0.82rem; color: var(--ff-red); font-weight: bold; letter-spacing: 1px; margin-bottom: 8px;">
                 ■ EXPENSE AUDIT BREAKDOWN (EVAL / PA FEES)
@@ -1038,15 +1222,19 @@
     </div>
 </div>
 
-<!-- RULE / DD INLINE EDIT MODAL -->
+<!-- RULE / DD & ACCOUNT TAG INLINE EDIT MODAL (UPDATED) -->
 <div class="cyber-modal" id="ruleEditModal">
     <div class="cyber-modal-content" style="max-width: 480px; border-color: var(--neon-purple);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <div class="panel-heading" style="margin: 0; color: var(--neon-purple);" id="ruleEditTitle">RULE &amp; RISK PARAMETERS</div>
+            <div class="panel-heading" style="margin: 0; color: var(--neon-purple);" id="ruleEditTitle">RULE, TAG &amp; RISK PARAMETERS</div>
             <button class="cyber-btn-outline" onclick="closeRuleEditModal()">X CLOSE</button>
         </div>
         <input type="hidden" id="ruleEditAccountId">
         <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+            <div class="field-group">
+                <label>계정 식별 태그/번호 (ID TAG / NUMBER)</label>
+                <input type="text" id="ruleAccountNumInput" placeholder="예: 01 또는 93821">
+            </div>
             <div class="field-group">
                 <label>일관성 룰 (CONSISTENCY %)</label>
                 <input type="text" id="ruleConsistencyInput" placeholder="예: 30% 또는 없음">
@@ -1061,7 +1249,7 @@
             </div>
         </div>
         <button class="cyber-btn" onclick="saveRuleEdit()" style="width: 100%; background: linear-gradient(135deg, var(--neon-purple), #7209b7); color: #fff;">
-            UPDATE PARAMETERS
+            UPDATE PARAMETERS &amp; TAG
         </button>
     </div>
 </div>
@@ -1183,9 +1371,185 @@
         }
     }
 
-    /* ========================================================
-       FINANCIAL AUDIT POPUP LOGIC (Expense / Withdrawal / Revenue)
-       ======================================================== */
+    /* REPORT DESK LOGIC */
+    function openReportModal() {
+        populateReportFirmFilter();
+        applyReportDatePreset();
+        generateReport();
+        document.getElementById('reportPrintModal').style.display = 'flex';
+    }
+
+    function closeReportModal() {
+        document.getElementById('reportPrintModal').style.display = 'none';
+    }
+
+    function populateReportFirmFilter() {
+        const firmSelect = document.getElementById('repFirmFilter');
+        if (!firmSelect) return;
+        const firms = Array.from(new Set(accounts.map(a => a.platform))).filter(Boolean);
+        
+        firmSelect.innerHTML = '<option value="ALL">전체 프랍펌 (ALL FIRMS)</option>';
+        firms.forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f;
+            opt.text = f;
+            firmSelect.appendChild(opt);
+        });
+    }
+
+    function applyReportDatePreset() {
+        const preset = document.getElementById('repPresetFilter').value;
+        const startInput = document.getElementById('repStartDate');
+        const endInput = document.getElementById('repEndDate');
+        const today = new Date();
+
+        if (preset === 'ALL') {
+            startInput.value = '';
+            endInput.value = '';
+        } else if (preset === 'WEEK') {
+            const dayOfWeek = today.getDay();
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+            startInput.value = monday.toISOString().slice(0, 10);
+            endInput.value = today.toISOString().slice(0, 10);
+        } else if (preset === 'MONTH') {
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            startInput.value = firstDay.toISOString().slice(0, 10);
+            endInput.value = today.toISOString().slice(0, 10);
+        } else if (preset === 'YTD') {
+            const firstJan = new Date(today.getFullYear(), 0, 1);
+            startInput.value = firstJan.toISOString().slice(0, 10);
+            endInput.value = today.toISOString().slice(0, 10);
+        }
+        generateReport();
+    }
+
+    function generateReport() {
+        const firmFilter = document.getElementById('repFirmFilter').value;
+        const typeFilter = document.getElementById('repTypeFilter').value;
+        const startDate = document.getElementById('repStartDate').value;
+        const endDate = document.getElementById('repEndDate').value;
+
+        document.getElementById('repGeneratedTimestamp').innerText = new Date().toLocaleString();
+        let subtitleText = `Firm: ${firmFilter} | Type: ${typeFilter}`;
+        if (startDate || endDate) {
+            subtitleText += ` | Range: ${startDate || '처음'} ~ ${endDate || '현재'}`;
+        } else {
+            subtitleText += ` | Range: All-Time`;
+        }
+        document.getElementById('repPrintMetaSubtitle').innerText = subtitleText;
+
+        let targetAccounts = [...accounts];
+        if (firmFilter !== 'ALL') {
+            targetAccounts = targetAccounts.filter(a => a.platform === firmFilter);
+        }
+        if (typeFilter !== 'ALL') {
+            targetAccounts = targetAccounts.filter(a => a.status === typeFilter);
+        }
+
+        let filteredPnlSum = 0;
+        let filteredExpSum = 0;
+        let filteredWdSum = 0;
+
+        const dailyLogs = [];
+        targetAccounts.forEach(acc => {
+            filteredExpSum += ((acc.evalExpense || 0) + (acc.paExpense || 0));
+
+            if (acc.withdrawalHistory) {
+                acc.withdrawalHistory.forEach(w => {
+                    if ((!startDate || w.date >= startDate) && (!endDate || w.date <= endDate)) {
+                        filteredWdSum += (w.amount || 0);
+                    }
+                });
+            }
+
+            if (acc.pnlHistory) {
+                acc.pnlHistory.forEach(h => {
+                    if ((!startDate || h.date >= startDate) && (!endDate || h.date <= endDate)) {
+                        filteredPnlSum += (h.amount || 0);
+                        dailyLogs.push({
+                            date: h.date,
+                            accName: acc.name,
+                            platform: acc.platform,
+                            balance: h.balance !== undefined ? h.balance : '-',
+                            amount: h.amount
+                        });
+                    }
+                });
+            }
+        });
+
+        document.getElementById('repGrossPnl').innerText = `${filteredPnlSum >= 0 ? '+' : ''}$${filteredPnlSum.toLocaleString()}`;
+        document.getElementById('repGrossPnl').style.color = filteredPnlSum >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
+
+        document.getElementById('repTotalExpenses').innerText = `$${filteredExpSum.toLocaleString()}`;
+        document.getElementById('repTotalWithdrawals').innerText = `$${filteredWdSum.toLocaleString()}`;
+        
+        const netRev = filteredWdSum - filteredExpSum;
+        const netEl = document.getElementById('repNetRevenue');
+        netEl.innerText = `${netRev >= 0 ? '+' : ''}$${netRev.toLocaleString()}`;
+        netEl.style.color = netRev >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
+
+        const accTbody = document.getElementById('repAccountsTableBody');
+        accTbody.innerHTML = '';
+        targetAccounts.forEach(acc => {
+            const currentPnl = acc.totalPnl || 0;
+            const target = acc.target || 0;
+            const remGap = Math.max(0, target - currentPnl);
+            const ticksNeeded = Math.round(remGap / 5);
+
+            let dailyDdBuf = acc.dailyDd > 0 ? `$${acc.dailyDd.toLocaleString()}` : '무제한';
+            let hardDdBuf = acc.hardDd > 0 ? `$${Math.max(0, acc.hardDd + currentPnl).toLocaleString()}` : '-';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="font-weight: bold; color: var(--ff-yellow);">${acc.name}</td>
+                <td>${acc.platform}</td>
+                <td>${acc.assetClass}</td>
+                <td><span class="${acc.status === 'FUNDED' ? 'badge-pa' : 'badge-eval'}">${acc.status}</span></td>
+                <td>$${acc.currentBalance.toLocaleString()}</td>
+                <td style="color: ${currentPnl >= 0 ? 'var(--neon-green)' : 'var(--ff-red)'}; font-weight: bold;">
+                    ${currentPnl >= 0 ? '+' : ''}$${currentPnl.toLocaleString()}
+                </td>
+                <td>$${remGap.toLocaleString()} (${ticksNeeded} ticks)</td>
+                <td>${dailyDdBuf} / ${hardDdBuf}</td>
+            `;
+            accTbody.appendChild(tr);
+        });
+
+        dailyLogs.sort((a, b) => b.date.localeCompare(a.date));
+        const logTbody = document.getElementById('repDailyLogsTableBody');
+        logTbody.innerHTML = '';
+        if (dailyLogs.length === 0) {
+            logTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 12px;">선택 기간에 발생한 거래 기록이 없습니다.</td></tr>`;
+        } else {
+            dailyLogs.forEach(l => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="color: var(--ff-yellow);">${l.date}</td>
+                    <td style="font-weight: bold;">${l.accName}</td>
+                    <td>${l.platform}</td>
+                    <td>${typeof l.balance === 'number' ? '$' + l.balance.toLocaleString() : l.balance}</td>
+                    <td style="color: ${l.amount >= 0 ? 'var(--neon-green)' : 'var(--ff-red)'}; font-weight: bold;">
+                        ${l.amount >= 0 ? '+' : ''}$${l.amount.toLocaleString()}
+                    </td>
+                `;
+                logTbody.appendChild(tr);
+            });
+        }
+    }
+
+    function printReportDocument() {
+        window.print();
+    }
+
+    function printActiveUnitsDocument() {
+        document.getElementById('repTypeFilter').value = 'ALL';
+        generateReport();
+        window.print();
+    }
+
+    /* FINANCIAL AUDIT POPUP LOGIC */
     function openFinanceAuditModal() {
         const totalExp = accounts.reduce((s, a) => s + ((a.evalExpense || 0) + (a.paExpense || 0)), 0);
         const totalWd = accounts.reduce((s, a) => s + (a.withdrawals || 0), 0);
@@ -1203,7 +1567,6 @@
         roiEl.innerText = `${roi}%`;
         roiEl.style.color = net >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
 
-        // Render Withdrawals Table
         const wdTbody = document.getElementById('auditWithdrawalsTableBody');
         wdTbody.innerHTML = '';
         let hasWithdrawals = false;
@@ -1229,10 +1592,8 @@
             wdTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 14px;">기록된 PA 출금 내역이 없습니다.</td></tr>`;
         }
 
-        // Render Expenses Table
         const expTbody = document.getElementById('auditExpensesTableBody');
         expTbody.innerHTML = '';
-
         accounts.forEach(acc => {
             const evalFee = acc.evalExpense || 0;
             const paFee = acc.paExpense || 0;
@@ -1614,11 +1975,13 @@
         alert(`[${acc.name}] 계정이 PA로 성공적으로 승격되었습니다.`);
     }
 
+    /* RULE & ACCOUNT TAG MODAL (UPDATED) */
     function openRuleEditModal(id) {
         const acc = accounts.find(a => a.id === id);
         if (!acc) return;
         document.getElementById('ruleEditAccountId').value = id;
-        document.getElementById('ruleEditTitle').innerText = `[${acc.name}] RULE & DD CONFIG`;
+        document.getElementById('ruleEditTitle').innerText = `[${acc.name}] RULE, TAG & RISK CONFIG`;
+        document.getElementById('ruleAccountNumInput').value = acc.accountNum || '';
         document.getElementById('ruleConsistencyInput').value = acc.consistency || '없음';
         document.getElementById('ruleDailyDdInput').value = acc.dailyDd || 0;
         document.getElementById('ruleHardDdInput').value = acc.hardDd || 0;
@@ -1634,6 +1997,24 @@
         const acc = accounts.find(a => a.id === id);
         if (!acc) return;
 
+        const oldName = acc.name;
+        const newTag = document.getElementById('ruleAccountNumInput').value.trim();
+        if (!newTag) {
+            alert('계정 번호/식별 태그를 비워둘 수 없습니다.');
+            return;
+        }
+
+        // Rename Account Tag & Full Name
+        acc.accountNum = newTag;
+        acc.name = `${acc.platform}-${newTag}`;
+
+        // Cascade update in global notes if matched to old name
+        globalNotes.forEach(n => {
+            if (n.accountId == acc.id) {
+                n.accountLabel = acc.name;
+            }
+        });
+
         const consistencyVal = document.getElementById('ruleConsistencyInput').value.trim();
         acc.consistency = consistencyVal ? (consistencyVal.includes('%') || consistencyVal === '없음' ? consistencyVal : consistencyVal + '%') : '없음';
         acc.dailyDd = parseFloat(document.getElementById('ruleDailyDdInput').value) || 0;
@@ -1642,7 +2023,11 @@
         closeRuleEditModal();
         saveData();
         renderAccounts();
+        populateAccountDropdowns();
+        renderCalendar();
+        renderNotesList();
         renderCharts();
+        alert(`[${oldName}] 계정이 [${acc.name}] 으로 변경 및 업데이트되었습니다.`);
     }
 
     function renderAccounts() {
@@ -1724,7 +2109,7 @@
                     <div class="action-row">
                         <button class="btn-act btn-pnl" onclick="recordActualBalance(${acc.id})" title="마감 잔고 입력">밸런스</button>
                         <button class="btn-act btn-hist" onclick="openHistoryModal(${acc.id})" title="PnL 내역 수정">내역/수정</button>
-                        <button class="btn-act btn-rule" onclick="openRuleEditModal(${acc.id})" title="룰/DD 파라미터 수정">룰/설정</button>
+                        <button class="btn-act btn-rule" onclick="openRuleEditModal(${acc.id})" title="태그/룰/DD 파라미터 수정">룰/설정</button>
                         ${!isFunded ? `<button class="btn-act btn-upgrade" onclick="openPaUpgradeModal(${acc.id})">PA전환</button>` : ''}
                         ${isFunded ? `<button class="btn-act btn-wd" onclick="recordWithdrawal(${acc.id})" title="출금 기록">출금</button>` : ''}
                         <button class="btn-act btn-target" onclick="openNoteModalForAccount(${acc.id})">노트</button>
@@ -2271,7 +2656,7 @@
 
     function exportData() {
         const fullBackup = {
-            version: '4.1',
+            version: '4.3',
             accounts: accounts,
             globalNotes: globalNotes,
             personalNotes: personalNotes,
