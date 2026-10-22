@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FF PROP TERMINAL</title>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase App & Realtime Database SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
     <style>
         :root {
             --bg-pitch: #000000;
@@ -90,6 +94,19 @@
             font-size: 0.72rem;
             color: var(--neon-blue);
             letter-spacing: 2px;
+        }
+
+        .sync-badge {
+            font-size: 0.68rem;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid #333;
+            background: rgba(0,0,0,0.6);
         }
 
         .terminal-tabs {
@@ -601,10 +618,13 @@
             <img src="FF.png" alt="FF Logo" class="brand-logo" onerror="this.style.display='none'">
             <div>
                 <h1 class="brand-title">FF PROP TERMINAL</h1>
-                <p class="brand-subtitle">Interactive PnL Calendar • Multi-Firm Reporting • 1 NQ Target Blueprint</p>
+                <p class="brand-subtitle">Interactive PnL Calendar • Cloud Two-Way Sync • 1 NQ Target Blueprint</p>
             </div>
         </div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <span class="sync-badge" id="cloudStatusBadge" style="color: var(--neon-green); border-color: var(--neon-green);">
+                ● CLOUD: CONNECTING...
+            </span>
             <button class="cyber-btn" onclick="openReportModal()" style="background: linear-gradient(135deg, var(--neon-blue), var(--ff-yellow)); color: #000; font-size: 0.78rem; padding: 7px 14px;">
                 📊 REPORT &amp; PRINT DESK
             </button>
@@ -745,7 +765,7 @@
                 <textarea id="personalNotesArea" rows="4" placeholder="비공개 매매 원칙, 멘탈 점검 등을 기록하세요 (자동 저장)..." oninput="savePersonalNotes()" style="width: 100%; resize: vertical;"></textarea>
             </div>
             <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 6px; display: flex; justify-content: space-between;">
-                <span>* JSON 백업 시 함께 보존됩니다.</span>
+                <span>* 클라우드 동기화 및 JSON 백업 시 함께 보존됩니다.</span>
                 <span id="personalSaveNotice" style="color: var(--neon-green);"></span>
             </div>
         </section>
@@ -1222,7 +1242,7 @@
     </div>
 </div>
 
-<!-- RULE / DD, TARGET & ACCOUNT TAG INLINE EDIT MODAL (UPDATED WITH TARGET FIELD) -->
+<!-- RULE / DD, TARGET & ACCOUNT TAG INLINE EDIT MODAL -->
 <div class="cyber-modal" id="ruleEditModal">
     <div class="cyber-modal-content" style="max-width: 480px; border-color: var(--neon-purple);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -1270,6 +1290,31 @@
 </div>
 
 <script>
+    /* ========================================================
+       FIREBASE CONFIGURATION & REALTIME DATABASE INITIALIZATION
+       ======================================================== */
+    const firebaseConfig = {
+        apiKey: "AIzaSyCXIp_chCiKqrc5uBQcoGTxZ6Jd1bJ6HUI",
+        authDomain: "ff-prop-terminal.firebaseapp.com",
+        databaseURL: "https://ff-prop-terminal-default-rtdb.firebaseio.com",
+        projectId: "ff-prop-terminal",
+        storageBucket: "ff-prop-terminal.firebasestorage.app",
+        messagingSenderId: "559557152197",
+        appId: "1:559557152197:web:407f7244acb9357a75cfac"
+    };
+
+    let firebaseDb = null;
+    let isCloudReady = false;
+    let isRemoteUpdate = false;
+
+    try {
+        firebase.initializeApp(firebaseConfig);
+        firebaseDb = firebase.database();
+        isCloudReady = true;
+    } catch(err) {
+        console.warn("Firebase initialization notice:", err);
+    }
+
     let accounts = [];
     try {
         const stored = localStorage.getItem('tradingAccounts');
@@ -1322,6 +1367,80 @@
     }
     sanitizeAccounts(accounts);
 
+    /* TWO-WAY SYNC CONTROLLER */
+    function initFirebaseSync() {
+        const badge = document.getElementById('cloudStatusBadge');
+        if (!isCloudReady || !firebaseDb) {
+            if (badge) {
+                badge.innerText = "● LOCAL ONLY (OFFLINE)";
+                badge.style.color = "var(--ff-yellow)";
+                badge.style.borderColor = "var(--ff-yellow)";
+            }
+            return;
+        }
+
+        const terminalRef = firebaseDb.ref('terminalData');
+
+        terminalRef.once('value', snapshot => {
+            if (!snapshot.exists()) {
+                saveDataToCloud();
+            }
+        });
+
+        terminalRef.on('value', snapshot => {
+            if (badge) {
+                badge.innerText = "● CLOUD: ONLINE / SYNCED";
+                badge.style.color = "var(--neon-green)";
+                badge.style.borderColor = "var(--neon-green)";
+            }
+
+            const data = snapshot.val();
+            if (!data) return;
+
+            isRemoteUpdate = true;
+            if (data.accounts) accounts = data.accounts;
+            if (data.globalNotes) globalNotes = data.globalNotes;
+            if (data.personalNotes !== undefined) {
+                personalNotes = data.personalNotes;
+                loadPersonalNotes();
+            }
+            if (data.dismissedInactivity) dismissedInactivity = data.dismissedInactivity;
+
+            sanitizeAccounts(accounts);
+            localStorage.setItem('tradingAccounts', JSON.stringify(accounts));
+            localStorage.setItem('ff_market_notes', JSON.stringify(globalNotes));
+            localStorage.setItem('ff_personal_notes', personalNotes);
+            localStorage.setItem('dismissedInactivity', JSON.stringify(dismissedInactivity));
+
+            renderAccounts();
+            populateAccountDropdowns();
+            renderCalendar();
+            renderNotesList();
+            renderCharts();
+            updateSummary();
+            checkInactivity();
+            isRemoteUpdate = false;
+        }, error => {
+            if (badge) {
+                badge.innerText = "● CLOUD: PERMISSION / SYNC ERROR";
+                badge.style.color = "var(--ff-red)";
+                badge.style.borderColor = "var(--ff-red)";
+            }
+            console.error("Firebase sync error:", error);
+        });
+    }
+
+    function saveDataToCloud() {
+        if (!isCloudReady || !firebaseDb) return;
+        firebaseDb.ref('terminalData').set({
+            accounts: accounts,
+            globalNotes: globalNotes,
+            personalNotes: personalNotes,
+            dismissedInactivity: dismissedInactivity,
+            updatedAt: new Date().toISOString()
+        }).catch(err => console.error("Cloud push failed:", err));
+    }
+
     function switchMainTab(tabName) {
         currentMainTab = tabName;
         const activeView = document.getElementById('activeDashboardView');
@@ -1354,6 +1473,9 @@
         localStorage.setItem('ff_market_notes', JSON.stringify(globalNotes));
         localStorage.setItem('dismissedInactivity', JSON.stringify(dismissedInactivity));
         updateSummary();
+        if (!isRemoteUpdate) {
+            saveDataToCloud();
+        }
     }
 
     function updateSummary() {
@@ -1745,6 +1867,9 @@
             notice.innerText = '저장됨 ✓';
             setTimeout(() => { notice.innerText = ''; }, 1500);
         }
+        if (!isRemoteUpdate) {
+            saveDataToCloud();
+        }
     }
 
     function togglePersonalPrivacy() {
@@ -2003,7 +2128,6 @@
         alert(`[${acc.name}] 계정이 PA로 성공적으로 승격되었습니다.`);
     }
 
-    /* RULE, TARGET & ACCOUNT TAG MODAL (UPDATED) */
     function openRuleEditModal(id) {
         const acc = accounts.find(a => a.id === id);
         if (!acc) return;
@@ -2033,18 +2157,15 @@
             return;
         }
 
-        // Rename Account Tag & Full Name
         acc.accountNum = newTag;
         acc.name = `${acc.platform}-${newTag}`;
 
-        // Cascade update in global notes if matched to old name
         globalNotes.forEach(n => {
             if (n.accountId == acc.id) {
                 n.accountLabel = acc.name;
             }
         });
 
-        // Update Target
         const newTarget = parseFloat(document.getElementById('ruleTargetInput').value);
         acc.target = isNaN(newTarget) ? 0 : Math.max(0, newTarget);
 
@@ -2746,6 +2867,7 @@
         renderCharts();
         updateSummary();
         checkInactivity();
+        initFirebaseSync();
     });
 </script>
 
