@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FF PROP TERMINAL - Interactive Journal &amp; Multi-Account Desk</title>
+    <title>FF PROP TERMINAL - Full Operational Suite</title>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Firebase SDK (v8 Compat) -->
@@ -12,15 +12,15 @@
 
     <style>
         :root {
-            --bg-color: #080a0f;
-            --panel-bg: #0f141f;
-            --panel-border: #1e2638;
+            --bg-color: #06080d;
+            --panel-bg: #0c1019;
+            --panel-border: #182234;
             --neon-green: #00ff88;
             --neon-cyan: #00e5ff;
             --ff-yellow: #ffb703;
             --neon-red: #ff3366;
             --text-main: #f0f4fc;
-            --text-dim: #7e8b9b;
+            --text-dim: #738294;
         }
 
         * {
@@ -44,16 +44,16 @@
             align-items: center;
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
-            padding: 14px 20px;
+            padding: 12px 20px;
             border-radius: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             flex-wrap: wrap;
             gap: 12px;
         }
 
         .header-title-wrap h1 {
-            font-size: 1.4rem;
+            font-size: 1.35rem;
             letter-spacing: 1.5px;
             color: var(--ff-yellow);
             display: flex;
@@ -63,8 +63,8 @@
 
         .header-title-wrap p {
             color: var(--neon-cyan);
-            font-size: 0.75rem;
-            margin-top: 4px;
+            font-size: 0.74rem;
+            margin-top: 3px;
         }
 
         .header-controls {
@@ -99,12 +99,13 @@
 
         .cyber-btn-outline {
             background: transparent;
-            border: 1px solid #44526d;
+            border: 1px solid #334460;
             color: var(--text-main);
-            padding: 5px 12px;
+            padding: 5px 11px;
             border-radius: 4px;
             cursor: pointer;
             transition: 0.2s;
+            font-size: 0.75rem;
         }
         .cyber-btn-outline:hover {
             border-color: var(--neon-cyan);
@@ -112,50 +113,95 @@
         }
 
         .btn-act {
-            padding: 4px 8px;
+            padding: 3px 7px;
             border-radius: 3px;
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             cursor: pointer;
             border: 1px solid transparent;
+            margin-right: 3px;
+            font-family: inherit;
         }
         .btn-bal { background: #1c2738; color: var(--neon-cyan); border-color: #2b3e5a; }
+        .btn-bal:hover { background: #263852; }
+        .btn-edit { background: #1a2233; color: #b8cce6; border-color: #2e3e57; }
+        .btn-arch { background: #2b2214; color: #ffbc6b; border-color: #553e1f; }
         .btn-del { background: #35151b; color: #ff8888; border-color: #63222d; }
+
+        /* Inactivity Banner */
+        .inactivity-alert-box {
+            background: rgba(255, 51, 102, 0.08);
+            border: 1px solid var(--neon-red);
+            border-radius: 6px;
+            padding: 10px 16px;
+            margin-bottom: 14px;
+            display: none;
+        }
+        .inactivity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            font-size: 0.78rem;
+            color: #ff99aa;
+        }
 
         /* KPI Banners */
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
             gap: 12px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
         .kpi-card {
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
-            padding: 14px;
+            padding: 12px 16px;
             border-radius: 6px;
         }
         .kpi-card label {
             display: block;
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             color: var(--text-dim);
             text-transform: uppercase;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .kpi-card .value {
-            font-size: 1.4rem;
+            font-size: 1.35rem;
             font-weight: bold;
             font-family: monospace;
+        }
+
+        /* Terminal Tabs */
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .tab-btn {
+            background: #101624;
+            border: 1px solid #1f2b42;
+            color: #8da1bc;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        .tab-btn.active {
+            background: var(--ff-yellow);
+            color: #000;
+            border-color: var(--ff-yellow);
         }
 
         /* Section Layout */
         .grid-2col {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 16px;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 14px;
+            margin-bottom: 14px;
         }
 
-        @media (max-width: 992px) {
+        @media (max-width: 1100px) {
             .grid-2col { grid-template-columns: 1fr; }
         }
 
@@ -164,11 +210,11 @@
             border: 1px solid var(--panel-border);
             border-radius: 8px;
             padding: 16px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         .panel-heading {
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             font-weight: bold;
             color: var(--neon-cyan);
             margin-bottom: 12px;
@@ -178,23 +224,39 @@
         }
 
         /* Accounts Table */
-        .table-wrap {
-            overflow-x: auto;
-        }
+        .table-wrap { overflow-x: auto; }
         table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
         }
         th, td {
-            padding: 8px 10px;
-            border-bottom: 1px solid #1a2233;
+            padding: 7px 8px;
+            border-bottom: 1px solid #141c2c;
+            vertical-align: middle;
         }
         th {
             color: var(--text-dim);
             font-weight: 600;
-            background: #0a0d14;
+            background: #080b12;
+            font-size: 0.72rem;
+        }
+
+        /* Progress Bars */
+        .progress-track {
+            background: #141a27;
+            border: 1px solid #232d42;
+            border-radius: 3px;
+            height: 8px;
+            width: 100%;
+            overflow: hidden;
+            margin-top: 3px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00bb66, var(--neon-green));
+            transition: width 0.3s;
         }
 
         /* Calendar */
@@ -202,903 +264,19 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
+            gap: 5px;
         }
         .cal-header {
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--text-dim);
-            padding: 4px 0;
+            padding: 3px 0;
             font-weight: bold;
         }
         .cal-cell {
-            background: #121824;
-            border: 1px solid #1f2838;
-            border-radius: 4px;
-            min-height: 70px;
-            padding: 4px 6px;
-            cursor: pointer;
-            transition: 0.2s;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .cal-cell:hover {
-            border-color: var(--neon-green);
-            background: #172030;
-        }
-        .cal-cell.today {
-            border-color: var(--ff-yellow);
-        }
-        .cal-num {
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: #8fa0b5;
-        }
-        .cal-dot {
-            width: 7px;
-            height: 7px;
-            background: var(--neon-green);
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 6px var(--neon-green);
-            position: absolute;
-            top: 6px;
-            right: 6px;
-        }
-
-        /* Modals */
-        .cyber-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-        }
-        .cyber-modal-content {
-            background: #0d121c;
-            border: 1px solid var(--neon-green);
-            border-radius: 8px;
-            padding: 20px;
-            width: 94%;
-            max-width: 740px;
-            max-height: 92vh;
-            overflow-y: auto;
-            box-shadow: 0 0 30px rgba(0,255,136,0.25);
-        }
-
-        /* Print Dossier Styling */
-        @media print {
-            body * { visibility: hidden; }
-            #reportPrintModal, #reportPrintModal * { visibility: visible; }
-            #reportPrintModal {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                background: #fff !important;
-                color: #000 !important;
-                box-shadow: none !important;
-                border: none !important;
-            }
-            .no-print { display: none !important; }
-            .print-card {
-                page-break-inside: avoid;
-                border: 1px solid #ccc !important;
-                border-left: 4px solid #111 !important;
-                background: #fff !important;
-                color: #000 !important;
-                margin-bottom: 20px !important;
-                padding: 12px !important;
-            }
-            .print-card img { max-height: 280px !important; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- TOP HEADER -->
-    <header>
-        <div class="header-title-wrap">
-            <h1><span>⚡</span> FF PROP TERMINAL</h1>
-            <p>Interactive PnL Calendar • Cloud Two-Way Sync • 1 NQ Target Blueprint</p>
-        </div>
-        <div class="header-controls">
-            <span class="sync-badge" id="cloudStatusTag">● CLOUD: ONLINE / SYNCED</span>
-            <button class="cyber-btn-outline" onclick="openPrintModal()">🖨️ REPORT &amp; PRINT DESK</button>
-            <button class="cyber-btn" onclick="openNoteModal()">+ NEW NOTE</button>
-            <button class="cyber-btn-outline" onclick="exportBackupJSON()">EXPORT JSON</button>
-            <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importBackupJSON(event)">
-            <button class="cyber-btn-outline" onclick="document.getElementById('importFileInput').click()">IMPORT JSON</button>
-        </div>
-    </header>
-
-    <!-- KPI OVERVIEW -->
-    <div class="kpi-grid">
-        <div class="kpi-card">
-            <label>EXPENSE TOTAL (세금공제 비용)</label>
-            <div class="value" style="color: var(--neon-red);" id="kpiExpense">$3,253</div>
-        </div>
-        <div class="kpi-card">
-            <label>WITHDRAWAL TOTAL (PA 총 출금액)</label>
-            <div class="value" style="color: var(--neon-green);" id="kpiWithdraw">$0</div>
-        </div>
-        <div class="kpi-card">
-            <label>NET PROFIT (과세표준 순익)</label>
-            <div class="value" style="color: var(--neon-red);" id="kpiNet">$-3,253</div>
-        </div>
-        <div class="kpi-card">
-            <label>OPERATIONAL UNITS (EVAL / PA)</label>
-            <div class="value" style="color: #fff;" id="kpiUnits">13 / 6</div>
-        </div>
-    </div>
-
-    <!-- MAIN BODY GRID: ACCOUNTS & CALENDAR -->
-    <div class="grid-2col">
-        <!-- Accounts Panel -->
-        <div class="panel-box">
-            <div class="panel-heading">
-                <span>OPERATIONAL ACCOUNTS ROSTER</span>
-                <button class="cyber-btn-outline" onclick="promptAddAccount()" style="font-size: 0.72rem;">+ ADD UNIT</button>
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>계정명</th>
-                            <th>유형</th>
-                            <th>현재 잔고</th>
-                            <th>Daily PnL</th>
-                            <th>관리</th>
-                        </tr>
-                    </thead>
-                    <tbody id="accountsTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Interactive Calendar Panel -->
-        <div class="panel-box">
-            <div class="calendar-nav">
-                <span class="panel-heading" style="margin: 0;" id="calendarMonthTitle">CALENDAR</span>
-                <div style="display: flex; gap: 4px;">
-                    <button class="cyber-btn-outline" onclick="changeMonth(-1)">&lt;</button>
-                    <button class="cyber-btn-outline" onclick="jumpToday()">TODAY</button>
-                    <button class="cyber-btn-outline" onclick="changeMonth(1)">&gt;</button>
-                </div>
-            </div>
-            <div class="calendar-grid" id="calendarGridHeader">
-                <div class="cal-header">SUN</div>
-                <div class="cal-header">MON</div>
-                <div class="cal-header">TUE</div>
-                <div class="cal-header">WED</div>
-                <div class="cal-header">THU</div>
-                <div class="cal-header">FRI</div>
-                <div class="cal-header">SAT</div>
-            </div>
-            <div class="calendar-grid" id="calendarGridBody" style="margin-top: 4px;"></div>
-        </div>
-    </div>
-
-    <!-- MARKET NOTES DESK & LEDGER WITH CATEGORY FILTER -->
-    <div class="panel-box">
-        <div class="panel-heading" style="flex-wrap: wrap; gap: 8px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span>MARKET NOTES DESK &amp; CHRONOLOGICAL LEDGER</span>
-                <span style="font-size: 0.75rem; color: var(--text-dim);" id="notesCountTag">0 ENTRIES</span>
-            </div>
-            
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <label style="font-size: 0.72rem; color: #888;">보기 구분:</label>
-                <select id="notesDeskFilter" onchange="renderMarketNotesDesk()" style="background: #141923; border: 1px solid #334; color: var(--neon-cyan); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">
-                    <option value="GENERAL" selected>📖 GENERAL JOURNAL ONLY (마켓 종합 일지만)</option>
-                    <option value="ALL">📂 전체 보기 (ALL NOTES)</option>
-                </select>
-            </div>
-        </div>
-        <div id="marketNotesDeskList"></div>
-    </div>
-
-    <!-- ==========================================
-         TWO-TOUCH DAILY TRADING JOURNAL MODAL
-         ========================================== -->
-    <div class="cyber-modal" id="noteInputModal">
-        <div class="cyber-modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 8px; margin-bottom: 14px;">
-                <div style="font-size: 1rem; font-weight: bold; color: var(--neon-green);">
-                    ⚡ DAILY BIAS &amp; POST-SESSION RECAP
-                </div>
-                <button class="cyber-btn-outline" onclick="closeNoteModal()">✕ CLOSE</button>
-            </div>
-
-            <input type="hidden" id="editingNoteId">
-
-            <!-- Date & Bias Row -->
-            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px; margin-bottom: 14px;">
-                <div>
-                    <label style="font-size: 0.72rem; color: #888; text-transform: uppercase;">거래 일자 (DATE)</label>
-                    <input type="date" id="journalDate" style="width: 100%; padding: 8px; background: #141923; border: 1px solid #333; color: #fff; border-radius: 4px;">
-                </div>
-                <div>
-                    <label style="font-size: 0.72rem; color: #888; text-transform: uppercase;">시장 방향성 관점 (DAILY BIAS)</label>
-                    <div style="display: flex; gap: 6px; margin-top: 2px;">
-                        <button type="button" id="biasBull" onclick="setDailyBias('🟢 BULLISH')" style="flex: 1; padding: 7px; background: #142218; border: 1px solid #285528; color: #70db70; cursor: pointer; border-radius: 4px;">🟢 BULL</button>
-                        <button type="button" id="biasBear" onclick="setDailyBias('🔴 BEARISH')" style="flex: 1; padding: 7px; background: #261414; border: 1px solid #5a2424; color: #ff6e6e; cursor: pointer; border-radius: 4px;">🔴 BEAR</button>
-                        <button type="button" id="biasRange" onclick="setDailyBias('⚪ RANGE')" style="flex: 1; padding: 7px; background: #1e222b; border: 1px solid #3b4556; color: #9ab4d0; cursor: pointer; border-radius: 4px;">⚪ RANGE</button>
-                    </div>
-                    <input type="hidden" id="journalBiasVal" value="⚪ RANGE">
-                </div>
-            </div>
-
-            <!-- SECTION 1: PRE-MARKET -->
-            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid #1f2838; border-left: 4px solid var(--neon-cyan); border-radius: 6px; padding: 12px; margin-bottom: 14px;">
-                <div style="font-size: 0.85rem; font-weight: bold; color: var(--neon-cyan); margin-bottom: 8px;">
-                    ☀️ 1. PRE-MARKET BIAS &amp; KEY LEVELS (장 시작 전)
-                </div>
-                <textarea id="journalPreNotes" rows="3" placeholder="• 오늘의 핵심 유동성 구간 / Key Levels (High/Low sweep, FVG, 이전 고점)&#10;• 주요 시나리오 및 진입 조건 (뉴스 발표 시간 등)" style="width: 100%; padding: 8px; background: #0f131c; border: 1px solid #293447; color: #fff; border-radius: 4px; resize: vertical; margin-bottom: 8px;"></textarea>
-
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <input type="file" id="preFileInput" accept="image/*" style="display: none;" onchange="handleImageFile(event, 'journalPreImage', 'prePreview')">
-                    <button type="button" class="cyber-btn-outline" onclick="document.getElementById('preFileInput').click()" style="padding: 6px 10px; font-size: 0.75rem;">📁 프리마켓 차트 선택</button>
-                    <input type="text" id="journalPreImage" placeholder="또는 차트 복사 후 이 칸 클릭하고 Ctrl + V" style="flex: 1; padding: 6px 8px; background: #0f131c; border: 1px solid #293447; color: #aaa; font-size: 0.75rem; border-radius: 4px;" oninput="renderImageThumb('journalPreImage', 'prePreview')">
-                    <button type="button" class="btn-act btn-del" onclick="clearSpecificImage('journalPreImage', 'prePreview')" style="padding: 6px 10px;">삭제</button>
-                </div>
-                <div id="prePreview" style="margin-top: 6px; display: none; text-align: center;">
-                    <img src="" style="max-height: 180px; max-width: 100%; border-radius: 4px; border: 1px solid var(--neon-cyan);">
-                </div>
-            </div>
-
-            <!-- SECTION 2: POST-MARKET -->
-            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid #243026; border-left: 4px solid var(--neon-green); border-radius: 6px; padding: 12px; margin-bottom: 14px;">
-                <div style="font-size: 0.85rem; font-weight: bold; color: var(--neon-green); margin-bottom: 8px;">
-                    🌙 2. POST-MARKET RECAP &amp; PSYCHOLOGY (장 마감 후)
-                </div>
-
-                <div style="margin-bottom: 8px;">
-                    <label style="font-size: 0.72rem; color: #888;">멘탈 / 심리 상태 (자유 입력):</label>
-                    <input type="text" id="journalEmotion" placeholder="침착, 확신, 조급함(FOMO), 손실 복구 집착 등..." style="width: 100%; padding: 7px; background: #0f131c; border: 1px solid #293447; color: #fff; border-radius: 4px;">
-                    <div style="display: flex; gap: 4px; margin-top: 4px;">
-                        <button type="button" onclick="setEmotionChip('침착 / 원칙준수')" style="font-size: 0.65rem; padding: 2px 6px; background: #182218; border: 1px solid #285528; color: #70db70; cursor: pointer; border-radius: 3px;">침착</button>
-                        <button type="button" onclick="setEmotionChip('확신 매매')" style="font-size: 0.65rem; padding: 2px 6px; background: #18202d; border: 1px solid #2a4060; color: #6db1ff; cursor: pointer; border-radius: 3px;">확신</button>
-                        <button type="button" onclick="setEmotionChip('조급함 (FOMO)')" style="font-size: 0.65rem; padding: 2px 6px; background: #2c2014; border: 1px solid #63431d; color: #ffab5c; cursor: pointer; border-radius: 3px;">FOMO</button>
-                        <button type="button" onclick="setEmotionChip('손실 복구 심리 (Revenge)')" style="font-size: 0.65rem; padding: 2px 6px; background: #2a1515; border: 1px solid #5a2424; color: #ff6e6e; cursor: pointer; border-radius: 3px;">복수매매</button>
-                    </div>
-                </div>
-
-                <textarea id="journalPostNotes" rows="3" placeholder="• 오늘 장 복기 (원칙 준수 여부, 뇌동 매매 유무)&#10;• 아침 바이어스(Pre-Market Bias)가 맞았는지? 놓친 타점이나 개선점" style="width: 100%; padding: 8px; background: #0f131c; border: 1px solid #293447; color: #fff; border-radius: 4px; resize: vertical; margin-bottom: 8px;"></textarea>
-
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <input type="file" id="postFileInput" accept="image/*" style="display: none;" onchange="handleImageFile(event, 'journalPostImage', 'postPreview')">
-                    <button type="button" class="cyber-btn-outline" onclick="document.getElementById('postFileInput').click()" style="padding: 6px 10px; font-size: 0.75rem;">📁 마감 차트 선택</button>
-                    <input type="text" id="journalPostImage" placeholder="또는 최종 마감 차트 복사 후 이 칸 클릭하고 Ctrl + V" style="flex: 1; padding: 6px 8px; background: #0f131c; border: 1px solid #293447; color: #aaa; font-size: 0.75rem; border-radius: 4px;" oninput="renderImageThumb('journalPostImage', 'postPreview')">
-                    <button type="button" class="btn-act btn-del" onclick="clearSpecificImage('journalPostImage', 'postPreview')" style="padding: 6px 10px;">삭제</button>
-                </div>
-                <div id="postPreview" style="margin-top: 6px; display: none; text-align: center;">
-                    <img src="" style="max-height: 180px; max-width: 100%; border-radius: 4px; border: 1px solid var(--neon-green);">
-                </div>
-            </div>
-
-            <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #222; padding-top: 12px;">
-                <button class="cyber-btn-outline" onclick="closeNoteModal()">취소</button>
-                <button class="cyber-btn" onclick="saveTwoTouchJournal()">SAVE DAILY JOURNAL</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==========================================
-         MONTHLY JOURNAL REPORT & PRINT DESK MODAL
-         ========================================== -->
-    <div class="cyber-modal" id="reportPrintModal">
-        <div class="cyber-modal-content" style="max-width: 860px;">
-            <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
-                <div style="font-size: 1.05rem; font-weight: bold; color: var(--neon-green);">
-                    🖨️ MONTHLY TRADING JOURNAL DOSSIER
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <label style="font-size: 0.75rem; color: #aaa;">선택 월:</label>
-                    <input type="month" id="printMonthSelect" style="padding: 6px 10px; background: #161c28; border: 1px solid #444; color: #fff; border-radius: 4px;" onchange="renderMonthlyPrintPreview()">
-                    <button type="button" class="cyber-btn" onclick="window.print()">🖨️ PRINT / PDF</button>
-                    <button type="button" class="cyber-btn-outline" onclick="closePrintModal()">✕ 닫기</button>
-                </div>
-            </div>
-            <div id="monthlyPrintDocArea"></div>
-        </div>
-    </div>
-
-    <!-- BALANCE UPDATE PROMPT MODAL -->
-    <div class="cyber-modal" id="balanceModal">
-        <div class="cyber-modal-content" style="max-width: 400px;">
-            <div class="panel-heading" style="color: var(--neon-cyan);">UPDATE ACCOUNT BALANCE</div>
-            <input type="hidden" id="balanceAccId">
-            <div style="margin-bottom: 12px;">
-                <label style="font-size: 0.75rem; color: var(--text-dim);">마감 잔고 (ENDING BALANCE $)</label>
-                <input type="number" id="balanceInput" step="0.01" style="width: 100%; padding: 8px; background: #141923; border: 1px solid #333; color: #fff; border-radius: 4px; margin-top: 4px;">
-            </div>
-            <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                <button class="cyber-btn-outline" onclick="closeBalanceModal()">취소</button>
-                <button class="cyber-btn" onclick="submitBalanceUpdate()">저장</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==========================================
-         APPLICATION LOGIC & FIREBASE SYNC
-         ========================================== -->
-    <script>
-        // 1. FIREBASE CONFIGURATION (Client-facing sync)
-        const firebaseConfig = {
-            apiKey: "AIzaSyCXIp_chCiKqrc5uBQcoGTxZ6Jd1bJ6HUI",
-            authDomain: "ff-prop-terminal.firebaseapp.com",
-            databaseURL: "https://ff-prop-terminal-default-rtdb.firebaseio.com",
-            projectId: "ff-prop-terminal"
-        };
-
-        let db = null;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-        } catch(e) {
-            console.warn("Firebase Init Error or Offline:", e);
-        }
-
-        // 2. DEFAULT STATE & ACCOUNT ROSTER (13 EVAL / 6 PA)
-        let accounts = [
-            { id: 1, name: "APEX-PA-01", type: "PA", accountNum: "APEX-884101", balance: 52450, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 2, name: "APEX-PA-02", type: "PA", accountNum: "APEX-884102", balance: 51200, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 3, name: "APEX-PA-03", type: "PA", accountNum: "APEX-884103", balance: 53100, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 4, name: "APEX-PA-04", type: "PA", accountNum: "APEX-884104", balance: 50850, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 5, name: "APEX-PA-05", type: "PA", accountNum: "APEX-884105", balance: 50400, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 6, name: "APEX-PA-06", type: "PA", accountNum: "APEX-884106", balance: 51950, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 7, name: "TRADEIFY-EVAL-01", type: "EVAL", accountNum: "TRD-1021", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 8, name: "TRADEIFY-EVAL-02", type: "EVAL", accountNum: "TRD-1022", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 9, name: "TRADEIFY-EVAL-03", type: "EVAL", accountNum: "TRD-1023", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 10, name: "MFFU-EVAL-01", type: "EVAL", accountNum: "MFF-301", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 11, name: "MFFU-EVAL-02", type: "EVAL", accountNum: "MFF-302", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 12, name: "MFFU-EVAL-03", type: "EVAL", accountNum: "MFF-303", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 13, name: "MFFU-EVAL-04", type: "EVAL", accountNum: "MFF-304", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 14, name: "APEX-EVAL-07", type: "EVAL", accountNum: "APEX-901", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 15, name: "APEX-EVAL-08", type: "EVAL", accountNum: "APEX-902", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 16, name: "APEX-EVAL-09", type: "EVAL", accountNum: "APEX-903", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 17, name: "APEX-EVAL-10", type: "EVAL", accountNum: "APEX-904", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 18, name: "APEX-EVAL-11", type: "EVAL", accountNum: "APEX-905", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
-            { id: 19, name: "APEX-EVAL-12", type: "EVAL", accountNum: "APEX-906", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] }
-        ];
-
-        let curYear = new Date().getFullYear();
-        let curMonth = new Date().getMonth();
-
-        // 3. INITIALIZATION & FIREBASE SYNC
-        window.addEventListener('DOMContentLoaded', () => {
-            loadLocalData();
-            if (db) {
-                db.ref('ff_terminal_data').on('value', snapshot => {
-                    const data = snapshot.val();
-                    if (data && data.accounts) {
-                        accounts = data.accounts;
-                        saveLocalData();
-                        refreshUI();
-                    }
-                });
-            }
-            refreshUI();
-        });
-
-        function saveData() {
-            saveLocalData();
-            if (db) {
-                db.ref('ff_terminal_data').set({
-                    accounts: accounts,
-                    updatedAt: new Date().toISOString()
-                });
-            }
-        }
-
-        function saveLocalData() {
-            localStorage.setItem('ff_prop_accounts', JSON.stringify(accounts));
-        }
-
-        function loadLocalData() {
-            const local = localStorage.getItem('ff_prop_accounts');
-            if (local) {
-                try { accounts = JSON.parse(local); } catch(e) {}
-            }
-        }
-
-        function refreshUI() {
-            renderAccountsTable();
-            renderCalendar();
-            renderMarketNotesDesk();
-            updateKPIs();
-        }
-
-        function updateKPIs() {
-            const evalUnits = accounts.filter(a => a.type === 'EVAL').length;
-            const paUnits = accounts.filter(a => a.type === 'PA').length;
-            document.getElementById('kpiUnits').textContent = `${evalUnits} / ${paUnits}`;
-        }
-
-        // 4. ACCOUNTS TABLE & BALANCE ENTRY
-        function renderAccountsTable() {
-            const tbody = document.getElementById('accountsTableBody');
-            tbody.innerHTML = accounts.map(a => `
-                <tr>
-                    <td style="font-weight: bold; color: #fff;">${a.name}</td>
-                    <td><span style="font-size: 0.7rem; padding: 2px 6px; border-radius: 3px; background: ${a.type==='PA'?'#11291b':'#1e2535'}; color: ${a.type==='PA'?varColor('--neon-green'):varColor('--neon-cyan')}">${a.type}</span></td>
-                    <td style="font-family: monospace; font-weight: bold;">$${Number(a.balance).toLocaleString()}</td>
-                    <td style="font-family: monospace; color: ${a.dailyPnl >= 0 ? varColor('--neon-green') : varColor('--neon-red')}">
-                        ${a.dailyPnl >= 0 ? '+' : ''}$${Number(a.dailyPnl || 0).toLocaleString()}
-                    </td>
-                    <td>
-                        <button class="btn-act btn-bal" onclick="openBalanceModal(${a.id})">밸런스</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function varColor(name) {
-            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-        }
-
-        function openBalanceModal(accId) {
-            const acc = accounts.find(a => a.id === accId);
-            if (!acc) return;
-            document.getElementById('balanceAccId').value = accId;
-            document.getElementById('balanceInput').value = acc.balance;
-            document.getElementById('balanceModal').style.display = 'flex';
-        }
-        function closeBalanceModal() { document.getElementById('balanceModal').style.display = 'none'; }
-
-        function submitBalanceUpdate() {
-            const id = Number(document.getElementById('balanceAccId').value);
-            const newBal = parseFloat(document.getElementById('balanceInput').value);
-            const acc = accounts.find(a => a.id === id);
-            if (acc && !isNaN(newBal)) {
-                acc.dailyPnl = newBal - acc.balance;
-                acc.balance = newBal;
-                saveData();
-                refreshUI();
-            }
-            closeBalanceModal();
-        }
-
-        // 5. INTERACTIVE CALENDAR ENGINE
-        function changeMonth(delta) {
-            curMonth += delta;
-            if (curMonth < 0) { curMonth = 11; curYear--; }
-            else if (curMonth > 11) { curMonth = 0; curYear++; }
-            renderCalendar();
-        }
-
-        function jumpToday() {
-            curYear = new Date().getFullYear();
-            curMonth = new Date().getMonth();
-            renderCalendar();
-        }
-
-        function renderCalendar() {
-            const grid = document.getElementById('calendarGridBody');
-            const title = document.getElementById('calendarMonthTitle');
-            const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-            title.textContent = `${monthNames[curMonth]} ${curYear}`;
-
-            grid.innerHTML = '';
-            const firstDay = new Date(curYear, curMonth, 1).getDay();
-            const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
-            const todayStr = new Date().toISOString().slice(0, 10);
-
-            for (let i = 0; i < firstDay; i++) {
-                grid.innerHTML += `<div class="cal-cell" style="background: transparent; border-color: transparent; cursor: default;"></div>`;
-            }
-
-            let allNotes = [];
-            accounts.forEach(a => {
-                if (a.notes) a.notes.forEach(n => allNotes.push(n));
-            });
-
-            for (let d = 1; d <= daysInMonth; d++) {
-                const dateStr = `${curYear}-${String(curMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                const hasNote = allNotes.some(n => n.date === dateStr);
-                const isToday = (dateStr === todayStr);
-
-                grid.innerHTML += `
-                    <div class="cal-cell ${isToday ? 'today' : ''}" onclick="openNoteModal('${dateStr}')">
-                        <span class="cal-num">${d}</span>
-                        ${hasNote ? '<span class="cal-dot" title="Journal logged"></span>' : ''}
-                    </div>
-                `;
-            }
-        }
-
-        // 6. TWO-TOUCH DAILY JOURNAL LOGIC
-        function setDailyBias(val) {
-            document.getElementById('journalBiasVal').value = val;
-            document.getElementById('biasBull').style.borderColor = val.includes('BULL') ? '#00ff88' : '#285528';
-            document.getElementById('biasBear').style.borderColor = val.includes('BEAR') ? '#ff4444' : '#5a2424';
-            document.getElementById('biasRange').style.borderColor = val.includes('RANGE') ? '#00e5ff' : '#3b4556';
-        }
-
-        function setEmotionChip(val) {
-            document.getElementById('journalEmotion').value = val;
-        }
-
-        function openNoteModal(dateString = null, editId = null) {
-            const modal = document.getElementById('noteInputModal');
-            const targetDate = dateString || new Date().toISOString().slice(0, 10);
-            document.getElementById('journalDate').value = targetDate;
-            document.getElementById('editingNoteId').value = editId || '';
-            
-            setDailyBias('⚪ RANGE');
-            document.getElementById('journalPreNotes').value = '';
-            document.getElementById('journalPostNotes').value = '';
-            document.getElementById('journalEmotion').value = '';
-            clearSpecificImage('journalPreImage', 'prePreview');
-            clearSpecificImage('journalPostImage', 'postPreview');
-
-            let found = null;
-            accounts.forEach(a => {
-                if (a.notes) {
-                    const hit = editId ? a.notes.find(n => n.id == editId) : a.notes.find(n => n.date == targetDate);
-                    if (hit) found = hit;
-                }
-            });
-
-            if (found) {
-                document.getElementById('editingNoteId').value = found.id;
-                document.getElementById('journalDate').value = found.date;
-                if (found.bias) setDailyBias(found.bias);
-                document.getElementById('journalPreNotes').value = found.preNotes || '';
-                document.getElementById('journalPostNotes').value = found.postNotes || found.text || '';
-                document.getElementById('journalEmotion').value = found.emotion || '';
-
-                if (found.preImageUrl) {
-                    document.getElementById('journalPreImage').value = found.preImageUrl;
-                    renderImageThumb('journalPreImage', 'prePreview');
-                }
-                if (found.postImageUrl || found.imageUrl) {
-                    document.getElementById('journalPostImage').value = found.postImageUrl || found.imageUrl;
-                    renderImageThumb('journalPostImage', 'postPreview');
-                }
-            }
-
-            modal.style.display = 'flex';
-        }
-
-        function closeNoteModal() {
-            document.getElementById('noteInputModal').style.display = 'none';
-        }
-
-        function handleImageFile(e, targetInputId, previewWrapId) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                compressChartImage(evt.target.result, function(compressedUrl) {
-                    document.getElementById(targetInputId).value = compressedUrl;
-                    renderImageThumb(targetInputId, previewWrapId);
-                });
-            };
-            reader.readAsDataURL(file);
-        }
-
-        ['journalPreImage', 'journalPostImage'].forEach(id => {
-            const el = document.getElementById(id);
-            if (!el) return;
-            el.addEventListener('paste', function(e) {
-                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-                for (let item of items) {
-                    if (item.type.indexOf('image') === 0) {
-                        const blob = item.getAsFile();
-                        const reader = new FileReader();
-                        reader.onload = function(evt) {
-                            compressChartImage(evt.target.result, function(compressedUrl) {
-                                el.value = compressedUrl;
-                                renderImageThumb(id, id === 'journalPreImage' ? 'prePreview' : 'postPreview');
-                            });
-                        };
-                        reader.readAsDataURL(blob);
-                        e.preventDefault();
-                        break;
-                    }
-                }
-            });
-        });
-
-        function compressChartImage(base64Source, callback) {
-            const img = new Image();
-            img.src = base64Source;
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const MAX_W = 1200;
-                let w = img.width, h = img.height;
-                if (w > MAX_W) {
-                    h = Math.round((h * MAX_W) / w);
-                    w = MAX_W;
-                }
-                canvas.width = w;
-                canvas.height = h;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, w, h);
-                let res = canvas.toDataURL('image/webp', 0.75);
-                if (!res.startsWith('data:image/webp')) res = canvas.toDataURL('image/jpeg', 0.75);
-                callback(res);
-            };
-        }
-
-        function renderImageThumb(inputId, previewWrapId) {
-            const val = document.getElementById(inputId).value.trim();
-            const wrap = document.getElementById(previewWrapId);
-            const img = wrap.querySelector('img');
-            if (val) {
-                img.src = val;
-                wrap.style.display = 'block';
-            } else {
-                wrap.style.display = 'none';
-                img.src = '';
-            }
-        }
-
-        function clearSpecificImage(inputId, previewWrapId) {
-            document.getElementById(inputId).value = '';
-            const wrap = document.getElementById(previewWrapId);
-            wrap.style.display = 'none';
-            wrap.querySelector('img').src = '';
-        }
-
-        function saveTwoTouchJournal() {
-            const editId = document.getElementById('editingNoteId').value;
-            const dateVal = document.getElementById('journalDate').value;
-            const bias = document.getElementById('journalBiasVal').value;
-            const preNotes = document.getElementById('journalPreNotes').value.trim();
-            const preImg = document.getElementById('journalPreImage').value.trim();
-            const emotion = document.getElementById('journalEmotion').value.trim();
-            const postNotes = document.getElementById('journalPostNotes').value.trim();
-            const postImg = document.getElementById('journalPostImage').value.trim();
-
-            if (!preNotes && !postNotes && !preImg && !postImg) {
-                alert('프리마켓 분석 또는 마감 복기 내용을 한 줄이라도 작성해 주세요.');
-                return;
-            }
-
-            const payload = {
-                id: editId ? Number(editId) : Date.now(),
-                date: dateVal,
-                bias: bias,
-                preNotes: preNotes,
-                preImageUrl: preImg,
-                emotion: emotion || 'Neutral',
-                postNotes: postNotes,
-                postImageUrl: postImg,
-                imageUrl: postImg || preImg,
-                isGeneral: true,
-                text: `[BIAS: ${bias}] [심리: ${emotion || 'Neutral'}]\n• PRE: ${preNotes}\n• POST: ${postNotes}`,
-                timestamp: new Date().toISOString()
-            };
-
-            accounts.forEach(a => {
-                if (a.notes) a.notes = a.notes.filter(n => n.id != payload.id && n.date != dateVal);
-            });
-
-            if (!accounts[0].notes) accounts[0].notes = [];
-            accounts[0].notes.unshift(payload);
-
-            saveData();
-            refreshUI();
-            closeNoteModal();
-        }
-
-        function deleteNote(noteId) {
-            if (!confirm('이 일지 항목을 삭제하시겠습니까?')) return;
-            accounts.forEach(a => {
-                if (a.notes) a.notes = a.notes.filter(n => n.id != noteId);
-            });
-            saveData();
-            refreshUI();
-        }
-
-        // 7. RENDER MARKET NOTES DESK WITH CATEGORY FILTER
-        function renderMarketNotesDesk() {
-            const listWrap = document.getElementById('marketNotesDeskList');
-            const countTag = document.getElementById('notesCountTag');
-            const filterSelect = document.getElementById('notesDeskFilter');
-            const selectedFilter = filterSelect ? filterSelect.value : 'GENERAL';
-
-            if (filterSelect && filterSelect.options.length <= 2) {
-                accounts.forEach(a => {
-                    const opt = document.createElement('option');
-                    opt.value = a.id;
-                    opt.textContent = `단일 계정: ${a.name}`;
-                    filterSelect.appendChild(opt);
-                });
-            }
-
-            let allNotes = [];
-            accounts.forEach((a, idx) => {
-                if (a.notes && Array.isArray(a.notes)) {
-                    a.notes.forEach(n => {
-                        const isGeneral = n.isGeneral === true || (idx === 0 && (n.bias || n.preNotes || n.postNotes));
-                        allNotes.push({ 
-                            ...n, 
-                            accountName: a.name, 
-                            accountId: a.id,
-                            isGeneralNote: isGeneral
-                        });
-                    });
-                }
-            });
-
-            let filteredNotes = allNotes;
-            if (selectedFilter === 'GENERAL') {
-                filteredNotes = allNotes.filter(n => n.isGeneralNote);
-            } else if (selectedFilter !== 'ALL') {
-                filteredNotes = allNotes.filter(n => String(n.accountId) === String(selectedFilter));
-            }
-
-            filteredNotes.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-            if (countTag) countTag.textContent = `${filteredNotes.length} ENTRIES`;
-
-            if (filteredNotes.length === 0) {
-                listWrap.innerHTML = `
-                    <div style="color: #666; padding: 24px; text-align: center;">
-                        ${selectedFilter === 'GENERAL' ? '작성된 마켓 종합 일지(General Journal)가 없습니다.' : '해당 조건의 노트가 없습니다.'}
-                    </div>
-                `;
-                return;
-            }
-
-            listWrap.innerHTML = filteredNotes.map(n => `
-                <div style="background: #111622; border: 1px solid #1f2738; border-left: 3px solid ${n.isGeneralNote ? 'var(--neon-cyan)' : 'var(--neon-green)'}; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                            <span style="color: var(--ff-yellow); font-weight: bold;">📅 ${n.date}</span>
-                            ${n.isGeneralNote ? '<span style="background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon-cyan); padding: 2px 7px; border-radius: 3px; font-size: 0.72rem; color: var(--neon-cyan);">GENERAL</span>' : ''}
-                            <span style="background: #1c2738; padding: 2px 7px; border-radius: 3px; font-size: 0.72rem; color: #00e5ff;">${n.bias || 'BIAS'}</span>
-                            <span style="background: rgba(255,255,255,0.06); padding: 2px 7px; border-radius: 3px; font-size: 0.72rem; color: #aaa;">심리: ${n.emotion || 'Neutral'}</span>
-                        </div>
-                        <div>
-                            <button class="cyber-btn-outline" onclick="openNoteModal('${n.date}', ${n.id})" style="font-size: 0.7rem; padding: 2px 8px;">수정</button>
-                            <button class="btn-act btn-del" onclick="deleteNote(${n.id})" style="font-size: 0.7rem; padding: 2px 8px;">삭제</button>
-                        </div>
-                    </div>
-
-                    ${n.preNotes ? `
-                        <div style="font-size: 0.8rem; color: #9bc; margin-bottom: 6px;">
-                            <strong>☀️ PRE-MARKET:</strong> ${n.preNotes}
-                        </div>
-                    ` : ''}
-
-                    ${n.postNotes ? `
-                        <div style="font-size: 0.8rem; color: #d0d7de; margin-bottom: 6px;">
-                            <strong>🌙 POST-RECAP:</strong> ${n.postNotes}
-                        </div>
-                    ` : ''}
-
-                    <div style="display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap;">
-                        ${n.preImageUrl ? `
-                            <div>
-                                <span style="font-size: 0.65rem; color: var(--neon-cyan); display: block;">PRE-CHART</span>
-                                <img src="${n.preImageUrl}" onclick="window.open(this.src)" style="max-height: 160px; border-radius: 4px; border: 1px solid #334; cursor: pointer;">
-                            </div>
-                        ` : ''}
-                        ${n.postImageUrl ? `
-                            <div>
-                                <span style="font-size: 0.65rem; color: var(--neon-green); display: block;">POST-CHART</span>
-                                <img src="${n.postImageUrl}" onclick="window.open(this.src)" style="max-height: 160px; border-radius: 4px; border: 1px solid #334; cursor: pointer;">
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // 8. MONTHLY DOSSIER PRINT VIEW
-        function openPrintModal() {
-            const modal = document.getElementById('reportPrintModal');
-            const monthInput = document.getElementById('printMonthSelect');
-            if (!monthInput.value) {
-                monthInput.value = new Date().toISOString().slice(0, 7);
-            }
-            renderMonthlyPrintPreview();
-            modal.style.display = 'flex';
-        }
-        function closePrintModal() { document.getElementById('reportPrintModal').style.display = 'none'; }
-
-        function renderMonthlyPrintPreview() {
-            const selectedMonth = document.getElementById('printMonthSelect').value;
-            const container = document.getElementById('monthlyPrintDocArea');
-
-            let allNotes = [];
-            accounts.forEach(a => {
-                if (a.notes) a.notes.forEach(n => allNotes.push(n));
-            });
-
-            const monthlyNotes = allNotes
-                .filter(n => n.date && n.date.startsWith(selectedMonth))
-                .sort((a, b) => a.date.localeCompare(b.date));
-
-            if (monthlyNotes.length === 0) {
-                container.innerHTML = `<div style="text-align: center; color: #888; padding: 40px 0;">선택한 월(${selectedMonth})에 작성된 일지가 없습니다.</div>`;
-                return;
-            }
-
-            container.innerHTML = `
-                <div style="border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 16px;">
-                    <div style="font-size: 1.2rem; font-weight: bold; color: #fff;">TRADING JOURNAL DOSSIER: ${selectedMonth}</div>
-                    <div style="font-size: 0.75rem; color: #888;">총 ${monthlyNotes.length} 세션 기록</div>
-                </div>
-            ` + monthlyNotes.map(n => `
-                <div class="print-card" style="background: #141923; border: 1px solid #2a3445; border-left: 4px solid var(--neon-green); border-radius: 6px; padding: 12px; margin-bottom: 16px;">
-                    <div style="display: flex; gap: 8px; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; margin-bottom: 8px;">
-                        <span style="font-weight: bold; color: var(--ff-yellow);">📅 ${n.date}</span>
-                        <span style="font-size: 0.75rem; color: #00e5ff;">${n.bias || ''}</span>
-                        <span style="font-size: 0.75rem; color: #aaa;">심리: ${n.emotion || 'Neutral'}</span>
-                    </div>
-                    ${n.preNotes ? `<p style="font-size: 0.8rem; margin-bottom: 6px;"><strong>PRE:</strong> ${n.preNotes}</p>` : ''}
-                    ${n.postNotes ? `<p style="font-size: 0.8rem; margin-bottom: 8px;"><strong>POST:</strong> ${n.postNotes}</p>` : ''}
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        ${n.preImageUrl ? `<img src="${n.preImageUrl}" style="max-height: 200px; border: 1px solid #444; border-radius: 4px;">` : ''}
-                        ${n.postImageUrl ? `<img src="${n.postImageUrl}" style="max-height: 200px; border: 1px solid #444; border-radius: 4px;">` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // 9. BACKUP & RESTORE (Google Drive JSON routine)
-        function exportBackupJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ accounts }, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `FF_TERMINAL_BACKUP_${new Date().toISOString().slice(0, 10)}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-
-        function importBackupJSON(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const parsed = JSON.parse(evt.target.result);
-                    if (parsed.accounts && Array.isArray(parsed.accounts)) {
-                        accounts = parsed.accounts;
-                        saveData();
-                        refreshUI();
-                        alert('데이터가 성공적으로 복구되었습니다.');
-                    }
-                } catch(err) {
-                    alert('유효하지 않은 백업 JSON 파일입니다.');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function promptAddAccount() {
-            const name = prompt("추가할 계정명을 입력하세요 (예: APEX-PA-07):");
-            if (!name) return;
-            const type = prompt("계정 유형을 입력하세요 (EVAL 또는 PA):", "EVAL").toUpperCase();
-            const newAcc = {
-                id: Date.now(),
-                name: name.trim(),
-                type: type === "PA" ? "PA" : "EVAL",
-                accountNum: `ID-${Date.now().toString().slice(-4)}`,
-                balance: 50000,
-                startingBalance: 50000,
-                dailyPnl: 0,
-                notes: []
-            };
-            accounts.push(newAcc);
-            saveData();
-            refreshUI();
-        }
-    </script>
-</body>
-</html>
+            background: #1015
