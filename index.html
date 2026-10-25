@@ -3,2893 +3,1102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FF PROP TERMINAL</title>
-
-    <!-- Web App Manifest & Mobile Capability Tags -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#ffb703">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="FF.png">
-
-    <!-- Chart.js -->
+    <title>FF PROP TERMINAL - Interactive Journal &amp; Multi-Account Desk</title>
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Firebase App & Realtime Database SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <!-- Firebase SDK (v8 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
         :root {
-            --bg-pitch: #000000;
-            --panel-bg: rgba(10, 10, 14, 0.88);
-            --panel-border: rgba(255, 183, 3, 0.35);
+            --bg-color: #080a0f;
+            --panel-bg: #0f141f;
+            --panel-border: #1e2638;
+            --neon-green: #00ff88;
+            --neon-cyan: #00e5ff;
             --ff-yellow: #ffb703;
-            --ff-orange: #fb5607;
-            --ff-red: #ff0055;
-            --neon-green: #00ff66;
-            --neon-blue: #00f0ff;
-            --neon-purple: #b5179e;
-            --text-main: #ffffff;
-            --text-dim: #9aa0a6;
+            --neon-red: #ff3366;
+            --text-main: #f0f4fc;
+            --text-dim: #7e8b9b;
         }
 
-        * { box-sizing: border-box; }
-
-        body {
-            font-family: 'Consolas', 'Courier New', monospace;
-            background-color: var(--bg-pitch);
-            color: var(--text-main);
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", monospace, sans-serif;
         }
 
-        .cyber-backdrop {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background: url('bg.png') center center / cover no-repeat fixed;
-            opacity: 0.25;
-            z-index: -1;
-            pointer-events: none;
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 16px;
+            font-size: 13px;
         }
 
-        .container {
-            max-width: 1540px;
-            margin: 0 auto;
-            padding: 20px 20px 80px 20px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .terminal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 22px;
-            background: rgba(4, 4, 6, 0.95);
-            border: 1px solid var(--panel-border);
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 0 25px rgba(255, 183, 3, 0.15);
-        }
-
-        .brand-zone {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .brand-logo {
-            width: 52px;
-            height: 52px;
-            object-fit: contain;
-            filter: drop-shadow(0 0 10px rgba(255, 86, 7, 0.6));
-        }
-
-        .brand-title {
-            margin: 0;
-            font-size: 1.5rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            background: linear-gradient(90deg, var(--ff-yellow), var(--ff-orange));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 900;
-        }
-
-        .brand-subtitle {
-            margin: 2px 0 0 0;
-            font-size: 0.72rem;
-            color: var(--neon-blue);
-            letter-spacing: 2px;
-        }
-
-        .sync-badge {
-            font-size: 0.68rem;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            border: 1px solid #333;
-            background: rgba(0,0,0,0.6);
-        }
-
-        .terminal-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .nav-tab-btn {
-            background: rgba(10, 10, 14, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: var(--text-dim);
-            padding: 10px 24px;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: bold;
-            letter-spacing: 1.5px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .nav-tab-btn.active {
-            color: #000;
-            background: linear-gradient(135deg, var(--ff-yellow), var(--ff-orange));
-            border-color: var(--ff-yellow);
-            box-shadow: 0 0 16px rgba(255, 183, 3, 0.4);
-        }
-
-        .nav-tab-btn.danger-tab.active {
-            background: linear-gradient(135deg, var(--ff-red), #990033);
-            color: #fff;
-            border-color: var(--ff-red);
-            box-shadow: 0 0 16px rgba(255, 0, 85, 0.5);
-        }
-
-        #inactivityBanner {
-            display: none;
-            background: rgba(255, 0, 85, 0.15);
-            border: 1px solid var(--ff-red);
-            border-left: 5px solid var(--ff-red);
-            padding: 14px 18px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.25);
-        }
-
-        .alert-item {
+        /* Top Header */
+        header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
-            font-size: 0.82rem;
-            color: #ffccd5;
-        }
-        .alert-item:last-child { margin-bottom: 0; }
-
-        .btn-dismiss {
-            background: transparent;
-            color: var(--ff-red);
-            border: 1px solid var(--ff-red);
-            padding: 2px 8px;
-            font-size: 0.7rem;
-            font-family: inherit;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-        .btn-dismiss:hover { background: var(--ff-red); color: #000; }
-
-        .terminal-panel {
             background: var(--panel-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-top: 1px solid var(--panel-border);
-            border-radius: 6px;
-            padding: 20px;
-            margin-bottom: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85);
+            border: 1px solid var(--panel-border);
+            padding: 14px 20px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
-        .panel-heading {
-            margin: 0 0 16px 0;
-            font-size: 0.92rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--neon-blue);
+        .header-title-wrap h1 {
+            font-size: 1.4rem;
+            letter-spacing: 1.5px;
+            color: var(--ff-yellow);
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .panel-heading::before { content: '■'; color: var(--ff-yellow); font-size: 0.8rem; }
+        .header-title-wrap p {
+            color: var(--neon-cyan);
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
 
-        .stat-grid {
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .sync-badge {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--neon-green);
+            border: 1px solid var(--neon-green);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: bold;
+        }
+
+        /* Buttons */
+        .cyber-btn {
+            background: linear-gradient(135deg, var(--neon-green), #00bb66);
+            color: #000;
+            font-weight: bold;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .cyber-btn:hover { opacity: 0.9; }
+
+        .cyber-btn-outline {
+            background: transparent;
+            border: 1px solid #44526d;
+            color: var(--text-main);
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .cyber-btn-outline:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+
+        .btn-act {
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .btn-bal { background: #1c2738; color: var(--neon-cyan); border-color: #2b3e5a; }
+        .btn-del { background: #35151b; color: #ff8888; border-color: #63222d; }
+
+        /* KPI Banners */
+        .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
         }
-
-        .stat-card {
-            background: rgba(6, 6, 10, 0.75);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 16px 20px;
+        .kpi-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            padding: 14px;
             border-radius: 6px;
-            position: relative;
         }
-
-        .stat-card::after {
-            content: '';
-            position: absolute;
-            left: 0; top: 0;
-            width: 4px; height: 100%;
-            background: var(--ff-yellow);
-        }
-
-        .stat-card.green::after { background: var(--neon-green); }
-        .stat-card.pink::after { background: var(--ff-red); }
-        .stat-card.blue::after { background: var(--neon-blue); }
-
-        .stat-label {
-            font-size: 0.74rem;
+        .kpi-card label {
+            display: block;
+            font-size: 0.72rem;
             color: var(--text-dim);
             text-transform: uppercase;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+        }
+        .kpi-card .value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            font-family: monospace;
         }
 
-        .stat-value {
-            font-size: 1.6rem;
-            font-weight: 900;
+        /* Section Layout */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
         }
 
-        .calendar-controls {
+        @media (max-width: 992px) {
+            .grid-2col { grid-template-columns: 1fr; }
+        }
+
+        .panel-box {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .panel-heading {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--neon-cyan);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Accounts Table */
+        .table-wrap {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.8rem;
+        }
+        th, td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #1a2233;
+        }
+        th {
+            color: var(--text-dim);
+            font-weight: 600;
+            background: #0a0d14;
+        }
+
+        /* Calendar */
+        .calendar-nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-            gap: 10px;
+            margin-bottom: 10px;
         }
-
-        .cal-nav-btn {
-            background: transparent;
-            color: var(--ff-yellow);
-            border: 1px solid var(--ff-yellow);
-            padding: 5px 12px;
-            font-family: inherit;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-
-        .cal-grid {
+        .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 6px;
         }
-
-        .cal-day-header {
+        .cal-header {
             text-align: center;
-            padding: 8px 4px;
             font-size: 0.75rem;
-            color: var(--ff-yellow);
-            background: rgba(255, 183, 3, 0.1);
-            border-radius: 3px;
+            color: var(--text-dim);
+            padding: 4px 0;
             font-weight: bold;
         }
-
         .cal-cell {
-            min-height: 80px;
-            background: rgba(5, 5, 8, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #121824;
+            border: 1px solid #1f2838;
             border-radius: 4px;
-            padding: 6px;
+            min-height: 70px;
+            padding: 4px 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.2s ease;
         }
-
         .cal-cell:hover {
+            border-color: var(--neon-green);
+            background: #172030;
+        }
+        .cal-cell.today {
             border-color: var(--ff-yellow);
-            background: rgba(255, 183, 3, 0.05);
-            transform: translateY(-1px);
         }
-
-        .cal-cell.empty {
-            background: rgba(0, 0, 0, 0.3);
-            border-color: transparent;
-            cursor: default;
-        }
-
-        .cal-cell-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .cal-date-num {
-            font-size: 0.76rem;
-            color: var(--text-dim);
+        .cal-num {
+            font-size: 0.75rem;
             font-weight: bold;
+            color: #8fa0b5;
         }
-
-        .cal-today {
-            border: 1px solid var(--neon-blue);
-            box-shadow: inset 0 0 8px rgba(0, 240, 255, 0.2);
-        }
-
-        .neon-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--neon-green);
+        .cal-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--neon-green);
             border-radius: 50%;
             display: inline-block;
-            box-shadow: 0 0 8px var(--neon-green);
+            box-shadow: 0 0 6px var(--neon-green);
+            position: absolute;
+            top: 6px;
+            right: 6px;
         }
 
-        .cal-pnl-pill {
-            font-size: 0.72rem;
-            font-weight: bold;
-            padding: 2px 4px;
-            border-radius: 2px;
-            margin-top: 4px;
-            display: inline-block;
-        }
-
-        .pill-positive { color: var(--neon-green); background: rgba(0, 255, 102, 0.12); }
-        .pill-negative { color: var(--ff-red); background: rgba(255, 0, 85, 0.12); }
-
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
-            gap: 20px;
-        }
-
-        .chart-box {
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 18px;
-            border-radius: 6px;
-        }
-
-        .input-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .field-group { display: flex; flex-direction: column; gap: 5px; }
-
-        .field-group label {
-            font-size: 0.7rem;
-            color: var(--text-dim);
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-        }
-
-        input, select, textarea {
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid #33333d;
-            color: #ffffff;
-            padding: 9px 11px;
-            font-family: inherit;
-            font-size: 0.85rem;
-            border-radius: 4px;
-            outline: none;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--ff-yellow);
-            box-shadow: 0 0 8px rgba(255, 183, 3, 0.35);
-        }
-
-        .cyber-btn {
-            background: linear-gradient(135deg, var(--ff-yellow), var(--ff-orange));
-            color: #000000;
-            border: none;
-            padding: 10px 20px;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 900;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .cyber-btn-outline {
-            background: rgba(0, 0, 0, 0.5);
-            color: var(--ff-yellow);
-            border: 1px solid var(--ff-yellow);
-            padding: 7px 13px;
-            font-family: inherit;
-            font-size: 0.74rem;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        .cyber-btn-outline:hover { background: var(--ff-yellow); color: #000; }
-
-        .table-wrap { overflow-x: auto; }
-
-        table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
-
-        th {
-            background: rgba(12, 12, 16, 0.95);
-            color: var(--ff-yellow);
-            text-align: left;
-            padding: 12px 10px;
-            font-size: 0.74rem;
-            letter-spacing: 1.2px;
-            border-bottom: 2px solid rgba(255, 183, 3, 0.3);
-        }
-
-        td {
-            padding: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            background: rgba(4, 4, 6, 0.7);
-        }
-
-        tr:hover td { background: rgba(255, 183, 3, 0.08); }
-
-        .badge-eval { color: var(--ff-yellow); border: 1px solid var(--ff-yellow); padding: 2px 6px; font-size: 0.7rem; border-radius: 2px; }
-        .badge-pa { color: var(--neon-green); border: 1px solid var(--neon-green); padding: 2px 6px; font-size: 0.7rem; border-radius: 2px; font-weight: bold; }
-        .badge-crypto { color: #ff9900; border: 1px solid #ff9900; padding: 1px 5px; font-size: 0.68rem; border-radius: 2px; }
-        .badge-futures { color: var(--neon-blue); border: 1px solid var(--neon-blue); padding: 1px 5px; font-size: 0.68rem; border-radius: 2px; }
-
-        .prog-bg {
-            background: rgba(0, 0, 0, 0.7);
-            height: 7px;
-            width: 100%;
-            border-radius: 3px;
-            margin-top: 5px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-        .prog-bar { height: 100%; width: 0%; transition: width 0.4s ease; }
-        .prog-bar.eval { background: linear-gradient(90deg, var(--neon-blue), var(--ff-yellow)); }
-        .prog-bar.pa { background: linear-gradient(90deg, var(--neon-blue), var(--neon-green)); }
-
-        .action-row { display: flex; gap: 4px; flex-wrap: wrap; }
-        .btn-act {
-            padding: 4px 6px;
-            font-size: 0.68rem;
-            font-family: inherit;
-            background: rgba(0, 0, 0, 0.4);
-            cursor: pointer;
-            border-radius: 2px;
-        }
-
-        .btn-pnl { color: var(--neon-blue); border: 1px solid var(--neon-blue); }
-        .btn-hist { color: var(--ff-orange); border: 1px solid var(--ff-orange); }
-        .btn-rule { color: var(--neon-purple); border: 1px solid var(--neon-purple); }
-        .btn-target { color: var(--neon-blue); border: 1px solid #335577; }
-        .btn-upgrade { color: var(--neon-green); border: 1px solid var(--neon-green); font-weight: bold; }
-        .btn-wd { color: var(--neon-green); border: 1px solid var(--neon-green); }
-        .btn-retire { color: var(--ff-red); border: 1px solid var(--ff-red); font-weight: bold; }
-        .btn-retire:hover { background: var(--ff-red); color: #000; }
-        .btn-reactivate { color: var(--neon-blue); border: 1px solid var(--neon-blue); }
-        .btn-del { color: #777; border: 1px solid #444; }
-
-        .notes-list-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-            gap: 16px;
-        }
-
-        .note-card {
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-left: 3px solid var(--neon-green);
-            border-radius: 4px;
-            padding: 12px 14px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .note-card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.74rem;
-            color: var(--text-dim);
-            margin-bottom: 8px;
-        }
-
-        .note-img-thumb {
-            max-width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-top: 8px;
-            border: 1px solid #333;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .note-img-thumb:hover { transform: scale(1.02); border-color: var(--ff-yellow); }
-
-        .personal-blur { filter: blur(8px); user-select: none; }
-
+        /* Modals */
         .cyber-modal {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 1000;
-            justify-content: center;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
             align-items: center;
-            backdrop-filter: blur(5px);
+            justify-content: center;
         }
         .cyber-modal-content {
-            background: #0a0a0f;
-            border: 1px solid var(--ff-yellow);
-            box-shadow: 0 0 30px rgba(255, 183, 3, 0.35);
-            width: 90%; max-width: 820px;
-            border-radius: 6px;
-            padding: 24px;
-            max-height: 88vh;
+            background: #0d121c;
+            border: 1px solid var(--neon-green);
+            border-radius: 8px;
+            padding: 20px;
+            width: 94%;
+            max-width: 740px;
+            max-height: 92vh;
             overflow-y: auto;
+            box-shadow: 0 0 30px rgba(0,255,136,0.25);
         }
 
-        #imageOriginalModal .cyber-modal-content {
-            max-width: 95vw;
-            width: auto;
-            max-height: 95vh;
-            padding: 14px;
-            background: rgba(4, 4, 6, 0.96);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #originalImageDisplay {
-            max-width: 90vw;
-            max-height: 85vh;
-            object-fit: contain;
-            border: 1px solid #444;
-            border-radius: 4px;
-        }
-
+        /* Print Dossier Styling */
         @media print {
-            body {
-                background: #ffffff !important;
-                color: #000000 !important;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
-            }
-            .cyber-backdrop, .terminal-header, .terminal-tabs, #activeDashboardView, #retiredArchiveView, 
-            .cyber-modal:not(#reportPrintModal), #reportControlsArea, #reportActionBtnGroup {
-                display: none !important;
-            }
+            body * { visibility: hidden; }
+            #reportPrintModal, #reportPrintModal * { visibility: visible; }
             #reportPrintModal {
-                display: block !important;
-                position: static !important;
-                background: #ffffff !important;
-                padding: 0 !important;
-                width: 100% !important;
-                height: auto !important;
-            }
-            #reportPrintModal .cyber-modal-content {
-                background: #ffffff !important;
-                color: #000000 !important;
-                border: none !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: #fff !important;
+                color: #000 !important;
                 box-shadow: none !important;
-                max-width: 100% !important;
-                padding: 0 !important;
-                overflow: visible !important;
+                border: none !important;
             }
-            table {
-                border-collapse: collapse !important;
-                width: 100% !important;
-                margin-top: 15px !important;
-            }
-            th, td {
-                border: 1px solid #333333 !important;
-                color: #000000 !important;
-                background: #ffffff !important;
-                padding: 6px 8px !important;
-                font-size: 11px !important;
-            }
-            th {
-                background: #eeeeee !important;
-            }
-            .stat-card {
-                border: 1px solid #333 !important;
-                background: #fafafa !important;
-            }
-            .stat-value {
+            .no-print { display: none !important; }
+            .print-card {
+                page-break-inside: avoid;
+                border: 1px solid #ccc !important;
+                border-left: 4px solid #111 !important;
+                background: #fff !important;
                 color: #000 !important;
+                margin-bottom: 20px !important;
+                padding: 12px !important;
             }
-            .badge-eval, .badge-pa, .badge-crypto, .badge-futures {
-                border: 1px solid #333 !important;
-                color: #000 !important;
-                padding: 1px 3px !important;
-            }
+            .print-card img { max-height: 280px !important; }
         }
     </style>
 </head>
 <body>
 
-<div class="cyber-backdrop"></div>
-
-<div class="container">
-    <header class="terminal-header">
-        <div class="brand-zone">
-            <img src="FF.png" alt="FF Logo" class="brand-logo" onerror="this.style.display='none'">
-            <div>
-                <h1 class="brand-title">FF PROP TERMINAL</h1>
-                <p class="brand-subtitle">Interactive PnL Calendar • Cloud Two-Way Sync • 1 NQ Target Blueprint</p>
-            </div>
+    <!-- TOP HEADER -->
+    <header>
+        <div class="header-title-wrap">
+            <h1><span>⚡</span> FF PROP TERMINAL</h1>
+            <p>Interactive PnL Calendar • Cloud Two-Way Sync • 1 NQ Target Blueprint</p>
         </div>
-        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-            <span class="sync-badge" id="cloudStatusBadge" style="color: var(--neon-green); border-color: var(--neon-green);">
-                ● CLOUD: CONNECTING...
-            </span>
-            <button class="cyber-btn" onclick="openReportModal()" style="background: linear-gradient(135deg, var(--neon-blue), var(--ff-yellow)); color: #000; font-size: 0.78rem; padding: 7px 14px;">
-                📊 REPORT &amp; PRINT DESK
-            </button>
-            <button class="cyber-btn-outline" onclick="openFinanceAuditModal()" style="border-color: var(--neon-green); color: var(--neon-green);">
-                💰 AUDIT LEDGER
-            </button>
-            <button class="cyber-btn-outline" onclick="openNoteModalForDate(new Date().toISOString().slice(0, 10))">+ NEW NOTE</button>
-            <button class="cyber-btn-outline" onclick="exportData()">EXPORT JSON</button>
-            <button class="cyber-btn-outline" onclick="document.getElementById('fileInput').click()">IMPORT JSON</button>
-            <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="importData(event)">
+        <div class="header-controls">
+            <span class="sync-badge" id="cloudStatusTag">● CLOUD: ONLINE / SYNCED</span>
+            <button class="cyber-btn-outline" onclick="openPrintModal()">🖨️ REPORT &amp; PRINT DESK</button>
+            <button class="cyber-btn" onclick="openNoteModal()">+ NEW NOTE</button>
+            <button class="cyber-btn-outline" onclick="exportBackupJSON()">EXPORT JSON</button>
+            <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importBackupJSON(event)">
+            <button class="cyber-btn-outline" onclick="document.getElementById('importFileInput').click()">IMPORT JSON</button>
         </div>
     </header>
 
-    <div class="terminal-tabs">
-        <button class="nav-tab-btn active" id="tabActiveBtn" onclick="switchMainTab('active')">ACTIVE TERMINAL</button>
-        <button class="nav-tab-btn danger-tab" id="tabRetiredBtn" onclick="switchMainTab('retired')">RETIRED ARCHIVE (BLOWN PA / FAILED EVAL)</button>
-    </div>
-
-    <!-- VIEW 1: ACTIVE DASHBOARD -->
-    <div id="activeDashboardView">
-        <div id="inactivityBanner">
-            <div style="font-weight: bold; color: var(--ff-red); font-size: 0.88rem; margin-bottom: 8px; letter-spacing: 1px;">
-                ⚠ WARNING: 5-DAY INACTIVITY DETECTED
-            </div>
-            <div id="inactivityList"></div>
+    <!-- KPI OVERVIEW -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <label>EXPENSE TOTAL (세금공제 비용)</label>
+            <div class="value" style="color: var(--neon-red);" id="kpiExpense">$3,253</div>
         </div>
-
-        <div class="stat-grid">
-            <div class="stat-card pink">
-                <div class="stat-label">EXPENSE TOTAL (세금공제 비용)</div>
-                <div class="stat-value" id="taxExpense" style="color: var(--ff-red);">$0</div>
-            </div>
-            <div class="stat-card green">
-                <div class="stat-label">WITHDRAWAL TOTAL (PA 총 출금액)</div>
-                <div class="stat-value" id="taxWithdrawal" style="color: var(--neon-green);">$0</div>
-            </div>
-            <div class="stat-card blue">
-                <div class="stat-label">NET PROFIT (과세표준 순익)</div>
-                <div class="stat-value" id="taxNet" style="color: var(--neon-blue);">$0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">OPERATIONAL UNITS (EVAL / PA)</div>
-                <div class="stat-value" id="accountCounts" style="color: var(--text-main);">0 / 0</div>
-            </div>
+        <div class="kpi-card">
+            <label>WITHDRAWAL TOTAL (PA 총 출금액)</label>
+            <div class="value" style="color: var(--neon-green);" id="kpiWithdraw">$0</div>
         </div>
-
-        <!-- NEON PERFORMANCE MONITORS -->
-        <section class="terminal-panel">
-            <div class="panel-heading">NEON PERFORMANCE MONITORS</div>
-            <div class="charts-grid">
-                <div class="chart-box">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap;">
-                        <span style="font-size: 0.8rem; color: var(--text-dim);">계정별 일일 P&amp;L 추이 (최근 10회)</span>
-                        <div style="display: flex; gap: 6px;">
-                            <select id="pnlAssetFilter" onchange="updatePnlAccountList()" style="padding: 3px 6px; font-size: 0.75rem;">
-                                <option value="ALL">전체 자산</option>
-                                <option value="FUTURES">선물만</option>
-                                <option value="CRYPTO">크립토만</option>
-                            </select>
-                            <select id="pnlAccountSelect" onchange="updatePnlChart()" style="padding: 3px 8px; font-size: 0.75rem;"></select>
-                        </div>
-                    </div>
-                    <canvas id="dailyPnlChart" height="200"></canvas>
-                </div>
-                <div class="chart-box">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap;">
-                        <span style="font-size: 0.8rem; color: var(--text-dim);">타겟 달성률 (0% ~ 100% 정규화 게이지)</span>
-                        <div style="display: flex; gap: 6px;">
-                            <select id="targetAssetFilter" onchange="updateTargetProgressChart()" style="padding: 3px 6px; font-size: 0.75rem;">
-                                <option value="ALL">전체 자산</option>
-                                <option value="FUTURES">선물만</option>
-                                <option value="CRYPTO">크립토만</option>
-                            </select>
-                            <select id="targetFilterSelect" onchange="updateTargetProgressChart()" style="padding: 3px 8px; font-size: 0.75rem;">
-                                <option value="ALL">전체 (EVAL + PA)</option>
-                                <option value="EVAL">EVAL만 보기</option>
-                                <option value="FUNDED">PA만 보기</option>
-                            </select>
-                        </div>
-                    </div>
-                    <canvas id="targetProgressChart" height="200"></canvas>
-                </div>
-            </div>
-        </section>
-
-        <!-- 1. PNL CALENDAR -->
-        <section class="terminal-panel">
-            <div class="calendar-controls">
-                <div class="panel-heading" style="margin: 0;">TRADING ACTIVITY &amp; NOTES CALENDAR</div>
-                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                    <div style="display: flex; gap: 5px;">
-                        <button class="cal-nav-btn" onclick="shiftCalendar(-1)">&lt; PREV</button>
-                        <span id="calendarMonthTitle" style="color: var(--ff-yellow); font-weight: bold; padding: 4px 8px; font-size: 0.85rem;"></span>
-                        <button class="cal-nav-btn" onclick="shiftCalendar(1)">NEXT &gt;</button>
-                    </div>
-                    <select id="calAccountFilter" onchange="renderCalendar()" style="padding: 4px 8px; font-size: 0.75rem;">
-                        <option value="ALL">전체 계정 통합</option>
-                    </select>
-                </div>
-            </div>
-            <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: -6px; margin-bottom: 12px;">
-                * 날짜 셀을 클릭하면 해당 일자의 트레이딩 노트를 작성하거나 확인할 수 있습니다. 노트가 존재하는 날짜는 날짜 번호 옆에 <span class="neon-dot" style="vertical-align: middle;"></span> 표시가 켜집니다.
-            </div>
-            <div class="cal-grid" id="calendarDays">
-                <div class="cal-day-header">SUN</div>
-                <div class="cal-day-header">MON</div>
-                <div class="cal-day-header">TUE</div>
-                <div class="cal-day-header">WED</div>
-                <div class="cal-day-header">THU</div>
-                <div class="cal-day-header">FRI</div>
-                <div class="cal-day-header">SAT</div>
-            </div>
-            <div class="cal-grid" id="calendarCells" style="margin-top: 6px;"></div>
-        </section>
-
-        <!-- 2. MARKET NOTES DESK SECTION -->
-        <section class="terminal-panel" id="masterNotesSection">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
-                <div class="panel-heading" style="margin: 0; color: var(--neon-green);">MARKET NOTES DESK &amp; LEDGER</div>
-                <div style="display: flex; gap: 8px;">
-                    <select id="notesFilterSelect" onchange="renderNotesList()" style="padding: 4px 8px; font-size: 0.75rem;">
-                        <option value="ALL">전체 노트 보기</option>
-                    </select>
-                </div>
-            </div>
-            <div id="notesContainer" class="notes-list-grid"></div>
-        </section>
-
-        <!-- PRIVATE CONFIDENTIAL NOTES -->
-        <section class="terminal-panel">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <div class="panel-heading" style="margin: 0; color: var(--neon-purple);">PRIVATE CONFIDENTIAL NOTES</div>
-                <button class="cyber-btn-outline" onclick="togglePersonalPrivacy()" id="privacyToggleBtn" style="border-color: var(--neon-purple); color: var(--neon-purple);">
-                    🔒 HIDE
-                </button>
-            </div>
-            <div id="personalNotesWrapper">
-                <textarea id="personalNotesArea" rows="4" placeholder="비공개 매매 원칙, 멘탈 점검 등을 기록하세요 (자동 저장)..." oninput="savePersonalNotes()" style="width: 100%; resize: vertical;"></textarea>
-            </div>
-            <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 6px; display: flex; justify-content: space-between;">
-                <span>* 클라우드 동기화 및 JSON 백업 시 함께 보존됩니다.</span>
-                <span id="personalSaveNotice" style="color: var(--neon-green);"></span>
-            </div>
-        </section>
-
-        <!-- 3. ACCOUNT REGISTRATION PROTOCOL -->
-        <section class="terminal-panel">
-            <div class="panel-heading">ACCOUNT REGISTRATION PROTOCOL</div>
-            <div class="input-grid">
-                <div class="field-group">
-                    <label>자산군 (ASSET CLASS)</label>
-                    <select id="assetClass">
-                        <option value="FUTURES">FUTURES (나스닥/골드 등)</option>
-                        <option value="CRYPTO">CRYPTO (하이퍼리퀴드 등)</option>
-                    </select>
-                </div>
-                <div class="field-group">
-                    <label>플랫폼 (PLATFORM)</label>
-                    <input type="text" id="platform" placeholder="APEX, TRADEIFY, BREAKOUT">
-                </div>
-                <div class="field-group">
-                    <label>계정 식별 태그</label>
-                    <input type="text" id="accountNum" placeholder="예: 01 또는 93821">
-                </div>
-                <div class="field-group">
-                    <label>사이즈 (SIZE)</label>
-                    <input type="text" id="accountType" placeholder="50K / 150K / 250K">
-                </div>
-                <div class="field-group">
-                    <label>초기 밸런스 ($)</label>
-                    <input type="number" id="initialBalance" placeholder="50000">
-                </div>
-                <div class="field-group">
-                    <label>데일리 DD ($)</label>
-                    <input type="number" id="dailyDd" placeholder="1000 (0이면 무제한)">
-                </div>
-                <div class="field-group">
-                    <label>하드/트레일링 DD ($)</label>
-                    <input type="number" id="hardDd" placeholder="2500">
-                </div>
-                <div class="field-group">
-                    <label>프로핏 타겟 ($)</label>
-                    <input type="number" id="target" placeholder="3000">
-                </div>
-                <div class="field-group">
-                    <label>일관성 룰 (%)</label>
-                    <input type="text" id="consistency" placeholder="30% 또는 없음">
-                </div>
-                <div class="field-group">
-                    <label>비용 구분</label>
-                    <select id="expenseCategory">
-                        <option value="EVAL">EVAL</option>
-                        <option value="PA">PA</option>
-                        <option value="CUSTOM">CUSTOM</option>
-                    </select>
-                </div>
-                <div class="field-group">
-                    <label>비용 액수 ($)</label>
-                    <input type="number" id="expenseAmount" placeholder="150">
-                </div>
-            </div>
-            <button class="cyber-btn" type="button" onclick="addAccount()">REGISTER UNIT</button>
-        </section>
-
-        <!-- 4. ACTIVE PROP ACCOUNTS TABLE -->
-        <section class="terminal-panel">
-            <div class="panel-heading">PROP ACCOUNT PERFORMANCE &amp; RISK RADAR</div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>계정 식별</th>
-                            <th>현재 잔고 / 누적 PnL</th>
-                            <th>1 NQ 타겟 요구량 (Target &amp; 1 NQ)</th>
-                            <th>일관성 룰 진단 (Consistency Rule)</th>
-                            <th>DD 안전 버퍼 (Daily / Max DD)</th>
-                            <th>상태</th>
-                            <th>액션</th>
-                        </tr>
-                    </thead>
-                    <tbody id="accountTableBody"></tbody>
-                </table>
-            </div>
-        </section>
-    </div>
-
-    <!-- VIEW 2: RETIRED ARCHIVE -->
-    <div id="retiredArchiveView" style="display: none;">
-        <div class="stat-grid">
-            <div class="stat-card" style="border-top: 1px solid var(--ff-yellow);">
-                <div class="stat-label">FAILED EVAL EXPENSES (실패한 Eval 총비용)</div>
-                <div class="stat-value" id="retiredEvalExpense" style="color: var(--ff-yellow);">$0</div>
-            </div>
-            <div class="stat-card pink">
-                <div class="stat-label">BLOWN PA EXPENSES (날린 PA 총비용)</div>
-                <div class="stat-value" id="retiredPaExpense" style="color: var(--ff-red);">$0</div>
-            </div>
-            <div class="stat-card" style="border-top: 1px solid #ff4444;">
-                <div class="stat-label">TOTAL SUNK COST (은퇴/탈락 총 매몰비용)</div>
-                <div class="stat-value" id="retiredTotalCost" style="color: #ff4444;">$0</div>
-            </div>
-            <div class="stat-card green">
-                <div class="stat-label">HISTORICAL WITHDRAWALS (은퇴 전 총 출금액)</div>
-                <div class="stat-value" id="retiredHistoricalWithdrawals" style="color: var(--neon-green);">$0</div>
-            </div>
+        <div class="kpi-card">
+            <label>NET PROFIT (과세표준 순익)</label>
+            <div class="value" style="color: var(--neon-red);" id="kpiNet">$-3,253</div>
         </div>
-
-        <section class="terminal-panel" style="border-top: 2px solid var(--ff-red);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
-                <div class="panel-heading" style="color: var(--ff-red); margin: 0;">
-                    ■ RETIRED ARCHIVE (BLOWN PA / FAILED EVAL LEDGER)
-                </div>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <span style="font-size: 0.75rem; color: var(--text-dim);">자산군:</span>
-                    <select id="retiredAssetFilterSelect" onchange="renderRetiredView()" style="padding: 4px 8px; font-size: 0.78rem;">
-                        <option value="ALL">전체 자산</option>
-                        <option value="FUTURES">선물만</option>
-                        <option value="CRYPTO">크립토만</option>
-                    </select>
-                    <span style="font-size: 0.75rem; color: var(--text-dim); margin-left: 6px;">유형:</span>
-                    <select id="retiredFilterSelect" onchange="renderRetiredView()" style="padding: 4px 8px; font-size: 0.78rem;">
-                        <option value="ALL">전체 은퇴 계좌</option>
-                        <option value="EVAL">실패한 EVAL만</option>
-                        <option value="FUNDED">날린 PA만</option>
-                    </select>
-                </div>
-            </div>
-            <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: -6px; margin-bottom: 16px;">
-                * 비밀번호(0220) 인증을 통해 보관된 탈락 EVAL 및 은퇴 PA 계좌 목록입니다. 지출액 결산 및 필요시 복원(RESTORE)이 가능합니다.
-            </p>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>계정 태그</th>
-                            <th>자산</th>
-                            <th>상태</th>
-                            <th>사이즈</th>
-                            <th>최종 손익 (Final PnL)</th>
-                            <th>EVAL 지출액</th>
-                            <th>PA 지출액</th>
-                            <th>계정 총비용</th>
-                            <th>총 인출액</th>
-                            <th>은퇴일시</th>
-                            <th>관리 액션</th>
-                        </tr>
-                    </thead>
-                    <tbody id="retiredTableBody"></tbody>
-                </table>
-            </div>
-        </section>
-    </div>
-</div>
-
-<!-- REPORT & PRINT MODAL DESK -->
-<div class="cyber-modal" id="reportPrintModal">
-    <div class="cyber-modal-content" style="max-width: 980px; border-color: var(--neon-blue); box-shadow: 0 0 35px rgba(0, 240, 255, 0.3);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <div class="panel-heading" style="margin: 0; color: var(--neon-blue);">
-                📊 PROP AUDIT REPORT &amp; PRINT DESK
-            </div>
-            <button class="cyber-btn-outline" onclick="closeReportModal()">X CLOSE</button>
-        </div>
-
-        <div id="reportControlsArea" style="background: rgba(0,0,0,0.6); padding: 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; margin-bottom: 18px;">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 10px;">
-                <div class="field-group">
-                    <label>프랍펌 (PROP FIRM)</label>
-                    <select id="repFirmFilter" onchange="generateReport()"></select>
-                </div>
-                <div class="field-group">
-                    <label>계정 유형 (TYPE)</label>
-                    <select id="repTypeFilter" onchange="generateReport()">
-                        <option value="ALL">전체 (EVAL + PA)</option>
-                        <option value="EVAL">EVAL만</option>
-                        <option value="FUNDED">PA / FUNDED만</option>
-                    </select>
-                </div>
-                <div class="field-group">
-                    <label>기간 템플릿 (RANGE PRESET)</label>
-                    <select id="repPresetFilter" onchange="applyReportDatePreset()">
-                        <option value="ALL">전체 기간 (All-Time)</option>
-                        <option value="WEEK">이번 주 (This Week)</option>
-                        <option value="MONTH">이번 달 (This Month)</option>
-                        <option value="YTD">올해 누적 (YTD / This Year)</option>
-                        <option value="CUSTOM">사용자 지정 (Custom Range)</option>
-                    </select>
-                </div>
-                <div class="field-group">
-                    <label>시작일 (FROM)</label>
-                    <input type="date" id="repStartDate" onchange="generateReport()">
-                </div>
-                <div class="field-group">
-                    <label>종료일 (TO)</label>
-                    <input type="date" id="repEndDate" onchange="generateReport()">
-                </div>
-            </div>
-
-            <div id="reportActionBtnGroup" style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap;">
-                <button class="cyber-btn" onclick="generateReport()" style="padding: 6px 14px; font-size: 0.75rem;">보고서 새로고침</button>
-                <button class="cyber-btn" onclick="printReportDocument()" style="background: linear-gradient(135deg, var(--neon-green), #00aa44); color: #000; padding: 6px 16px; font-size: 0.75rem;">
-                    🖨 PRINT STATEMENT (인쇄 / PDF 저장)
-                </button>
-                <button class="cyber-btn" onclick="printActiveUnitsDocument()" style="background: linear-gradient(135deg, var(--neon-blue), #0088cc); color: #000; padding: 6px 16px; font-size: 0.75rem;">
-                    🖨 PRINT ACTIVE ROSTER (활성 계정 출력)
-                </button>
-            </div>
-        </div>
-
-        <div id="printableDocument">
-            <div style="border-bottom: 2px solid var(--ff-yellow); padding-bottom: 10px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end;">
-                <div>
-                    <h2 style="margin: 0; color: var(--ff-yellow); font-size: 1.3rem; letter-spacing: 2px;">FF PROP TRADING STATEMENT</h2>
-                    <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 3px;" id="repPrintMetaSubtitle">Multi-Account Prop Performance Ledger</div>
-                </div>
-                <div style="text-align: right; font-size: 0.72rem; color: var(--text-dim);">
-                    발행일시: <span id="repGeneratedTimestamp"></span>
-                </div>
-            </div>
-
-            <div class="stat-grid" style="margin-bottom: 18px;">
-                <div class="stat-card blue">
-                    <div class="stat-label">GROSS P&amp;L (필터 기간 실현손익)</div>
-                    <div class="stat-value" id="repGrossPnl" style="color: var(--neon-blue); font-size: 1.3rem;">$0</div>
-                </div>
-                <div class="stat-card pink">
-                    <div class="stat-label">EXPENSE TOTAL (비용/세금공제)</div>
-                    <div class="stat-value" id="repTotalExpenses" style="color: var(--ff-red); font-size: 1.3rem;">$0</div>
-                </div>
-                <div class="stat-card green">
-                    <div class="stat-label">WITHDRAWAL REALIZED (PA 출금)</div>
-                    <div class="stat-value" id="repTotalWithdrawals" style="color: var(--neon-green); font-size: 1.3rem;">$0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">NET REVENUE (순이익 / 과세표준)</div>
-                    <div class="stat-value" id="repNetRevenue" style="color: var(--ff-yellow); font-size: 1.3rem;">$0</div>
-                </div>
-            </div>
-
-            <div style="margin-bottom: 22px;">
-                <div style="font-size: 0.82rem; color: var(--ff-yellow); font-weight: bold; margin-bottom: 8px;">
-                    ■ ACCOUNT ROSTER &amp; NQ METRICS SUMMARY
-                </div>
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>계정 태그</th>
-                                <th>프랍펌</th>
-                                <th>자산</th>
-                                <th>유형</th>
-                                <th>현재 잔고</th>
-                                <th>기간 손익 (PnL)</th>
-                                <th>목표 잔여액 (1 NQ Ticks)</th>
-                                <th>DD 버퍼 (Daily / Max)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="repAccountsTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div>
-                <div style="font-size: 0.82rem; color: var(--neon-blue); font-weight: bold; margin-bottom: 8px;">
-                    ■ DETAILED DAILY PnL AUDIT TRAIL
-                </div>
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>거래일자</th>
-                                <th>계정명</th>
-                                <th>프랍펌</th>
-                                <th>마감 밸런스 ($)</th>
-                                <th>당일 손익 (PnL)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="repDailyLogsTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="kpi-card">
+            <label>OPERATIONAL UNITS (EVAL / PA)</label>
+            <div class="value" style="color: #fff;" id="kpiUnits">13 / 6</div>
         </div>
     </div>
-</div>
 
-<!-- FINANCIAL AUDIT MODAL -->
-<div class="cyber-modal" id="financialAuditModal">
-    <div class="cyber-modal-content" style="max-width: 900px; border-color: var(--neon-green); box-shadow: 0 0 35px rgba(0, 255, 102, 0.3);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <div class="panel-heading" style="margin: 0; color: var(--neon-green);">
-                💰 FINANCIAL AUDIT: EXPENSE, WITHDRAWAL &amp; REVENUE LEDGER
-            </div>
-            <button class="cyber-btn-outline" onclick="closeFinanceAuditModal()">X CLOSE</button>
-        </div>
-
-        <div class="stat-grid" style="margin-bottom: 20px;">
-            <div class="stat-card pink">
-                <div class="stat-label">TOTAL EXPENSES (총 지출/세금공제)</div>
-                <div class="stat-value" id="auditTotalExpense" style="color: var(--ff-red); font-size: 1.4rem;">$0</div>
-            </div>
-            <div class="stat-card green">
-                <div class="stat-label">TOTAL WITHDRAWALS (PA 총 출금액)</div>
-                <div class="stat-value" id="auditTotalWithdrawal" style="color: var(--neon-green); font-size: 1.4rem;">$0</div>
-            </div>
-            <div class="stat-card blue">
-                <div class="stat-label">NET REVENUE (순이익 / 과세표준)</div>
-                <div class="stat-value" id="auditNetRevenue" style="color: var(--neon-blue); font-size: 1.4rem;">$0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">PROFIT MARGIN / ROI</div>
-                <div class="stat-value" id="auditRoi" style="color: var(--ff-yellow); font-size: 1.4rem;">0%</div>
-            </div>
-        </div>
-
-        <div style="margin-bottom: 24px;">
-            <div style="font-size: 0.82rem; color: var(--neon-green); font-weight: bold; letter-spacing: 1px; margin-bottom: 8px;">
-                ■ FUNDED (PA) WITHDRAWAL LOGS
+    <!-- MAIN BODY GRID: ACCOUNTS & CALENDAR -->
+    <div class="grid-2col">
+        <!-- Accounts Panel -->
+        <div class="panel-box">
+            <div class="panel-heading">
+                <span>OPERATIONAL ACCOUNTS ROSTER</span>
+                <button class="cyber-btn-outline" onclick="promptAddAccount()" style="font-size: 0.72rem;">+ ADD UNIT</button>
             </div>
             <div class="table-wrap">
                 <table>
                     <thead>
                         <tr>
                             <th>계정명</th>
-                            <th>자산군</th>
-                            <th>인출 날짜</th>
-                            <th>인출 금액 ($)</th>
-                            <th>계정 총 누적 인출</th>
+                            <th>유형</th>
+                            <th>현재 잔고</th>
+                            <th>Daily PnL</th>
+                            <th>관리</th>
                         </tr>
                     </thead>
-                    <tbody id="auditWithdrawalsTableBody"></tbody>
+                    <tbody id="accountsTableBody"></tbody>
                 </table>
             </div>
         </div>
 
-        <div>
-            <div style="font-size: 0.82rem; color: var(--ff-red); font-weight: bold; letter-spacing: 1px; margin-bottom: 8px;">
-                ■ EXPENSE AUDIT BREAKDOWN (EVAL / PA FEES)
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>계정명</th>
-                            <th>자산군</th>
-                            <th>계정 상태</th>
-                            <th>EVAL 비용 ($)</th>
-                            <th>PA 비용 ($)</th>
-                            <th>총 지출 합계 ($)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="auditExpensesTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- NOTE MODAL (INPUT & EDIT) -->
-<div class="cyber-modal" id="noteInputModal">
-    <div class="cyber-modal-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div class="panel-heading" style="margin: 0;" id="noteModalTitle">WRITE / EDIT TRADING NOTE</div>
-            <button class="cyber-btn-outline" onclick="closeNoteModal()">X CLOSE</button>
-        </div>
-        <input type="hidden" id="editingNoteId">
-        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div class="field-group">
-                    <label>적용 계정 (DEFAULT: NONE)</label>
-                    <select id="noteAccountSelect"></select>
-                </div>
-                <div class="field-group">
-                    <label>날짜 (DATE)</label>
-                    <input type="date" id="noteDateInput">
+        <!-- Interactive Calendar Panel -->
+        <div class="panel-box">
+            <div class="calendar-nav">
+                <span class="panel-heading" style="margin: 0;" id="calendarMonthTitle">CALENDAR</span>
+                <div style="display: flex; gap: 4px;">
+                    <button class="cyber-btn-outline" onclick="changeMonth(-1)">&lt;</button>
+                    <button class="cyber-btn-outline" onclick="jumpToday()">TODAY</button>
+                    <button class="cyber-btn-outline" onclick="changeMonth(1)">&gt;</button>
                 </div>
             </div>
-            <div class="field-group">
-                <label>디스코드 / 차트 이미지 링크 (IMAGE URL)</label>
-                <input type="text" id="noteImageUrlInput" placeholder="https://cdn.discordapp.com/attachments/... 또는 웹 이미지 링크" oninput="updateModalImagePreview()">
-                <div id="modalImagePreviewWrap" style="margin-top: 6px; display: none;">
-                    <img id="modalImagePreview" src="" style="max-height: 120px; border-radius: 4px; border: 1px solid #444;">
-                </div>
+            <div class="calendar-grid" id="calendarGridHeader">
+                <div class="cal-header">SUN</div>
+                <div class="cal-header">MON</div>
+                <div class="cal-header">TUE</div>
+                <div class="cal-header">WED</div>
+                <div class="cal-header">THU</div>
+                <div class="cal-header">FRI</div>
+                <div class="cal-header">SAT</div>
             </div>
-            <div class="field-group">
-                <label>노트 내용 (ANALYSIS, LEVELS, PSYCHOLOGY)</label>
-                <textarea id="noteTextInput" rows="5" placeholder="NQ 매매 근거, 주요 레벨, 지켜야 할 원칙 등을 기록하세요..."></textarea>
-            </div>
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: 8px;">
-            <button class="cyber-btn-outline" onclick="closeNoteModal()">취소</button>
-            <button class="cyber-btn" onclick="saveNoteFromModal()">SAVE NOTE</button>
+            <div class="calendar-grid" id="calendarGridBody" style="margin-top: 4px;"></div>
         </div>
     </div>
-</div>
 
-<!-- HISTORY / EDIT MODAL -->
-<div class="cyber-modal" id="historyModal">
-    <div class="cyber-modal-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <div class="panel-heading" style="margin: 0;" id="historyModalTitle">BALANCE &amp; PnL HISTORY</div>
-            <button class="cyber-btn-outline" onclick="closeHistoryModal()">X CLOSE</button>
-        </div>
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>날짜 (DATE)</th>
-                        <th>마감 밸런스 ($)</th>
-                        <th>당일 손익 (PnL)</th>
-                        <th>액션 (ACTION)</th>
-                    </tr>
-                </thead>
-                <tbody id="historyTableBody"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<!-- PA PROMOTION PROTOCOL MODAL -->
-<div class="cyber-modal" id="paUpgradeModal">
-    <div class="cyber-modal-content" style="max-width: 580px; border-color: var(--neon-green);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <div class="panel-heading" style="margin: 0; color: var(--neon-green);" id="paUpgradeTitle">PA PROMOTION CONFIGURATION</div>
-            <button class="cyber-btn-outline" onclick="closePaUpgradeModal()">X CANCEL</button>
-        </div>
-        <input type="hidden" id="upgradeTargetAccountId">
-        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-            <div class="field-group">
-                <label>원본 EVAL 계정 식별 태그</label>
-                <input type="text" id="upOriginEval" readonly style="color: var(--text-dim); border-color: #333;">
+    <!-- MARKET NOTES DESK & LEDGER WITH CATEGORY FILTER -->
+    <div class="panel-box">
+        <div class="panel-heading" style="flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span>MARKET NOTES DESK &amp; CHRONOLOGICAL LEDGER</span>
+                <span style="font-size: 0.75rem; color: var(--text-dim);" id="notesCountTag">0 ENTRIES</span>
             </div>
-            <div class="field-group">
-                <label>새 PA 계정 ID 태그</label>
-                <input type="text" id="upPaTag" placeholder="PA-01">
-            </div>
-            <div class="field-group">
-                <label>PA 일관성 룰 (CONSISTENCY RULE)</label>
-                <select id="upConsistency">
-                    <option value="30%">30% Consistency (Apex 등 기본)</option>
-                    <option value="20%">20% Consistency</option>
-                    <option value="40%">40% Consistency</option>
-                    <option value="50%">50% Consistency</option>
-                    <option value="없음">없음 (No Consistency Rule)</option>
-                    <option value="CUSTOM">직접 입력 (CUSTOM)</option>
+            
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <label style="font-size: 0.72rem; color: #888;">보기 구분:</label>
+                <select id="notesDeskFilter" onchange="renderMarketNotesDesk()" style="background: #141923; border: 1px solid #334; color: var(--neon-cyan); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">
+                    <option value="GENERAL" selected>📖 GENERAL JOURNAL ONLY (마켓 종합 일지만)</option>
+                    <option value="ALL">📂 전체 보기 (ALL NOTES)</option>
                 </select>
             </div>
-            <div class="field-group" id="upCustomConsistencyWrap" style="display: none;">
-                <label>커스텀 일관성 룰 입력 (%)</label>
-                <input type="text" id="upCustomConsistency" placeholder="예: 35%">
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div class="field-group">
-                    <label>PA 데일리 DD ($)</label>
-                    <input type="number" id="upDailyDd" placeholder="0이면 무제한">
-                </div>
-                <div class="field-group">
-                    <label>PA 하드/트레일링 DD ($)</label>
-                    <input type="number" id="upHardDd" placeholder="예: 2500">
-                </div>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div class="field-group">
-                    <label>PA 1차 출금/버퍼 타겟 ($)</label>
-                    <input type="number" id="upTarget" placeholder="예: 2600">
-                </div>
-                <div class="field-group">
-                    <label>PA 액티베이션 수수료 ($)</label>
-                    <input type="number" id="upFee" placeholder="예: 150">
-                </div>
-            </div>
         </div>
-        <button class="cyber-btn" onclick="executePaUpgrade()" style="width: 100%; background: linear-gradient(135deg, var(--neon-green), #00aa44); color: #000;">
-            CONFIRM &amp; PROMOTE TO PA
-        </button>
+        <div id="marketNotesDeskList"></div>
     </div>
-</div>
 
-<!-- RULE / DD, TARGET & ACCOUNT TAG INLINE EDIT MODAL -->
-<div class="cyber-modal" id="ruleEditModal">
-    <div class="cyber-modal-content" style="max-width: 480px; border-color: var(--neon-purple);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <div class="panel-heading" style="margin: 0; color: var(--neon-purple);" id="ruleEditTitle">RULE, TARGET &amp; RISK PARAMETERS</div>
-            <button class="cyber-btn-outline" onclick="closeRuleEditModal()">X CLOSE</button>
+    <!-- ==========================================
+         TWO-TOUCH DAILY TRADING JOURNAL MODAL
+         ========================================== -->
+    <div class="cyber-modal" id="noteInputModal">
+        <div class="cyber-modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 8px; margin-bottom: 14px;">
+                <div style="font-size: 1rem; font-weight: bold; color: var(--neon-green);">
+                    ⚡ DAILY BIAS &amp; POST-SESSION RECAP
+                </div>
+                <button class="cyber-btn-outline" onclick="closeNoteModal()">✕ CLOSE</button>
+            </div>
+
+            <input type="hidden" id="editingNoteId">
+
+            <!-- Date & Bias Row -->
+            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                    <label style="font-size: 0.72rem; color: #888; text-transform: uppercase;">거래 일자 (DATE)</label>
+                    <input type="date" id="journalDate" style="width: 100%; padding: 8px; background: #141923; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="font-size: 0.72rem; color: #888; text-transform: uppercase;">시장 방향성 관점 (DAILY BIAS)</label>
+                    <div style="display: flex; gap: 6px; margin-top: 2px;">
+                        <button type="button" id="biasBull" onclick="setDailyBias('🟢 BULLISH')" style="flex: 1; padding: 7px; background: #142218; border: 1px solid #285528; color: #70db70; cursor: pointer; border-radius: 4px;">🟢 BULL</button>
+                        <button type="button" id="biasBear" onclick="setDailyBias('🔴 BEARISH')" style="flex: 1; padding: 7px; background: #261414; border: 1px solid #5a2424; color: #ff6e6e; cursor: pointer; border-radius: 4px;">🔴 BEAR</button>
+                        <button type="button" id="biasRange" onclick="setDailyBias('⚪ RANGE')" style="flex: 1; padding: 7px; background: #1e222b; border: 1px solid #3b4556; color: #9ab4d0; cursor: pointer; border-radius: 4px;">⚪ RANGE</button>
+                    </div>
+                    <input type="hidden" id="journalBiasVal" value="⚪ RANGE">
+                </div>
+            </div>
+
+            <!-- SECTION 1: PRE-MARKET -->
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid #1f2838; border-left: 4px solid var(--neon-cyan); border-radius: 6px; padding: 12px; margin-bottom: 14px;">
+                <div style="font-size: 0.85rem; font-weight: bold; color: var(--neon-cyan); margin-bottom: 8px;">
+                    ☀️ 1. PRE-MARKET BIAS &amp; KEY LEVELS (장 시작 전)
+                </div>
+                <textarea id="journalPreNotes" rows="3" placeholder="• 오늘의 핵심 유동성 구간 / Key Levels (High/Low sweep, FVG, 이전 고점)&#10;• 주요 시나리오 및 진입 조건 (뉴스 발표 시간 등)" style="width: 100%; padding: 8px; background: #0f131c; border: 1px solid #293447; color: #fff; border-radius: 4px; resize: vertical; margin-bottom: 8px;"></textarea>
+
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="file" id="preFileInput" accept="image/*" style="display: none;" onchange="handleImageFile(event, 'journalPreImage', 'prePreview')">
+                    <button type="button" class="cyber-btn-outline" onclick="document.getElementById('preFileInput').click()" style="padding: 6px 10px; font-size: 0.75rem;">📁 프리마켓 차트 선택</button>
+                    <input type="text" id="journalPreImage" placeholder="또는 차트 복사 후 이 칸 클릭하고 Ctrl + V" style="flex: 1; padding: 6px 8px; background: #0f131c; border: 1px solid #293447; color: #aaa; font-size: 0.75rem; border-radius: 4px;" oninput="renderImageThumb('journalPreImage', 'prePreview')">
+                    <button type="button" class="btn-act btn-del" onclick="clearSpecificImage('journalPreImage', 'prePreview')" style="padding: 6px 10px;">삭제</button>
+                </div>
+                <div id="prePreview" style="margin-top: 6px; display: none; text-align: center;">
+                    <img src="" style="max-height: 180px; max-width: 100%; border-radius: 4px; border: 1px solid var(--neon-cyan);">
+                </div>
+            </div>
+
+            <!-- SECTION 2: POST-MARKET -->
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid #243026; border-left: 4px solid var(--neon-green); border-radius: 6px; padding: 12px; margin-bottom: 14px;">
+                <div style="font-size: 0.85rem; font-weight: bold; color: var(--neon-green); margin-bottom: 8px;">
+                    🌙 2. POST-MARKET RECAP &amp; PSYCHOLOGY (장 마감 후)
+                </div>
+
+                <div style="margin-bottom: 8px;">
+                    <label style="font-size: 0.72rem; color: #888;">멘탈 / 심리 상태 (자유 입력):</label>
+                    <input type="text" id="journalEmotion" placeholder="침착, 확신, 조급함(FOMO), 손실 복구 집착 등..." style="width: 100%; padding: 7px; background: #0f131c; border: 1px solid #293447; color: #fff; border-radius: 4px;">
+                    <div style="display: flex; gap: 4px; margin-top: 4px;">
+                        <button type="button" onclick="setEmotionChip('침착 / 원칙준수')" style="font-size: 0.65rem; padding: 2px 6px; background: #182218; border: 1px solid #285528; color: #70db70; cursor: pointer; border-radius: 3px;">침착</button>
+                        <button type="button" onclick="setEmotionChip('확신 매매')" style="font-size: 0.65rem; padding: 2px 6px; background: #18202d; border: 1px solid #2a4060; color: #6db1ff; cursor: pointer; border-radius: 3px;">확신</button>
+                        <button type="button" onclick="setEmotionChip('조급함 (FOMO)')" style="font-size: 0.65rem; padding: 2px 6px; background: #2c2014; border: 1px solid #63431d; color: #ffab5c; cursor: pointer; border-radius: 3px;">FOMO</button>
+                        <button type="button" onclick="setEmotionChip('손실 복구 심리 (Revenge)')" style="font-size: 0.65rem; padding: 2px 6px; background: #2a1515; border: 1px solid #5a2424; color: #ff6e6e; cursor: pointer; border-radius: 3px;">복수매매</button>
+                    </div>
+                </div>
+
+                <textarea id="journalPostNotes" rows="3" placeholder="• 오늘 장 복기 (원칙 준수 여부, 뇌동 매매 유무)&#10;• 아침 바이어스(Pre-Market Bias)가 맞았는지? 놓친 타점이나 개선점" style="width: 100%; padding: 8px; background: #0f131c; border: 1px solid #293447; color: #fff; border-radius: 4px; resize: vertical; margin-bottom: 8px;"></textarea>
+
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="file" id="postFileInput" accept="image/*" style="display: none;" onchange="handleImageFile(event, 'journalPostImage', 'postPreview')">
+                    <button type="button" class="cyber-btn-outline" onclick="document.getElementById('postFileInput').click()" style="padding: 6px 10px; font-size: 0.75rem;">📁 마감 차트 선택</button>
+                    <input type="text" id="journalPostImage" placeholder="또는 최종 마감 차트 복사 후 이 칸 클릭하고 Ctrl + V" style="flex: 1; padding: 6px 8px; background: #0f131c; border: 1px solid #293447; color: #aaa; font-size: 0.75rem; border-radius: 4px;" oninput="renderImageThumb('journalPostImage', 'postPreview')">
+                    <button type="button" class="btn-act btn-del" onclick="clearSpecificImage('journalPostImage', 'postPreview')" style="padding: 6px 10px;">삭제</button>
+                </div>
+                <div id="postPreview" style="margin-top: 6px; display: none; text-align: center;">
+                    <img src="" style="max-height: 180px; max-width: 100%; border-radius: 4px; border: 1px solid var(--neon-green);">
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #222; padding-top: 12px;">
+                <button class="cyber-btn-outline" onclick="closeNoteModal()">취소</button>
+                <button class="cyber-btn" onclick="saveTwoTouchJournal()">SAVE DAILY JOURNAL</button>
+            </div>
         </div>
-        <input type="hidden" id="ruleEditAccountId">
-        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-            <div class="field-group">
-                <label>계정 식별 태그/번호 (ID TAG / NUMBER)</label>
-                <input type="text" id="ruleAccountNumInput" placeholder="예: 01 또는 93821">
-            </div>
-            <div class="field-group">
-                <label>프로핏 타겟 ($) / 목표 이익 (PROFIT TARGET)</label>
-                <input type="number" id="ruleTargetInput" placeholder="예: 3000">
-            </div>
-            <div class="field-group">
-                <label>일관성 룰 (CONSISTENCY %)</label>
-                <input type="text" id="ruleConsistencyInput" placeholder="예: 30% 또는 없음">
-            </div>
-            <div class="field-group">
-                <label>데일리 DD ($)</label>
-                <input type="number" id="ruleDailyDdInput" placeholder="0">
-            </div>
-            <div class="field-group">
-                <label>하드 DD / Trailing Max DD ($)</label>
-                <input type="number" id="ruleHardDdInput" placeholder="2500">
-            </div>
-        </div>
-        <button class="cyber-btn" onclick="saveRuleEdit()" style="width: 100%; background: linear-gradient(135deg, var(--neon-purple), #7209b7); color: #fff;">
-            UPDATE PARAMETERS &amp; TARGET
-        </button>
     </div>
-</div>
 
-<!-- ORIGINAL IMAGE VIEWER MODAL -->
-<div class="cyber-modal" id="imageOriginalModal" onclick="closeImageOriginalModal()">
-    <div class="cyber-modal-content" onclick="event.stopPropagation()">
-        <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 8px;">
-            <span style="color: var(--ff-yellow); font-size: 0.8rem; font-weight: bold;">ORIGINAL RESOLUTION VIEW</span>
-            <button class="cyber-btn-outline" onclick="closeImageOriginalModal()">X CLOSE</button>
+    <!-- ==========================================
+         MONTHLY JOURNAL REPORT & PRINT DESK MODAL
+         ========================================== -->
+    <div class="cyber-modal" id="reportPrintModal">
+        <div class="cyber-modal-content" style="max-width: 860px;">
+            <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                <div style="font-size: 1.05rem; font-weight: bold; color: var(--neon-green);">
+                    🖨️ MONTHLY TRADING JOURNAL DOSSIER
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label style="font-size: 0.75rem; color: #aaa;">선택 월:</label>
+                    <input type="month" id="printMonthSelect" style="padding: 6px 10px; background: #161c28; border: 1px solid #444; color: #fff; border-radius: 4px;" onchange="renderMonthlyPrintPreview()">
+                    <button type="button" class="cyber-btn" onclick="window.print()">🖨️ PRINT / PDF</button>
+                    <button type="button" class="cyber-btn-outline" onclick="closePrintModal()">✕ 닫기</button>
+                </div>
+            </div>
+            <div id="monthlyPrintDocArea"></div>
         </div>
-        <img id="originalImageDisplay" src="" alt="Original Resolution">
     </div>
-</div>
 
-<script>
-    /* ========================================================
-       SERVICE WORKER REGISTRATION (PWA ENABLEMENT)
-       ======================================================== */
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then(() => console.log('PWA Service Worker registered'))
-                .catch(err => console.log('Service Worker notice:', err));
-        });
-    }
-
-    /* ========================================================
-       FIREBASE CONFIGURATION & REALTIME DATABASE INITIALIZATION
-       ======================================================== */
-    const firebaseConfig = {
-        apiKey: "AIzaSyCXIp_chCiKqrc5uBQcoGTxZ6Jd1bJ6HUI",
-        authDomain: "ff-prop-terminal.firebaseapp.com",
-        databaseURL: "https://ff-prop-terminal-default-rtdb.firebaseio.com",
-        projectId: "ff-prop-terminal",
-        storageBucket: "ff-prop-terminal.firebasestorage.app",
-        messagingSenderId: "559557152197",
-        appId: "1:559557152197:web:407f7244acb9357a75cfac"
-    };
-
-    let firebaseDb = null;
-    let isCloudReady = false;
-    let isRemoteUpdate = false;
-
-    try {
-        firebase.initializeApp(firebaseConfig);
-        firebaseDb = firebase.database();
-        isCloudReady = true;
-    } catch(err) {
-        console.warn("Firebase initialization notice:", err);
-    }
-
-    let accounts = [];
-    try {
-        const stored = localStorage.getItem('tradingAccounts');
-        accounts = stored ? JSON.parse(stored) : [];
-        if (!Array.isArray(accounts)) accounts = [];
-    } catch(e) { accounts = []; }
-
-    let globalNotes = [];
-    try {
-        const storedNotes = localStorage.getItem('ff_market_notes');
-        globalNotes = storedNotes ? JSON.parse(storedNotes) : [];
-        if (!Array.isArray(globalNotes)) globalNotes = [];
-    } catch(e) { globalNotes = []; }
-
-    let dismissedInactivity = {};
-    try {
-        const stored = localStorage.getItem('dismissedInactivity');
-        dismissedInactivity = stored ? JSON.parse(stored) : {};
-    } catch(e) { dismissedInactivity = {}; }
-
-    let personalNotes = localStorage.getItem('ff_personal_notes') || '';
-    let isPersonalBlurred = false;
-    let currentMainTab = 'active';
-    let currentCalendarDate = new Date();
-    let activeEditingAccountId = null;
-    let pnlChartInstance = null;
-    let progressChartInstance = null;
-
-    function sanitizeAccounts(list) {
-        list.forEach(a => {
-            if (a.isRetired === undefined) a.isRetired = false;
-            if (a.retiredDate === undefined) a.retiredDate = null;
-            if (a.pnlHistory === undefined) a.pnlHistory = [];
-            if (a.withdrawalHistory === undefined) a.withdrawalHistory = [];
-            if (a.totalPnl === undefined) a.totalPnl = 0;
-            if (a.initialBalance === undefined) a.initialBalance = 0;
-            if (a.currentBalance === undefined) a.currentBalance = a.initialBalance + a.totalPnl;
-            if (a.dailyDd === undefined) a.dailyDd = 0;
-            if (a.hardDd === undefined) a.hardDd = 0;
-            if (a.target === undefined) a.target = 0;
-            if (a.consistency === undefined) a.consistency = '없음';
-            if (a.withdrawals === undefined) a.withdrawals = 0;
-            if (a.evalExpense === undefined || a.paExpense === undefined) {
-                const cat = a.expenses ? a.expenses.category : (a.status === 'FUNDED' ? 'PA' : 'EVAL');
-                const amt = a.expenses ? (a.expenses.amount || 0) : 0;
-                a.evalExpense = (cat === 'EVAL' || a.status === 'EVAL') ? amt : 0;
-                a.paExpense = (cat === 'PA' || a.status === 'FUNDED') ? amt : 0;
-            }
-        });
-    }
-    sanitizeAccounts(accounts);
-
-    /* TWO-WAY SYNC CONTROLLER */
-    function initFirebaseSync() {
-        const badge = document.getElementById('cloudStatusBadge');
-        if (!isCloudReady || !firebaseDb) {
-            if (badge) {
-                badge.innerText = "● LOCAL ONLY (OFFLINE)";
-                badge.style.color = "var(--ff-yellow)";
-                badge.style.borderColor = "var(--ff-yellow)";
-            }
-            return;
-        }
-
-        const terminalRef = firebaseDb.ref('terminalData');
-
-        terminalRef.once('value', snapshot => {
-            if (!snapshot.exists()) {
-                saveDataToCloud();
-            }
-        });
-
-        terminalRef.on('value', snapshot => {
-            if (badge) {
-                badge.innerText = "● CLOUD: ONLINE / SYNCED";
-                badge.style.color = "var(--neon-green)";
-                badge.style.borderColor = "var(--neon-green)";
-            }
-
-            const data = snapshot.val();
-            if (!data) return;
-
-            isRemoteUpdate = true;
-            if (data.accounts) accounts = data.accounts;
-            if (data.globalNotes) globalNotes = data.globalNotes;
-            if (data.personalNotes !== undefined) {
-                personalNotes = data.personalNotes;
-                loadPersonalNotes();
-            }
-            if (data.dismissedInactivity) dismissedInactivity = data.dismissedInactivity;
-
-            sanitizeAccounts(accounts);
-            localStorage.setItem('tradingAccounts', JSON.stringify(accounts));
-            localStorage.setItem('ff_market_notes', JSON.stringify(globalNotes));
-            localStorage.setItem('ff_personal_notes', personalNotes);
-            localStorage.setItem('dismissedInactivity', JSON.stringify(dismissedInactivity));
-
-            renderAccounts();
-            populateAccountDropdowns();
-            renderCalendar();
-            renderNotesList();
-            renderCharts();
-            updateSummary();
-            checkInactivity();
-            isRemoteUpdate = false;
-        }, error => {
-            if (badge) {
-                badge.innerText = "● CLOUD: PERMISSION / SYNC ERROR";
-                badge.style.color = "var(--ff-red)";
-                badge.style.borderColor = "var(--ff-red)";
-            }
-            console.error("Firebase sync error:", error);
-        });
-    }
-
-    function saveDataToCloud() {
-        if (!isCloudReady || !firebaseDb) return;
-        firebaseDb.ref('terminalData').set({
-            accounts: accounts,
-            globalNotes: globalNotes,
-            personalNotes: personalNotes,
-            dismissedInactivity: dismissedInactivity,
-            updatedAt: new Date().toISOString()
-        }).catch(err => console.error("Cloud push failed:", err));
-    }
-
-    function switchMainTab(tabName) {
-        currentMainTab = tabName;
-        const activeView = document.getElementById('activeDashboardView');
-        const retiredView = document.getElementById('retiredArchiveView');
-        const tabActiveBtn = document.getElementById('tabActiveBtn');
-        const tabRetiredBtn = document.getElementById('tabRetiredBtn');
-
-        if (tabName === 'active') {
-            activeView.style.display = 'block';
-            retiredView.style.display = 'none';
-            tabActiveBtn.classList.add('active');
-            tabRetiredBtn.classList.remove('active');
-            renderAccounts();
-            renderCharts();
-            renderCalendar();
-            renderNotesList();
-            updateSummary();
-            checkInactivity();
-        } else {
-            activeView.style.display = 'none';
-            retiredView.style.display = 'block';
-            tabActiveBtn.classList.remove('active');
-            tabRetiredBtn.classList.add('active');
-            renderRetiredView();
-        }
-    }
-
-    function saveData() {
-        localStorage.setItem('tradingAccounts', JSON.stringify(accounts));
-        localStorage.setItem('ff_market_notes', JSON.stringify(globalNotes));
-        localStorage.setItem('dismissedInactivity', JSON.stringify(dismissedInactivity));
-        updateSummary();
-        if (!isRemoteUpdate) {
-            saveDataToCloud();
-        }
-    }
-
-    function updateSummary() {
-        const active = accounts.filter(a => !a.isRetired);
-        const evals = active.filter(a => a.status !== 'FUNDED').length;
-        const pas = active.filter(a => a.status === 'FUNDED').length;
-        document.getElementById('accountCounts').innerText = `${evals} / ${pas}`;
-        
-        const totalExp = accounts.reduce((s, a) => s + ((a.evalExpense || 0) + (a.paExpense || 0)), 0);
-        const totalWd = accounts.reduce((s, a) => s + (a.withdrawals || 0), 0);
-        const net = totalWd - totalExp;
-
-        document.getElementById('taxExpense').innerText = `$${totalExp.toLocaleString()}`;
-        document.getElementById('taxWithdrawal').innerText = `$${totalWd.toLocaleString()}`;
-        const netEl = document.getElementById('taxNet');
-        if (netEl) {
-            netEl.innerText = `${net >= 0 ? '+' : ''}$${net.toLocaleString()}`;
-            netEl.style.color = net >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
-        }
-    }
-
-    /* REPORT DESK LOGIC */
-    function openReportModal() {
-        populateReportFirmFilter();
-        applyReportDatePreset();
-        generateReport();
-        document.getElementById('reportPrintModal').style.display = 'flex';
-    }
-
-    function closeReportModal() {
-        document.getElementById('reportPrintModal').style.display = 'none';
-    }
-
-    function populateReportFirmFilter() {
-        const firmSelect = document.getElementById('repFirmFilter');
-        if (!firmSelect) return;
-        const firms = Array.from(new Set(accounts.map(a => a.platform))).filter(Boolean);
-        
-        firmSelect.innerHTML = '<option value="ALL">전체 프랍펌 (ALL FIRMS)</option>';
-        firms.forEach(f => {
-            const opt = document.createElement('option');
-            opt.value = f;
-            opt.text = f;
-            firmSelect.appendChild(opt);
-        });
-    }
-
-    function applyReportDatePreset() {
-        const preset = document.getElementById('repPresetFilter').value;
-        const startInput = document.getElementById('repStartDate');
-        const endInput = document.getElementById('repEndDate');
-        const today = new Date();
-
-        if (preset === 'ALL') {
-            startInput.value = '';
-            endInput.value = '';
-        } else if (preset === 'WEEK') {
-            const dayOfWeek = today.getDay();
-            const monday = new Date(today);
-            monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-            startInput.value = monday.toISOString().slice(0, 10);
-            endInput.value = today.toISOString().slice(0, 10);
-        } else if (preset === 'MONTH') {
-            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-            startInput.value = firstDay.toISOString().slice(0, 10);
-            endInput.value = today.toISOString().slice(0, 10);
-        } else if (preset === 'YTD') {
-            const firstJan = new Date(today.getFullYear(), 0, 1);
-            startInput.value = firstJan.toISOString().slice(0, 10);
-            endInput.value = today.toISOString().slice(0, 10);
-        }
-        generateReport();
-    }
-
-    function generateReport() {
-        const firmFilter = document.getElementById('repFirmFilter').value;
-        const typeFilter = document.getElementById('repTypeFilter').value;
-        const startDate = document.getElementById('repStartDate').value;
-        const endDate = document.getElementById('repEndDate').value;
-
-        document.getElementById('repGeneratedTimestamp').innerText = new Date().toLocaleString();
-        let subtitleText = `Firm: ${firmFilter} | Type: ${typeFilter}`;
-        if (startDate || endDate) {
-            subtitleText += ` | Range: ${startDate || '처음'} ~ ${endDate || '현재'}`;
-        } else {
-            subtitleText += ` | Range: All-Time`;
-        }
-        document.getElementById('repPrintMetaSubtitle').innerText = subtitleText;
-
-        let targetAccounts = [...accounts];
-        if (firmFilter !== 'ALL') {
-            targetAccounts = targetAccounts.filter(a => a.platform === firmFilter);
-        }
-        if (typeFilter !== 'ALL') {
-            targetAccounts = targetAccounts.filter(a => a.status === typeFilter);
-        }
-
-        let filteredPnlSum = 0;
-        let filteredExpSum = 0;
-        let filteredWdSum = 0;
-
-        const dailyLogs = [];
-        targetAccounts.forEach(acc => {
-            filteredExpSum += ((acc.evalExpense || 0) + (acc.paExpense || 0));
-
-            if (acc.withdrawalHistory) {
-                acc.withdrawalHistory.forEach(w => {
-                    if ((!startDate || w.date >= startDate) && (!endDate || w.date <= endDate)) {
-                        filteredWdSum += (w.amount || 0);
-                    }
-                });
-            }
-
-            if (acc.pnlHistory) {
-                acc.pnlHistory.forEach(h => {
-                    if ((!startDate || h.date >= startDate) && (!endDate || h.date <= endDate)) {
-                        filteredPnlSum += (h.amount || 0);
-                        dailyLogs.push({
-                            date: h.date,
-                            accName: acc.name,
-                            platform: acc.platform,
-                            balance: h.balance !== undefined ? h.balance : '-',
-                            amount: h.amount
-                        });
-                    }
-                });
-            }
-        });
-
-        document.getElementById('repGrossPnl').innerText = `${filteredPnlSum >= 0 ? '+' : ''}$${filteredPnlSum.toLocaleString()}`;
-        document.getElementById('repGrossPnl').style.color = filteredPnlSum >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
-
-        document.getElementById('repTotalExpenses').innerText = `$${filteredExpSum.toLocaleString()}`;
-        document.getElementById('repTotalWithdrawals').innerText = `$${filteredWdSum.toLocaleString()}`;
-        
-        const netRev = filteredWdSum - filteredExpSum;
-        const netEl = document.getElementById('repNetRevenue');
-        netEl.innerText = `${netRev >= 0 ? '+' : ''}$${netRev.toLocaleString()}`;
-        netEl.style.color = netRev >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
-
-        const accTbody = document.getElementById('repAccountsTableBody');
-        accTbody.innerHTML = '';
-        targetAccounts.forEach(acc => {
-            const currentPnl = acc.totalPnl || 0;
-            const target = acc.target || 0;
-            const remGap = Math.max(0, target - currentPnl);
-            const ticksNeeded = Math.round(remGap / 5);
-
-            let dailyDdBuf = acc.dailyDd > 0 ? `$${acc.dailyDd.toLocaleString()}` : '무제한';
-            let hardDdBuf = acc.hardDd > 0 ? `$${Math.max(0, acc.hardDd + currentPnl).toLocaleString()}` : '-';
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td style="font-weight: bold; color: var(--ff-yellow);">${acc.name}</td>
-                <td>${acc.platform}</td>
-                <td>${acc.assetClass}</td>
-                <td><span class="${acc.status === 'FUNDED' ? 'badge-pa' : 'badge-eval'}">${acc.status}</span></td>
-                <td>$${acc.currentBalance.toLocaleString()}</td>
-                <td style="color: ${currentPnl >= 0 ? 'var(--neon-green)' : 'var(--ff-red)'}; font-weight: bold;">
-                    ${currentPnl >= 0 ? '+' : ''}$${currentPnl.toLocaleString()}
-                </td>
-                <td>$${remGap.toLocaleString()} (${ticksNeeded} ticks)</td>
-                <td>${dailyDdBuf} / ${hardDdBuf}</td>
-            `;
-            accTbody.appendChild(tr);
-        });
-
-        dailyLogs.sort((a, b) => b.date.localeCompare(a.date));
-        const logTbody = document.getElementById('repDailyLogsTableBody');
-        logTbody.innerHTML = '';
-        if (dailyLogs.length === 0) {
-            logTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 12px;">선택 기간에 발생한 거래 기록이 없습니다.</td></tr>`;
-        } else {
-            dailyLogs.forEach(l => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="color: var(--ff-yellow);">${l.date}</td>
-                    <td style="font-weight: bold;">${l.accName}</td>
-                    <td>${l.platform}</td>
-                    <td>${typeof l.balance === 'number' ? '$' + l.balance.toLocaleString() : l.balance}</td>
-                    <td style="color: ${l.amount >= 0 ? 'var(--neon-green)' : 'var(--ff-red)'}; font-weight: bold;">
-                        ${l.amount >= 0 ? '+' : ''}$${l.amount.toLocaleString()}
-                    </td>
-                `;
-                logTbody.appendChild(tr);
-            });
-        }
-    }
-
-    function printReportDocument() {
-        window.print();
-    }
-
-    function printActiveUnitsDocument() {
-        document.getElementById('repTypeFilter').value = 'ALL';
-        generateReport();
-        window.print();
-    }
-
-    /* FINANCIAL AUDIT POPUP LOGIC */
-    function openFinanceAuditModal() {
-        const totalExp = accounts.reduce((s, a) => s + ((a.evalExpense || 0) + (a.paExpense || 0)), 0);
-        const totalWd = accounts.reduce((s, a) => s + (a.withdrawals || 0), 0);
-        const net = totalWd - totalExp;
-        const roi = totalExp > 0 ? ((net / totalExp) * 100).toFixed(1) : '0';
-
-        document.getElementById('auditTotalExpense').innerText = `$${totalExp.toLocaleString()}`;
-        document.getElementById('auditTotalWithdrawal').innerText = `$${totalWd.toLocaleString()}`;
-        
-        const netEl = document.getElementById('auditNetRevenue');
-        netEl.innerText = `${net >= 0 ? '+' : ''}$${net.toLocaleString()}`;
-        netEl.style.color = net >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
-        
-        const roiEl = document.getElementById('auditRoi');
-        roiEl.innerText = `${roi}%`;
-        roiEl.style.color = net >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
-
-        const wdTbody = document.getElementById('auditWithdrawalsTableBody');
-        wdTbody.innerHTML = '';
-        let hasWithdrawals = false;
-
-        accounts.forEach(acc => {
-            if (acc.withdrawalHistory && acc.withdrawalHistory.length > 0) {
-                acc.withdrawalHistory.forEach(w => {
-                    hasWithdrawals = true;
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td style="color: var(--neon-green); font-weight: bold;">${acc.name}</td>
-                        <td>${acc.assetClass}</td>
-                        <td style="color: var(--ff-yellow);">${w.date}</td>
-                        <td style="color: var(--neon-green); font-weight: bold;">+$${w.amount.toLocaleString()}</td>
-                        <td>$${(acc.withdrawals || 0).toLocaleString()}</td>
-                    `;
-                    wdTbody.appendChild(tr);
-                });
-            }
-        });
-
-        if (!hasWithdrawals) {
-            wdTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 14px;">기록된 PA 출금 내역이 없습니다.</td></tr>`;
-        }
-
-        const expTbody = document.getElementById('auditExpensesTableBody');
-        expTbody.innerHTML = '';
-        accounts.forEach(acc => {
-            const evalFee = acc.evalExpense || 0;
-            const paFee = acc.paExpense || 0;
-            const totalAccExp = evalFee + paFee;
-            if (totalAccExp > 0) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="font-weight: bold; color: ${acc.isRetired ? 'var(--ff-red)' : 'var(--ff-yellow)'};">
-                        ${acc.name} ${acc.isRetired ? '(RETIRED)' : ''}
-                    </td>
-                    <td>${acc.assetClass}</td>
-                    <td><span class="${acc.status === 'FUNDED' ? 'badge-pa' : 'badge-eval'}">${acc.status}</span></td>
-                    <td style="color: var(--ff-yellow);">$${evalFee.toLocaleString()}</td>
-                    <td style="color: var(--ff-red);">$${paFee.toLocaleString()}</td>
-                    <td style="color: #ff6688; font-weight: bold;">$${totalAccExp.toLocaleString()}</td>
-                `;
-                expTbody.appendChild(tr);
-            }
-        });
-
-        if (expTbody.innerHTML === '') {
-            expTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-dim); padding: 14px;">기록된 비용 지출이 없습니다.</td></tr>`;
-        }
-
-        document.getElementById('financialAuditModal').style.display = 'flex';
-    }
-
-    function closeFinanceAuditModal() {
-        document.getElementById('financialAuditModal').style.display = 'none';
-    }
-
-    function recordWithdrawal(id) {
-        const acc = accounts.find(a => a.id === id);
-        if (!acc) return;
-
-        const val = prompt(`[${acc.name}] 인출(Withdrawal) 금액을 입력하세요 ($):`);
-        if (val === null || val.trim() === '') return;
-
-        const amount = parseFloat(val);
-        if (isNaN(amount) || amount <= 0) {
-            alert('올바른 양수 금액을 입력해 주세요.');
-            return;
-        }
-
-        const dateTag = prompt('출금 적용 날짜 (YYYY-MM-DD):', new Date().toISOString().slice(0, 10)) || new Date().toISOString().slice(0, 10);
-        acc.withdrawals = (acc.withdrawals || 0) + amount;
-        if (!acc.withdrawalHistory) acc.withdrawalHistory = [];
-        acc.withdrawalHistory.push({ date: dateTag, amount: amount });
-        acc.lastActivityDate = dateTag;
-
-        saveData();
-        renderAccounts();
-        alert(`[${acc.name}] $${amount.toLocaleString()} 출금이 기록되었습니다.`);
-    }
-
-    function editTarget(id) {
-        const acc = accounts.find(a => a.id === id);
-        if (!acc) return;
-
-        const curTarget = acc.target || 0;
-        const msg = acc.status === 'FUNDED'
-            ? `[${acc.name} - PA]\n출금 기준 / 프로핏 타겟 ($):`
-            : `[${acc.name} - EVAL]\n합격 프로핏 타겟 ($):`;
-
-        const val = prompt(msg, curTarget);
-        if (val === null || val.trim() === '') return;
-
-        const parsed = parseFloat(val);
-        if (isNaN(parsed) || parsed < 0) {
-            alert('올바른 금액을 입력해 주세요.');
-            return;
-        }
-
-        acc.target = parsed;
-        saveData();
-        renderAccounts();
-        renderCharts();
-    }
-
-    function checkInactivity() {
-        const banner = document.getElementById('inactivityBanner');
-        const list = document.getElementById('inactivityList');
-        if (!banner || !list) return;
-        list.innerHTML = '';
-
-        const now = new Date();
-        const inactiveAccounts = [];
-        const activeAccounts = accounts.filter(a => !a.isRetired);
-
-        activeAccounts.forEach(acc => {
-            let latestDateStr = acc.lastActivityDate;
-            if (acc.pnlHistory && acc.pnlHistory.length > 0) {
-                const lastPnlDate = acc.pnlHistory[acc.pnlHistory.length - 1].date;
-                if (!latestDateStr || lastPnlDate > latestDateStr) latestDateStr = lastPnlDate;
-            }
-
-            if (!latestDateStr) return;
-            const lastDate = new Date(latestDateStr);
-            const diffDays = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
-
-            if (diffDays >= 5) {
-                const dismissedTime = dismissedInactivity[acc.id];
-                if (dismissedTime && new Date(dismissedTime) >= lastDate) return;
-                inactiveAccounts.push({ acc, diffDays, latestDateStr });
-            }
-        });
-
-        if (inactiveAccounts.length === 0) {
-            banner.style.display = 'none';
-            return;
-        }
-
-        banner.style.display = 'block';
-        inactiveAccounts.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'alert-item';
-            div.innerHTML = `
-                <span>
-                    <strong>[${item.acc.name}]</strong> (${item.acc.status}) - 지난 <strong>${item.diffDays}일간</strong> 매매 기록 없음 (마지막: ${item.latestDateStr})
-                </span>
-                <button class="btn-dismiss" onclick="dismissAlert(${item.acc.id})">해제</button>
-            `;
-            list.appendChild(div);
-        });
-    }
-
-    function dismissAlert(id) {
-        dismissedInactivity[id] = new Date().toISOString();
-        saveData();
-        checkInactivity();
-    }
-
-    function loadPersonalNotes() {
-        const el = document.getElementById('personalNotesArea');
-        if (el) el.value = personalNotes;
-    }
-
-    function savePersonalNotes() {
-        const el = document.getElementById('personalNotesArea');
-        if (!el) return;
-        personalNotes = el.value;
-        localStorage.setItem('ff_personal_notes', personalNotes);
-        const notice = document.getElementById('personalSaveNotice');
-        if (notice) {
-            notice.innerText = '저장됨 ✓';
-            setTimeout(() => { notice.innerText = ''; }, 1500);
-        }
-        if (!isRemoteUpdate) {
-            saveDataToCloud();
-        }
-    }
-
-    function togglePersonalPrivacy() {
-        const area = document.getElementById('personalNotesArea');
-        const btn = document.getElementById('privacyToggleBtn');
-        if (!area || !btn) return;
-        isPersonalBlurred = !isPersonalBlurred;
-        if (isPersonalBlurred) {
-            area.classList.add('personal-blur');
-            btn.innerText = '👁 SHOW';
-        } else {
-            area.classList.remove('personal-blur');
-            btn.innerText = '🔒 HIDE';
-        }
-    }
-
-    function addAccount() {
-        const assetClass = document.getElementById('assetClass').value;
-        const platform = document.getElementById('platform').value.toUpperCase().trim();
-        const accountNum = document.getElementById('accountNum').value.trim();
-        const accountType = document.getElementById('accountType').value.toUpperCase().trim();
-        const initialBalance = parseFloat(document.getElementById('initialBalance').value) || 0;
-        const dailyDd = parseFloat(document.getElementById('dailyDd').value) || 0;
-        const hardDd = parseFloat(document.getElementById('hardDd').value) || 0;
-        const target = parseFloat(document.getElementById('target').value) || 0;
-        const consistencyVal = document.getElementById('consistency').value.trim() || '없음';
-        const expenseCategory = document.getElementById('expenseCategory').value;
-        const expenseAmount = parseFloat(document.getElementById('expenseAmount').value) || 0;
-
-        if (!platform || !accountNum) {
-            alert('플랫폼명과 계정 식별값을 입력해주세요.');
-            return;
-        }
-
-        const newAccount = {
-            id: Date.now(),
-            assetClass,
-            platform,
-            accountNum,
-            name: `${platform}-${accountNum}`,
-            accountType: accountType || 'CUSTOM',
-            initialBalance,
-            currentBalance: initialBalance,
-            totalPnl: 0,
-            dailyDd,
-            hardDd,
-            target,
-            consistency: consistencyVal.includes('%') || consistencyVal === '없음' ? consistencyVal : consistencyVal + '%',
-            expenses: { category: expenseCategory, amount: expenseAmount },
-            evalExpense: expenseCategory === 'EVAL' ? expenseAmount : 0,
-            paExpense: expenseCategory === 'PA' ? expenseAmount : 0,
-            pnlHistory: [],
-            withdrawals: 0,
-            withdrawalHistory: [],
-            status: expenseCategory === 'PA' ? 'FUNDED' : 'EVAL',
-            originEvalName: '',
-            isRetired: false,
-            retiredDate: null,
-            lastActivityDate: new Date().toISOString().slice(0, 10)
+    <!-- BALANCE UPDATE PROMPT MODAL -->
+    <div class="cyber-modal" id="balanceModal">
+        <div class="cyber-modal-content" style="max-width: 400px;">
+            <div class="panel-heading" style="color: var(--neon-cyan);">UPDATE ACCOUNT BALANCE</div>
+            <input type="hidden" id="balanceAccId">
+            <div style="margin-bottom: 12px;">
+                <label style="font-size: 0.75rem; color: var(--text-dim);">마감 잔고 (ENDING BALANCE $)</label>
+                <input type="number" id="balanceInput" step="0.01" style="width: 100%; padding: 8px; background: #141923; border: 1px solid #333; color: #fff; border-radius: 4px; margin-top: 4px;">
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button class="cyber-btn-outline" onclick="closeBalanceModal()">취소</button>
+                <button class="cyber-btn" onclick="submitBalanceUpdate()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         APPLICATION LOGIC & FIREBASE SYNC
+         ========================================== -->
+    <script>
+        // 1. FIREBASE CONFIGURATION (Client-facing sync)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCXIp_chCiKqrc5uBQcoGTxZ6Jd1bJ6HUI",
+            authDomain: "ff-prop-terminal.firebaseapp.com",
+            databaseURL: "https://ff-prop-terminal-default-rtdb.firebaseio.com",
+            projectId: "ff-prop-terminal"
         };
 
-        accounts.push(newAccount);
-        saveData();
-        renderAccounts();
-        populateAccountDropdowns();
-        renderCalendar();
-        renderCharts();
-        checkInactivity();
-    }
-
-    function recordActualBalance(id) {
-        const acc = accounts.find(a => a.id === id);
-        if (!acc) return;
-
-        const balInput = prompt(`[${acc.name}] 현재 잔고(Ending Balance)를 입력하세요 ($):`, acc.currentBalance);
-        if (balInput === null || balInput.trim() === '') return;
-
-        const newBal = parseFloat(balInput);
-        if (isNaN(newBal)) return;
-
-        const prevBal = acc.currentBalance;
-        const diff = Math.round((newBal - prevBal) * 100) / 100;
-        const dateTag = prompt('적용 날짜 (YYYY-MM-DD):', new Date().toISOString().slice(0, 10)) || new Date().toISOString().slice(0, 10);
-
-        acc.currentBalance = newBal;
-        acc.totalPnl = Math.round((acc.totalPnl + diff) * 100) / 100;
-        acc.lastActivityDate = dateTag;
-        acc.pnlHistory.push({ id: Date.now(), date: dateTag, amount: diff, balance: newBal });
-
-        saveData();
-        renderAccounts();
-        renderCalendar();
-        renderCharts();
-        checkInactivity();
-    }
-
-    function openHistoryModal(id) {
-        activeEditingAccountId = id;
-        const acc = accounts.find(a => a.id === id);
-        if (!acc) return;
-        document.getElementById('historyModalTitle').innerText = `[${acc.name}] HISTORY & EDIT LEDGER`;
-        renderHistoryRows();
-        document.getElementById('historyModal').style.display = 'flex';
-    }
-
-    function closeHistoryModal() {
-        document.getElementById('historyModal').style.display = 'none';
-        activeEditingAccountId = null;
-    }
-
-    function renderHistoryRows() {
-        const acc = accounts.find(a => a.id === activeEditingAccountId);
-        const tbody = document.getElementById('historyTableBody');
-        if (!acc || !tbody) return;
-        tbody.innerHTML = '';
-
-        if (!acc.pnlHistory || acc.pnlHistory.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-dim); padding:16px;">기록된 밸런스/손익 내역이 없습니다.</td></tr>`;
-            return;
+        let db = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        } catch(e) {
+            console.warn("Firebase Init Error or Offline:", e);
         }
 
-        acc.pnlHistory.forEach((item, index) => {
-            const pnlColor = item.amount >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
-            const balVal = item.balance !== undefined ? `$${item.balance.toLocaleString()}` : '-';
+        // 2. DEFAULT STATE & ACCOUNT ROSTER (13 EVAL / 6 PA)
+        let accounts = [
+            { id: 1, name: "APEX-PA-01", type: "PA", accountNum: "APEX-884101", balance: 52450, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 2, name: "APEX-PA-02", type: "PA", accountNum: "APEX-884102", balance: 51200, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 3, name: "APEX-PA-03", type: "PA", accountNum: "APEX-884103", balance: 53100, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 4, name: "APEX-PA-04", type: "PA", accountNum: "APEX-884104", balance: 50850, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 5, name: "APEX-PA-05", type: "PA", accountNum: "APEX-884105", balance: 50400, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 6, name: "APEX-PA-06", type: "PA", accountNum: "APEX-884106", balance: 51950, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 7, name: "TRADEIFY-EVAL-01", type: "EVAL", accountNum: "TRD-1021", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 8, name: "TRADEIFY-EVAL-02", type: "EVAL", accountNum: "TRD-1022", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 9, name: "TRADEIFY-EVAL-03", type: "EVAL", accountNum: "TRD-1023", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 10, name: "MFFU-EVAL-01", type: "EVAL", accountNum: "MFF-301", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 11, name: "MFFU-EVAL-02", type: "EVAL", accountNum: "MFF-302", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 12, name: "MFFU-EVAL-03", type: "EVAL", accountNum: "MFF-303", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 13, name: "MFFU-EVAL-04", type: "EVAL", accountNum: "MFF-304", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 14, name: "APEX-EVAL-07", type: "EVAL", accountNum: "APEX-901", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 15, name: "APEX-EVAL-08", type: "EVAL", accountNum: "APEX-902", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 16, name: "APEX-EVAL-09", type: "EVAL", accountNum: "APEX-903", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 17, name: "APEX-EVAL-10", type: "EVAL", accountNum: "APEX-904", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 18, name: "APEX-EVAL-11", type: "EVAL", accountNum: "APEX-905", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] },
+            { id: 19, name: "APEX-EVAL-12", type: "EVAL", accountNum: "APEX-906", balance: 50000, startingBalance: 50000, dailyPnl: 0, notes: [] }
+        ];
 
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td style="color: var(--ff-yellow); font-weight:bold;">${item.date}</td>
-                <td style="color: #fff;">${balVal}</td>
-                <td style="color: ${pnlColor}; font-weight:bold;">
-                    ${item.amount >= 0 ? '+' : ''}$${item.amount.toLocaleString()}
-                </td>
-                <td>
-                    <button class="btn-act btn-target" onclick="editHistoryItem(${index})">수정</button>
-                    <button class="btn-act btn-del" onclick="deleteHistoryItem(${index})">삭제</button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-    }
+        let curYear = new Date().getFullYear();
+        let curMonth = new Date().getMonth();
 
-    function editHistoryItem(index) {
-        const acc = accounts.find(a => a.id === activeEditingAccountId);
-        if (!acc || !acc.pnlHistory || !acc.pnlHistory[index]) return;
-
-        const item = acc.pnlHistory[index];
-        const newDate = prompt('날짜 수정 (YYYY-MM-DD):', item.date);
-        if (newDate === null) return;
-
-        const newBalInput = prompt('마감 밸런스 ($) 수정:', item.balance !== undefined ? item.balance : '');
-        const newPnlInput = prompt('손익 PnL ($) 수정 (수익 양수, 손실 음수):', item.amount);
-        if (newPnlInput === null) return;
-
-        const parsedPnl = parseFloat(newPnlInput);
-        if (isNaN(parsedPnl)) return;
-
-        item.date = newDate.trim() || item.date;
-        item.amount = parsedPnl;
-        if (newBalInput !== null && newBalInput.trim() !== '') {
-            item.balance = parseFloat(newBalInput) || item.balance;
-        }
-
-        let total = 0;
-        acc.pnlHistory.forEach(h => { total += (h.amount || 0); });
-        acc.totalPnl = Math.round(total * 100) / 100;
-        const lastEntry = acc.pnlHistory[acc.pnlHistory.length - 1];
-        acc.currentBalance = lastEntry.balance !== undefined ? lastEntry.balance : (acc.initialBalance + acc.totalPnl);
-
-        saveData();
-        renderHistoryRows();
-        renderAccounts();
-        renderCalendar();
-        renderCharts();
-    }
-
-    function deleteHistoryItem(index) {
-        const acc = accounts.find(a => a.id === activeEditingAccountId);
-        if (!acc || !acc.pnlHistory) return;
-
-        if (confirm('해당 기록을 삭제하시겠습니까?')) {
-            acc.pnlHistory.splice(index, 1);
-            let total = 0;
-            acc.pnlHistory.forEach(h => { total += (h.amount || 0); });
-            acc.totalPnl = Math.round(total * 100) / 100;
-            if (acc.pnlHistory.length > 0) {
-                const lastEntry = acc.pnlHistory[acc.pnlHistory.length - 1];
-                acc.currentBalance = lastEntry.balance !== undefined ? lastEntry.balance : (acc.initialBalance + acc.totalPnl);
-            } else {
-                acc.currentBalance = acc.initialBalance;
-            }
-            saveData();
-            renderHistoryRows();
-            renderAccounts();
-            renderCalendar();
-            renderCharts();
-        }
-    }
-
-    function openPaUpgradeModal(id) {
-        const acc = accounts.find(a => a.id === id);
-        if (!acc) return;
-        document.getElementById('upgradeTargetAccountId').value = id;
-        document.getElementById('upOriginEval').value = acc.name;
-        document.getElementById('upPaTag').value = acc.accountNum ? `PA-${acc.accountNum}` : 'PA-01';
-        document.getElementById('upConsistency').value = '30%';
-        document.getElementById('upCustomConsistencyWrap').style.display = 'none';
-        document.getElementById('upDailyDd').value = acc.dailyDd || 0;
-        document.getElementById('upHardDd').value = acc.hardDd || 2500;
-        document.getElementById('upTarget').value = 2600;
-        document.getElementById('upFee').value = 150;
-        document.getElementById('paUpgradeModal').style.display = 'flex';
-    }
-
-    document.getElementById('upConsistency').addEventListener('change', function() {
-        document.getElementById('upCustomConsistencyWrap').style.display = (this.value === 'CUSTOM') ? 'block' : 'none';
-    });
-
-    function closePaUpgradeModal() {
-        document.getElementById('paUpgradeModal').style.display = 'none';
-    }
-
-    function executePaUpgrade() {
-        const id = parseInt(document.getElementById('upgradeTargetAccountId').value);
-        const acc = accounts.find(a => a.id === id);
-        if (!acc) return;
-
-        const newPaTag = document.getElementById('upPaTag').value.trim();
-        if (!newPaTag) return alert('새 PA 계정 태그를 입력해 주세요.');
-
-        const consistencyChoice = document.getElementById('upConsistency').value;
-        const customConsistency = document.getElementById('upCustomConsistency').value.trim();
-        const finalConsistency = (consistencyChoice === 'CUSTOM') 
-            ? (customConsistency ? (customConsistency.includes('%') || customConsistency === '없음' ? customConsistency : customConsistency + '%') : '없음')
-            : consistencyChoice;
-
-        const fee = parseFloat(document.getElementById('upFee').value) || 0;
-        acc.originEvalName = acc.name;
-        acc.accountNum = newPaTag;
-        acc.name = `${acc.platform}-${newPaTag}`;
-        acc.status = 'FUNDED';
-        acc.consistency = finalConsistency;
-        acc.dailyDd = parseFloat(document.getElementById('upDailyDd').value) || 0;
-        acc.hardDd = parseFloat(document.getElementById('upHardDd').value) || 0;
-        acc.target = parseFloat(document.getElementById('upTarget').value) || 0;
-        acc.paExpense = (acc.paExpense || 0) + fee;
-        if (!acc.expenses) acc.expenses = { category: 'PA', amount: 0 };
-        acc.expenses.amount += fee;
-        acc.expenses.category = 'PA';
-
-        closePaUpgradeModal();
-        saveData();
-        renderAccounts();
-        populateAccountDropdowns();
-        renderCalendar();
-        renderCharts();
-        alert(`[${acc.name}] 계정이 PA로 성공적으로 승격되었습니다.`);
-    }
-
-    function openRuleEditModal(id) {
-        const acc = accounts.find(a => a.id === id);
-        if (!acc) return;
-        document.getElementById('ruleEditAccountId').value = id;
-        document.getElementById('ruleEditTitle').innerText = `[${acc.name}] RULE, TARGET & RISK CONFIG`;
-        document.getElementById('ruleAccountNumInput').value = acc.accountNum || '';
-        document.getElementById('ruleTargetInput').value = acc.target !== undefined ? acc.target : '';
-        document.getElementById('ruleConsistencyInput').value = acc.consistency || '없음';
-        document.getElementById('ruleDailyDdInput').value = acc.dailyDd || 0;
-        document.getElementById('ruleHardDdInput').value = acc.hardDd || 0;
-        document.getElementById('ruleEditModal').style.display = 'flex';
-    }
-
-    function closeRuleEditModal() {
-        document.getElementById('ruleEditModal').style.display = 'none';
-    }
-
-    function saveRuleEdit() {
-        const id = parseInt(document.getElementById('ruleEditAccountId').value);
-        const acc = accounts.find(a => a.id === id);
-        if (!acc) return;
-
-        const oldName = acc.name;
-        const newTag = document.getElementById('ruleAccountNumInput').value.trim();
-        if (!newTag) {
-            alert('계정 번호/식별 태그를 비워둘 수 없습니다.');
-            return;
-        }
-
-        acc.accountNum = newTag;
-        acc.name = `${acc.platform}-${newTag}`;
-
-        globalNotes.forEach(n => {
-            if (n.accountId == acc.id) {
-                n.accountLabel = acc.name;
-            }
-        });
-
-        const newTarget = parseFloat(document.getElementById('ruleTargetInput').value);
-        acc.target = isNaN(newTarget) ? 0 : Math.max(0, newTarget);
-
-        const consistencyVal = document.getElementById('ruleConsistencyInput').value.trim();
-        acc.consistency = consistencyVal ? (consistencyVal.includes('%') || consistencyVal === '없음' ? consistencyVal : consistencyVal + '%') : '없음';
-        acc.dailyDd = parseFloat(document.getElementById('ruleDailyDdInput').value) || 0;
-        acc.hardDd = parseFloat(document.getElementById('ruleHardDdInput').value) || 0;
-
-        closeRuleEditModal();
-        saveData();
-        renderAccounts();
-        populateAccountDropdowns();
-        renderCalendar();
-        renderNotesList();
-        renderCharts();
-        alert(`[${oldName}] 계정의 태그, 타겟($${acc.target.toLocaleString()}) 및 설정이 업데이트되었습니다.`);
-    }
-
-    function renderAccounts() {
-        const tbody = document.getElementById('accountTableBody');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-
-        const active = accounts.filter(a => !a.isRetired);
-
-        active.forEach(acc => {
-            const currentPnl = acc.totalPnl || 0;
-            const target = acc.target || 0;
-            const remainingTarget = Math.max(0, target - currentPnl);
-
-            const ptsNeeded = (remainingTarget / 20).toFixed(2);
-            const ticksNeeded = Math.round(remainingTarget / 5);
-
-            let consistencyMaxDay = '-';
-            let consistencyStatus = '규정 없음';
-            if (acc.consistency && acc.consistency !== '없음') {
-                const pct = parseFloat(acc.consistency.replace('%', '')) / 100;
-                if (!isNaN(pct) && pct > 0 && target > 0) {
-                    const maxAllowedInSingleDay = Math.round(target * pct);
-                    consistencyMaxDay = `$${maxAllowedInSingleDay.toLocaleString()}`;
-                    const highestDayPnl = acc.pnlHistory.reduce((max, h) => Math.max(max, h.amount || 0), 0);
-                    if (highestDayPnl > maxAllowedInSingleDay) {
-                        consistencyStatus = `<span style="color:var(--ff-red);">위반/초과 ($${highestDayPnl.toLocaleString()})</span>`;
-                    } else {
-                        consistencyStatus = `<span style="color:var(--neon-green);">준수중 (최고: $${highestDayPnl.toLocaleString()})</span>`;
+        // 3. INITIALIZATION & FIREBASE SYNC
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLocalData();
+            if (db) {
+                db.ref('ff_terminal_data').on('value', snapshot => {
+                    const data = snapshot.val();
+                    if (data && data.accounts) {
+                        accounts = data.accounts;
+                        saveLocalData();
+                        refreshUI();
                     }
+                });
+            }
+            refreshUI();
+        });
+
+        function saveData() {
+            saveLocalData();
+            if (db) {
+                db.ref('ff_terminal_data').set({
+                    accounts: accounts,
+                    updatedAt: new Date().toISOString()
+                });
+            }
+        }
+
+        function saveLocalData() {
+            localStorage.setItem('ff_prop_accounts', JSON.stringify(accounts));
+        }
+
+        function loadLocalData() {
+            const local = localStorage.getItem('ff_prop_accounts');
+            if (local) {
+                try { accounts = JSON.parse(local); } catch(e) {}
+            }
+        }
+
+        function refreshUI() {
+            renderAccountsTable();
+            renderCalendar();
+            renderMarketNotesDesk();
+            updateKPIs();
+        }
+
+        function updateKPIs() {
+            const evalUnits = accounts.filter(a => a.type === 'EVAL').length;
+            const paUnits = accounts.filter(a => a.type === 'PA').length;
+            document.getElementById('kpiUnits').textContent = `${evalUnits} / ${paUnits}`;
+        }
+
+        // 4. ACCOUNTS TABLE & BALANCE ENTRY
+        function renderAccountsTable() {
+            const tbody = document.getElementById('accountsTableBody');
+            tbody.innerHTML = accounts.map(a => `
+                <tr>
+                    <td style="font-weight: bold; color: #fff;">${a.name}</td>
+                    <td><span style="font-size: 0.7rem; padding: 2px 6px; border-radius: 3px; background: ${a.type==='PA'?'#11291b':'#1e2535'}; color: ${a.type==='PA'?varColor('--neon-green'):varColor('--neon-cyan')}">${a.type}</span></td>
+                    <td style="font-family: monospace; font-weight: bold;">$${Number(a.balance).toLocaleString()}</td>
+                    <td style="font-family: monospace; color: ${a.dailyPnl >= 0 ? varColor('--neon-green') : varColor('--neon-red')}">
+                        ${a.dailyPnl >= 0 ? '+' : ''}$${Number(a.dailyPnl || 0).toLocaleString()}
+                    </td>
+                    <td>
+                        <button class="btn-act btn-bal" onclick="openBalanceModal(${a.id})">밸런스</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function varColor(name) {
+            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        }
+
+        function openBalanceModal(accId) {
+            const acc = accounts.find(a => a.id === accId);
+            if (!acc) return;
+            document.getElementById('balanceAccId').value = accId;
+            document.getElementById('balanceInput').value = acc.balance;
+            document.getElementById('balanceModal').style.display = 'flex';
+        }
+        function closeBalanceModal() { document.getElementById('balanceModal').style.display = 'none'; }
+
+        function submitBalanceUpdate() {
+            const id = Number(document.getElementById('balanceAccId').value);
+            const newBal = parseFloat(document.getElementById('balanceInput').value);
+            const acc = accounts.find(a => a.id === id);
+            if (acc && !isNaN(newBal)) {
+                acc.dailyPnl = newBal - acc.balance;
+                acc.balance = newBal;
+                saveData();
+                refreshUI();
+            }
+            closeBalanceModal();
+        }
+
+        // 5. INTERACTIVE CALENDAR ENGINE
+        function changeMonth(delta) {
+            curMonth += delta;
+            if (curMonth < 0) { curMonth = 11; curYear--; }
+            else if (curMonth > 11) { curMonth = 0; curYear++; }
+            renderCalendar();
+        }
+
+        function jumpToday() {
+            curYear = new Date().getFullYear();
+            curMonth = new Date().getMonth();
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGridBody');
+            const title = document.getElementById('calendarMonthTitle');
+            const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            title.textContent = `${monthNames[curMonth]} ${curYear}`;
+
+            grid.innerHTML = '';
+            const firstDay = new Date(curYear, curMonth, 1).getDay();
+            const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
+            const todayStr = new Date().toISOString().slice(0, 10);
+
+            for (let i = 0; i < firstDay; i++) {
+                grid.innerHTML += `<div class="cal-cell" style="background: transparent; border-color: transparent; cursor: default;"></div>`;
+            }
+
+            let allNotes = [];
+            accounts.forEach(a => {
+                if (a.notes) a.notes.forEach(n => allNotes.push(n));
+            });
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${curYear}-${String(curMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const hasNote = allNotes.some(n => n.date === dateStr);
+                const isToday = (dateStr === todayStr);
+
+                grid.innerHTML += `
+                    <div class="cal-cell ${isToday ? 'today' : ''}" onclick="openNoteModal('${dateStr}')">
+                        <span class="cal-num">${d}</span>
+                        ${hasNote ? '<span class="cal-dot" title="Journal logged"></span>' : ''}
+                    </div>
+                `;
+            }
+        }
+
+        // 6. TWO-TOUCH DAILY JOURNAL LOGIC
+        function setDailyBias(val) {
+            document.getElementById('journalBiasVal').value = val;
+            document.getElementById('biasBull').style.borderColor = val.includes('BULL') ? '#00ff88' : '#285528';
+            document.getElementById('biasBear').style.borderColor = val.includes('BEAR') ? '#ff4444' : '#5a2424';
+            document.getElementById('biasRange').style.borderColor = val.includes('RANGE') ? '#00e5ff' : '#3b4556';
+        }
+
+        function setEmotionChip(val) {
+            document.getElementById('journalEmotion').value = val;
+        }
+
+        function openNoteModal(dateString = null, editId = null) {
+            const modal = document.getElementById('noteInputModal');
+            const targetDate = dateString || new Date().toISOString().slice(0, 10);
+            document.getElementById('journalDate').value = targetDate;
+            document.getElementById('editingNoteId').value = editId || '';
+            
+            setDailyBias('⚪ RANGE');
+            document.getElementById('journalPreNotes').value = '';
+            document.getElementById('journalPostNotes').value = '';
+            document.getElementById('journalEmotion').value = '';
+            clearSpecificImage('journalPreImage', 'prePreview');
+            clearSpecificImage('journalPostImage', 'postPreview');
+
+            let found = null;
+            accounts.forEach(a => {
+                if (a.notes) {
+                    const hit = editId ? a.notes.find(n => n.id == editId) : a.notes.find(n => n.date == targetDate);
+                    if (hit) found = hit;
+                }
+            });
+
+            if (found) {
+                document.getElementById('editingNoteId').value = found.id;
+                document.getElementById('journalDate').value = found.date;
+                if (found.bias) setDailyBias(found.bias);
+                document.getElementById('journalPreNotes').value = found.preNotes || '';
+                document.getElementById('journalPostNotes').value = found.postNotes || found.text || '';
+                document.getElementById('journalEmotion').value = found.emotion || '';
+
+                if (found.preImageUrl) {
+                    document.getElementById('journalPreImage').value = found.preImageUrl;
+                    renderImageThumb('journalPreImage', 'prePreview');
+                }
+                if (found.postImageUrl || found.imageUrl) {
+                    document.getElementById('journalPostImage').value = found.postImageUrl || found.imageUrl;
+                    renderImageThumb('journalPostImage', 'postPreview');
                 }
             }
 
-            const todayStr = new Date().toISOString().slice(0, 10);
-            const todayTrades = acc.pnlHistory.filter(h => h.date === todayStr);
-            const todayPnl = todayTrades.reduce((s, h) => s + (h.amount || 0), 0);
-            
-            let dailyDdBuffer = '무제한';
-            if (acc.dailyDd > 0) {
-                const remDaily = acc.dailyDd + todayPnl;
-                dailyDdBuffer = `$${Math.max(0, remDaily).toLocaleString()} 남음`;
-            }
-
-            const maxDdBuffer = acc.hardDd > 0 ? `$${Math.max(0, acc.hardDd + currentPnl).toLocaleString()} 남음` : '-';
-            const progress = target > 0 ? Math.min(100, Math.max(0, (currentPnl / target) * 100)) : 0;
-            const pnlColor = currentPnl >= 0 ? 'var(--neon-green)' : 'var(--ff-red)';
-            const isFunded = acc.status === 'FUNDED';
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>
-                    <strong style="color: var(--ff-yellow); font-size:0.95rem;">${acc.name}</strong><br>
-                    <span class="${acc.assetClass === 'CRYPTO' ? 'badge-crypto' : 'badge-futures'}">${acc.assetClass}</span>
-                    <span style="color: var(--text-dim); font-size: 0.72rem;">${acc.accountType}</span>
-                </td>
-                <td>
-                    <span style="font-size: 1rem; font-weight: bold;">$${acc.currentBalance.toLocaleString()}</span><br>
-                    <span style="color: ${pnlColor}; font-size: 0.78rem;">
-                        (${currentPnl >= 0 ? '+' : ''}$${currentPnl.toLocaleString()})
-                    </span>
-                </td>
-                <td>
-                    <div><strong>$${remainingTarget.toLocaleString()}</strong> 남음 (${progress.toFixed(1)}%)</div>
-                    <div style="font-size:0.75rem; color: var(--neon-blue); margin-top:2px;">
-                        1 NQ: <strong>${ptsNeeded} pts</strong> (${ticksNeeded.toLocaleString()} ticks)
-                    </div>
-                    <div class="prog-bg"><div class="prog-bar ${isFunded ? 'pa' : 'eval'}" style="width: ${progress}%;"></div></div>
-                </td>
-                <td>
-                    <div>한도: <strong>${acc.consistency}</strong> (일일 상한: ${consistencyMaxDay})</div>
-                    <div style="font-size: 0.75rem;">상태: ${consistencyStatus}</div>
-                </td>
-                <td>
-                    <div>일일 DD: <span style="color: var(--ff-yellow);">${dailyDdBuffer}</span></div>
-                    <div>맥스 DD: <span style="color: var(--ff-red);">${maxDdBuffer}</span></div>
-                </td>
-                <td><span class="${isFunded ? 'badge-pa' : 'badge-eval'}">${acc.status}</span></td>
-                <td>
-                    <div class="action-row">
-                        <button class="btn-act btn-pnl" onclick="recordActualBalance(${acc.id})" title="마감 잔고 입력">밸런스</button>
-                        <button class="btn-act btn-hist" onclick="openHistoryModal(${acc.id})" title="PnL 내역 수정">내역/수정</button>
-                        <button class="btn-act btn-rule" onclick="openRuleEditModal(${acc.id})" title="태그/타겟/DD 파라미터 수정">룰/설정</button>
-                        <button class="btn-act btn-target" onclick="editTarget(${acc.id})" title="타겟 금액만 즉시 수정">타겟</button>
-                        ${!isFunded ? `<button class="btn-act btn-upgrade" onclick="openPaUpgradeModal(${acc.id})">PA전환</button>` : ''}
-                        ${isFunded ? `<button class="btn-act btn-wd" onclick="recordWithdrawal(${acc.id})" title="출금 기록">출금</button>` : ''}
-                        <button class="btn-act btn-retire" onclick="retireAccount(${acc.id})" title="은퇴/탈락 보관소로 이동">RETIRE</button>
-                        <button class="btn-act btn-del" onclick="deleteAccount(${acc.id})">삭제</button>
-                    </div>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function retireAccount(id) {
-        const acc = accounts.find(a => a.id === id);
-        if (!acc) return;
-
-        const promptTitle = acc.status === 'FUNDED' ? 'PA 은퇴/탈락(Blown)' : 'EVAL 탈락/종료(Failed)';
-        const enteredPasscode = prompt(`[보안 확인]\n[${acc.name}] ${promptTitle} 처리하시겠습니까?\n보안 비밀번호 4자리(0220)를 입력하세요:`);
-        if (enteredPasscode === null) return;
-
-        if (enteredPasscode.trim() !== '0220') {
-            alert('비밀번호가 일치하지 않습니다.');
-            return;
+            modal.style.display = 'flex';
         }
 
-        acc.isRetired = true;
-        acc.retiredDate = new Date().toISOString().slice(0, 10);
-        saveData();
-        renderAccounts();
-        populateAccountDropdowns();
-        renderCalendar();
-        renderCharts();
-        alert(`[${acc.name}] 계좌가 RETIRED ARCHIVE로 안전하게 이동되었습니다.`);
-    }
-
-    function reactivateAccount(id) {
-        const acc = accounts.find(a => a.id === id);
-        if (!acc) return;
-
-        if (confirm(`[${acc.name}] 계좌를 활성 터미널(ACTIVE TERMINAL)로 다시 복원하시겠습니까?`)) {
-            acc.isRetired = false;
-            acc.retiredDate = null;
-            saveData();
-            renderRetiredView();
+        function closeNoteModal() {
+            document.getElementById('noteInputModal').style.display = 'none';
         }
-    }
 
-    function renderRetiredView() {
-        const tbody = document.getElementById('retiredTableBody');
-        const assetFilterEl = document.getElementById('retiredAssetFilterSelect');
-        const filterEl = document.getElementById('retiredFilterSelect');
-        if (!tbody) return;
-        tbody.innerHTML = '';
+        function handleImageFile(e, targetInputId, previewWrapId) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                compressChartImage(evt.target.result, function(compressedUrl) {
+                    document.getElementById(targetInputId).value = compressedUrl;
+                    renderImageThumb(targetInputId, previewWrapId);
+                });
+            };
+            reader.readAsDataURL(file);
+        }
 
-        const selectedAsset = assetFilterEl ? assetFilterEl.value : 'ALL';
-        const selectedFilter = filterEl ? filterEl.value : 'ALL';
-        let retiredAccounts = accounts.filter(a => a.isRetired === true);
-
-        let totalEvalExp = 0;
-        let totalPaExp = 0;
-        let totalWd = 0;
-
-        retiredAccounts.forEach(acc => {
-            const evalExp = acc.evalExpense !== undefined ? acc.evalExpense : (acc.expenses && acc.expenses.category === 'EVAL' ? acc.expenses.amount : 0);
-            const paExp = acc.paExpense !== undefined ? acc.paExpense : (acc.expenses && acc.expenses.category === 'PA' ? acc.expenses.amount : 0);
-            totalEvalExp += evalExp;
-            totalPaExp += paExp;
-            totalWd += (acc.withdrawals || 0);
+        ['journalPreImage', 'journalPostImage'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener('paste', function(e) {
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                for (let item of items) {
+                    if (item.type.indexOf('image') === 0) {
+                        const blob = item.getAsFile();
+                        const reader = new FileReader();
+                        reader.onload = function(evt) {
+                            compressChartImage(evt.target.result, function(compressedUrl) {
+                                el.value = compressedUrl;
+                                renderImageThumb(id, id === 'journalPreImage' ? 'prePreview' : 'postPreview');
+                            });
+                        };
+                        reader.readAsDataURL(blob);
+                        e.preventDefault();
+                        break;
+                    }
+                }
+            });
         });
 
-        document.getElementById('retiredEvalExpense').innerText = `$${totalEvalExp.toLocaleString()}`;
-        document.getElementById('retiredPaExpense').innerText = `$${totalPaExp.toLocaleString()}`;
-        document.getElementById('retiredTotalCost').innerText = `$${(totalEvalExp + totalPaExp).toLocaleString()}`;
-        document.getElementById('retiredHistoricalWithdrawals').innerText = `$${totalWd.toLocaleString()}`;
-
-        if (selectedAsset !== 'ALL') {
-            retiredAccounts = retiredAccounts.filter(a => a.assetClass === selectedAsset);
+        function compressChartImage(base64Source, callback) {
+            const img = new Image();
+            img.src = base64Source;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_W = 1200;
+                let w = img.width, h = img.height;
+                if (w > MAX_W) {
+                    h = Math.round((h * MAX_W) / w);
+                    w = MAX_W;
+                }
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                let res = canvas.toDataURL('image/webp', 0.75);
+                if (!res.startsWith('data:image/webp')) res = canvas.toDataURL('image/jpeg', 0.75);
+                callback(res);
+            };
         }
-        if (selectedFilter !== 'ALL') {
-            retiredAccounts = retiredAccounts.filter(a => a.status === selectedFilter);
-        }
 
-        retiredAccounts.forEach(acc => {
-            const evalExp = acc.evalExpense !== undefined ? acc.evalExpense : (acc.expenses && acc.expenses.category === 'EVAL' ? acc.expenses.amount : 0);
-            const paExp = acc.paExpense !== undefined ? acc.paExpense : (acc.expenses && acc.expenses.category === 'PA' ? acc.expenses.amount : 0);
-            const totalExp = evalExp + paExp;
-            const wd = acc.withdrawals || 0;
-
-            const row = document.createElement('tr');
-            const isCrypto = acc.assetClass === 'CRYPTO';
-
-            row.innerHTML = `
-                <td style="color: var(--ff-red); font-weight: bold; letter-spacing: 1px;">
-                    ${acc.name}
-                </td>
-                <td><span class="${isCrypto ? 'badge-crypto' : 'badge-futures'}">${acc.assetClass}</span></td>
-                <td><span class="${acc.status === 'FUNDED' ? 'badge-pa' : 'badge-eval'}">${acc.status}</span></td>
-                <td>${acc.accountType}</td>
-                <td>
-                    $${(acc.currentBalance || acc.initialBalance || 0).toLocaleString()}<br>
-                    <span style="color: ${(acc.totalPnl || 0) >= 0 ? 'var(--neon-green)' : 'var(--ff-red)'}; font-size: 0.8rem;">
-                        (${(acc.totalPnl || 0) >= 0 ? '+' : ''}${(acc.totalPnl || 0).toLocaleString()})
-                    </span>
-                </td>
-                <td style="color: var(--ff-yellow); font-weight: bold;">$${evalExp.toLocaleString()}</td>
-                <td style="color: var(--ff-red); font-weight: bold;">$${paExp.toLocaleString()}</td>
-                <td style="color: #ff6688; font-weight: bold;">$${totalExp.toLocaleString()}</td>
-                <td style="color: var(--neon-green); font-weight: bold;">$${wd.toLocaleString()}</td>
-                <td style="color: var(--text-dim); font-size: 0.8rem;">${acc.retiredDate || '-'}</td>
-                <td>
-                    <button class="btn-act btn-reactivate" onclick="reactivateAccount(${acc.id})">복원</button>
-                    <button class="btn-act btn-del" onclick="deleteAccount(${acc.id})">영구삭제</button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-
-        if (retiredAccounts.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; color: var(--text-dim); padding: 24px;">해당 조건의 은퇴/탈락 계좌가 없습니다.</td></tr>`;
-        }
-    }
-
-    function deleteAccount(id) {
-        if (confirm('계정을 영구 삭제하시겠습니까?')) {
-            accounts = accounts.filter(a => a.id !== id);
-            saveData();
-            if (currentMainTab === 'active') {
-                renderAccounts();
+        function renderImageThumb(inputId, previewWrapId) {
+            const val = document.getElementById(inputId).value.trim();
+            const wrap = document.getElementById(previewWrapId);
+            const img = wrap.querySelector('img');
+            if (val) {
+                img.src = val;
+                wrap.style.display = 'block';
             } else {
-                renderRetiredView();
+                wrap.style.display = 'none';
+                img.src = '';
             }
-            populateAccountDropdowns();
-            renderCalendar();
-            renderCharts();
-        }
-    }
-
-    function renderCharts() {
-        updatePnlAccountList();
-        updateTargetProgressChart();
-    }
-
-    function updatePnlAccountList() {
-        const select = document.getElementById('pnlAccountSelect');
-        const assetFilterEl = document.getElementById('pnlAssetFilter');
-        if (!select || !assetFilterEl) return;
-
-        const assetFilter = assetFilterEl.value;
-        let activeAccounts = accounts.filter(a => !a.isRetired);
-        if (assetFilter !== 'ALL') {
-            activeAccounts = activeAccounts.filter(a => a.assetClass === assetFilter);
         }
 
-        const selVal = select.value;
-        select.innerHTML = '';
-        activeAccounts.forEach(acc => {
-            const opt = document.createElement('option');
-            opt.value = acc.id;
-            opt.text = `[${acc.assetClass}|${acc.status}] ${acc.name}`;
-            if (acc.id == selVal) opt.selected = true;
-            select.appendChild(opt);
-        });
-
-        updatePnlChart();
-    }
-
-    function updatePnlChart() {
-        if (typeof Chart === 'undefined') return;
-        const select = document.getElementById('pnlAccountSelect');
-        const canvas = document.getElementById('dailyPnlChart');
-        if (!select || !canvas) return;
-
-        const accId = parseInt(select.value);
-        const acc = accounts.find(a => a.id === accId && !a.isRetired);
-        const ctx = canvas.getContext('2d');
-
-        if (pnlChartInstance) {
-            pnlChartInstance.destroy();
-            pnlChartInstance = null;
+        function clearSpecificImage(inputId, previewWrapId) {
+            document.getElementById(inputId).value = '';
+            const wrap = document.getElementById(previewWrapId);
+            wrap.style.display = 'none';
+            wrap.querySelector('img').src = '';
         }
 
-        if (!acc || !acc.pnlHistory || acc.pnlHistory.length === 0) {
-            pnlChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: ['NO RECORD'], datasets: [{ data: [0], backgroundColor: '#333' }] },
-                options: { responsive: true, plugins: { legend: { display: false } } }
+        function saveTwoTouchJournal() {
+            const editId = document.getElementById('editingNoteId').value;
+            const dateVal = document.getElementById('journalDate').value;
+            const bias = document.getElementById('journalBiasVal').value;
+            const preNotes = document.getElementById('journalPreNotes').value.trim();
+            const preImg = document.getElementById('journalPreImage').value.trim();
+            const emotion = document.getElementById('journalEmotion').value.trim();
+            const postNotes = document.getElementById('journalPostNotes').value.trim();
+            const postImg = document.getElementById('journalPostImage').value.trim();
+
+            if (!preNotes && !postNotes && !preImg && !postImg) {
+                alert('프리마켓 분석 또는 마감 복기 내용을 한 줄이라도 작성해 주세요.');
+                return;
+            }
+
+            const payload = {
+                id: editId ? Number(editId) : Date.now(),
+                date: dateVal,
+                bias: bias,
+                preNotes: preNotes,
+                preImageUrl: preImg,
+                emotion: emotion || 'Neutral',
+                postNotes: postNotes,
+                postImageUrl: postImg,
+                imageUrl: postImg || preImg,
+                isGeneral: true,
+                text: `[BIAS: ${bias}] [심리: ${emotion || 'Neutral'}]\n• PRE: ${preNotes}\n• POST: ${postNotes}`,
+                timestamp: new Date().toISOString()
+            };
+
+            accounts.forEach(a => {
+                if (a.notes) a.notes = a.notes.filter(n => n.id != payload.id && n.date != dateVal);
             });
-            return;
+
+            if (!accounts[0].notes) accounts[0].notes = [];
+            accounts[0].notes.unshift(payload);
+
+            saveData();
+            refreshUI();
+            closeNoteModal();
         }
 
-        const history = acc.pnlHistory.slice(-10);
-        const labels = history.map(h => h.date);
-        const data = history.map(h => h.amount);
-        const colors = data.map(v => v >= 0 ? '#00ff66' : '#ff0055');
-
-        pnlChartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'DAILY PnL ($)',
-                    data: data,
-                    backgroundColor: colors,
-                    borderColor: colors,
-                    borderWidth: 2,
-                    borderRadius: 3
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: { ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: { ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                },
-                plugins: { legend: { labels: { color: '#ffb703' } } }
-            }
-        });
-    }
-
-    function updateTargetProgressChart() {
-        if (typeof Chart === 'undefined') return;
-        const assetFilterEl = document.getElementById('targetAssetFilter');
-        const filterEl = document.getElementById('targetFilterSelect');
-        const canvas = document.getElementById('targetProgressChart');
-        if (!filterEl || !canvas || !assetFilterEl) return;
-
-        const assetFilter = assetFilterEl.value;
-        const filter = filterEl.value;
-        const ctx = canvas.getContext('2d');
-
-        if (progressChartInstance) {
-            progressChartInstance.destroy();
-            progressChartInstance = null;
-        }
-
-        let filtered = accounts.filter(a => !a.isRetired && (a.target || 0) > 0);
-        if (assetFilter !== 'ALL') filtered = filtered.filter(a => a.assetClass === assetFilter);
-        if (filter !== 'ALL') filtered = filtered.filter(a => a.status === filter);
-
-        if (filtered.length === 0) {
-            progressChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: ['타겟 설정 계정 없음'], datasets: [{ data: [0], backgroundColor: '#333' }] },
-                options: { responsive: true, plugins: { legend: { display: false } } }
+        function deleteNote(noteId) {
+            if (!confirm('이 일지 항목을 삭제하시겠습니까?')) return;
+            accounts.forEach(a => {
+                if (a.notes) a.notes = a.notes.filter(n => n.id != noteId);
             });
-            return;
+            saveData();
+            refreshUI();
         }
 
-        const labels = filtered.map(a => `[${a.assetClass}|${a.status}] ${a.name}`);
-        const percentReached = filtered.map(a => Math.min(100, Math.max(0, ((a.totalPnl || 0) / a.target) * 100)));
-        const percentRemaining = percentReached.map(pct => Math.max(0, 100 - pct));
-        const barColors = filtered.map(a => a.status === 'FUNDED' ? '#00ff66' : '#00f0ff');
+        // 7. RENDER MARKET NOTES DESK WITH CATEGORY FILTER
+        function renderMarketNotesDesk() {
+            const listWrap = document.getElementById('marketNotesDeskList');
+            const countTag = document.getElementById('notesCountTag');
+            const filterSelect = document.getElementById('notesDeskFilter');
+            const selectedFilter = filterSelect ? filterSelect.value : 'GENERAL';
 
-        progressChartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    { label: '달성률 (%)', data: percentReached, backgroundColor: barColors, borderWidth: 1 },
-                    { label: '목표 잔여율 (%)', data: percentRemaining, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1 }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: { stacked: true, ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: { stacked: true, min: 0, max: 100, ticks: { color: '#888', callback: val => val + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                },
-                plugins: { legend: { labels: { color: '#ffb703' } } }
+            if (filterSelect && filterSelect.options.length <= 2) {
+                accounts.forEach(a => {
+                    const opt = document.createElement('option');
+                    opt.value = a.id;
+                    opt.textContent = `단일 계정: ${a.name}`;
+                    filterSelect.appendChild(opt);
+                });
             }
-        });
-    }
 
-    function shiftCalendar(delta) {
-        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
-        renderCalendar();
-    }
-
-    function renderCalendar() {
-        const calMonthEl = document.getElementById('calendarMonthTitle');
-        const grid = document.getElementById('calendarCells');
-        const accSelect = document.getElementById('calAccountFilter');
-        if (!calMonthEl || !grid || !accSelect) return;
-
-        const year = currentCalendarDate.getFullYear();
-        const month = currentCalendarDate.getMonth();
-        const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-        calMonthEl.innerText = `${monthNames[month]} ${year}`;
-
-        const activeAccounts = accounts.filter(a => !a.isRetired);
-        const selVal = accSelect.value;
-        accSelect.innerHTML = '<option value="ALL">전체 계정 통합</option>';
-        activeAccounts.forEach(a => {
-            const opt = document.createElement('option');
-            opt.value = a.id;
-            opt.text = `[${a.assetClass}] ${a.name}`;
-            if (a.id == selVal) opt.selected = true;
-            accSelect.appendChild(opt);
-        });
-
-        const targetAccId = accSelect.value;
-        let targetAccounts = [...activeAccounts];
-        if (targetAccId !== 'ALL') {
-            targetAccounts = targetAccounts.filter(a => a.id == targetAccId);
-        }
-
-        const firstDayIdx = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        grid.innerHTML = '';
-
-        for (let i = 0; i < firstDayIdx; i++) {
-            const emptyCell = document.createElement('div');
-            emptyCell.className = 'cal-cell empty';
-            grid.appendChild(emptyCell);
-        }
-
-        const todayStr = new Date().toISOString().slice(0, 10);
-
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-            const cell = document.createElement('div');
-            cell.className = 'cal-cell';
-            if (dayStr === todayStr) cell.classList.add('cal-today');
-
-            cell.onclick = () => openNoteModalForDate(dayStr);
-
-            let dailySum = 0;
-            let hasTrades = false;
-
-            targetAccounts.forEach(a => {
-                if (a.pnlHistory) {
-                    a.pnlHistory.forEach(h => {
-                        if (h.date === dayStr) {
-                            dailySum += h.amount;
-                            hasTrades = true;
-                        }
+            let allNotes = [];
+            accounts.forEach((a, idx) => {
+                if (a.notes && Array.isArray(a.notes)) {
+                    a.notes.forEach(n => {
+                        const isGeneral = n.isGeneral === true || (idx === 0 && (n.bias || n.preNotes || n.postNotes));
+                        allNotes.push({ 
+                            ...n, 
+                            accountName: a.name, 
+                            accountId: a.id,
+                            isGeneralNote: isGeneral
+                        });
                     });
                 }
             });
 
-            const hasNotes = globalNotes.some(n => n.date === dayStr);
-
-            let pnlHtml = '';
-            if (hasTrades) {
-                const pnlClass = dailySum >= 0 ? 'pill-positive' : 'pill-negative';
-                pnlHtml = `<div class="cal-pnl-pill ${pnlClass}">${dailySum >= 0 ? '+' : ''}$${dailySum.toLocaleString()}</div>`;
+            let filteredNotes = allNotes;
+            if (selectedFilter === 'GENERAL') {
+                filteredNotes = allNotes.filter(n => n.isGeneralNote);
+            } else if (selectedFilter !== 'ALL') {
+                filteredNotes = allNotes.filter(n => String(n.accountId) === String(selectedFilter));
             }
 
-            cell.innerHTML = `
-                <div class="cal-cell-top">
-                    <span class="cal-date-num">${d}</span>
-                    ${hasNotes ? '<span class="neon-dot" title="노트 작성됨"></span>' : '<span></span>'}
-                </div>
-                <div>${pnlHtml}</div>
-            `;
-            grid.appendChild(cell);
-        }
-    }
+            filteredNotes.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+            if (countTag) countTag.textContent = `${filteredNotes.length} ENTRIES`;
 
-    function populateAccountDropdowns() {
-        const modalSelect = document.getElementById('noteAccountSelect');
-        const filterSelect = document.getElementById('notesFilterSelect');
-        if (!modalSelect) return;
-
-        modalSelect.innerHTML = '<option value="NONE" selected>NONE (General / Non-Account)</option>';
-        if (filterSelect) {
-            filterSelect.innerHTML = '<option value="ALL">전체 노트 보기</option><option value="NONE">General (Non-Account)</option>';
-        }
-
-        const active = accounts.filter(a => !a.isRetired);
-        active.forEach(a => {
-            const opt = document.createElement('option');
-            opt.value = a.id;
-            opt.text = `[${a.assetClass}] ${a.name}`;
-            modalSelect.appendChild(opt);
-
-            if (filterSelect) {
-                const fOpt = document.createElement('option');
-                fOpt.value = a.id;
-                fOpt.text = `[${a.assetClass}] ${a.name}`;
-                filterSelect.appendChild(fOpt);
-            }
-        });
-    }
-
-    function openNoteModalForDate(dateStr) {
-        document.getElementById('editingNoteId').value = '';
-        document.getElementById('noteModalTitle').innerText = `WRITE NOTE (${dateStr})`;
-        document.getElementById('noteAccountSelect').value = 'NONE';
-        document.getElementById('noteDateInput').value = dateStr;
-        document.getElementById('noteImageUrlInput').value = '';
-        document.getElementById('noteTextInput').value = '';
-        updateModalImagePreview();
-        document.getElementById('noteInputModal').style.display = 'flex';
-    }
-
-    function openNoteModalForAccount(accId) {
-        openNoteModalForDate(new Date().toISOString().slice(0, 10));
-        document.getElementById('noteAccountSelect').value = accId;
-    }
-
-    function editNote(noteId) {
-        const note = globalNotes.find(n => n.id === noteId);
-        if (!note) return;
-
-        document.getElementById('editingNoteId').value = note.id;
-        document.getElementById('noteModalTitle').innerText = `EDIT NOTE (${note.date})`;
-        document.getElementById('noteAccountSelect').value = note.accountId || 'NONE';
-        document.getElementById('noteDateInput').value = note.date;
-        document.getElementById('noteImageUrlInput').value = note.imageUrl || '';
-        document.getElementById('noteTextInput').value = note.text || '';
-        updateModalImagePreview();
-        document.getElementById('noteInputModal').style.display = 'flex';
-    }
-
-    function closeNoteModal() {
-        document.getElementById('noteInputModal').style.display = 'none';
-    }
-
-    function updateModalImagePreview() {
-        const url = document.getElementById('noteImageUrlInput').value.trim();
-        const wrap = document.getElementById('modalImagePreviewWrap');
-        const img = document.getElementById('modalImagePreview');
-        if (url) {
-            img.src = url;
-            wrap.style.display = 'block';
-            img.onerror = () => { wrap.style.display = 'none'; };
-        } else {
-            wrap.style.display = 'none';
-        }
-    }
-
-    function saveNoteFromModal() {
-        const editingId = document.getElementById('editingNoteId').value;
-        const accId = document.getElementById('noteAccountSelect').value;
-        const date = document.getElementById('noteDateInput').value || new Date().toISOString().slice(0, 10);
-        const imageUrl = document.getElementById('noteImageUrlInput').value.trim();
-        const text = document.getElementById('noteTextInput').value.trim();
-
-        if (!text && !imageUrl) {
-            alert('노트 내용이나 이미지 링크 중 하나는 작성해야 합니다.');
-            return;
-        }
-
-        let accLabel = 'NONE (General)';
-        if (accId !== 'NONE') {
-            const target = accounts.find(a => a.id == accId);
-            if (target) {
-                accLabel = target.name;
-                target.lastActivityDate = date;
-            }
-        }
-
-        if (editingId) {
-            const targetNote = globalNotes.find(n => n.id == editingId);
-            if (targetNote) {
-                targetNote.accountId = accId;
-                targetNote.accountLabel = accLabel;
-                targetNote.date = date;
-                targetNote.imageUrl = imageUrl;
-                targetNote.text = text;
-            }
-        } else {
-            const newNote = {
-                id: Date.now(),
-                accountId: accId,
-                accountLabel: accLabel,
-                date: date,
-                imageUrl: imageUrl,
-                text: text
-            };
-            globalNotes.unshift(newNote);
-        }
-
-        saveData();
-        closeNoteModal();
-        renderCalendar();
-        renderNotesList();
-        checkInactivity();
-    }
-
-    function deleteNote(noteId) {
-        if (confirm('해당 노트를 삭제하시겠습니까?')) {
-            globalNotes = globalNotes.filter(n => n.id !== noteId);
-            saveData();
-            renderCalendar();
-            renderNotesList();
-        }
-    }
-
-    function renderNotesList() {
-        const container = document.getElementById('notesContainer');
-        const filter = document.getElementById('notesFilterSelect').value;
-        if (!container) return;
-        container.innerHTML = '';
-
-        let filtered = [...globalNotes];
-        if (filter !== 'ALL') {
-            filtered = filtered.filter(n => n.accountId == filter);
-        }
-
-        if (filtered.length === 0) {
-            container.innerHTML = `<div style="color: var(--text-dim); font-size: 0.8rem; padding: 14px;">기록된 노트가 없습니다.</div>`;
-            return;
-        }
-
-        filtered.forEach(note => {
-            const card = document.createElement('div');
-            card.className = 'note-card';
-
-            let imgHtml = '';
-            if (note.imageUrl) {
-                imgHtml = `<img src="${note.imageUrl}" class="note-img-thumb" alt="Preview" onclick="showOriginalImage('${note.imageUrl}')" onerror="this.style.display='none'">`;
-            }
-
-            card.innerHTML = `
-                <div>
-                    <div class="note-card-top">
-                        <strong style="color: var(--ff-yellow);">[${note.accountLabel}]</strong>
-                        <span>${note.date}</span>
+            if (filteredNotes.length === 0) {
+                listWrap.innerHTML = `
+                    <div style="color: #666; padding: 24px; text-align: center;">
+                        ${selectedFilter === 'GENERAL' ? '작성된 마켓 종합 일지(General Journal)가 없습니다.' : '해당 조건의 노트가 없습니다.'}
                     </div>
-                    <div style="font-size: 0.85rem; line-height: 1.5; color: #eee; white-space: pre-wrap; margin-bottom: 8px;">${note.text}</div>
-                    ${imgHtml}
-                </div>
-                <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 10px;">
-                    <button class="btn-act btn-pnl" onclick="editNote(${note.id})">EDIT</button>
-                    <button class="btn-act btn-del" onclick="deleteNote(${note.id})">DELETE</button>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-    }
-
-    function showOriginalImage(url) {
-        const modal = document.getElementById('imageOriginalModal');
-        const img = document.getElementById('originalImageDisplay');
-        img.src = url;
-        modal.style.display = 'flex';
-    }
-
-    function closeImageOriginalModal() {
-        document.getElementById('imageOriginalModal').style.display = 'none';
-    }
-
-    function exportData() {
-        const fullBackup = {
-            version: '4.4',
-            accounts: accounts,
-            globalNotes: globalNotes,
-            personalNotes: personalNotes,
-            dismissedInactivity: dismissedInactivity,
-            exportedAt: new Date().toISOString()
-        };
-        const blob = new Blob([JSON.stringify(fullBackup, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `FF_Terminal_Backup_${new Date().toISOString().slice(0, 10)}.json`;
-        a.click();
-    }
-
-    function importData(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-            try {
-                const parsed = JSON.parse(evt.target.result);
-                if (parsed.accounts) accounts = parsed.accounts;
-                if (parsed.globalNotes) globalNotes = parsed.globalNotes;
-                if (parsed.personalNotes !== undefined) {
-                    personalNotes = parsed.personalNotes;
-                    localStorage.setItem('ff_personal_notes', personalNotes);
-                    loadPersonalNotes();
-                }
-                if (parsed.dismissedInactivity) {
-                    dismissedInactivity = parsed.dismissedInactivity;
-                }
-                sanitizeAccounts(accounts);
-                saveData();
-                renderAccounts();
-                populateAccountDropdowns();
-                renderCalendar();
-                renderNotesList();
-                renderCharts();
-                checkInactivity();
-                alert('원장, 차트, 비공개 메모 및 출금/비용 데이터 복원이 완료되었습니다.');
-            } catch(err) {
-                alert('파일 파싱 중 오류가 발생했습니다.');
+                `;
+                return;
             }
-        };
-        reader.readAsText(file);
-    }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        loadPersonalNotes();
-        renderAccounts();
-        populateAccountDropdowns();
-        renderCalendar();
-        renderNotesList();
-        renderCharts();
-        updateSummary();
-        checkInactivity();
-        initFirebaseSync();
-    });
-</script>
+            listWrap.innerHTML = filteredNotes.map(n => `
+                <div style="background: #111622; border: 1px solid #1f2738; border-left: 3px solid ${n.isGeneralNote ? 'var(--neon-cyan)' : 'var(--neon-green)'}; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            <span style="color: var(--ff-yellow); font-weight: bold;">📅 ${n.date}</span>
+                            ${n.isGeneralNote ? '<span style="background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon-cyan); padding: 2px 7px; border-radius: 3px; font-size: 0.72rem; color: var(--neon-cyan);">GENERAL</span>' : ''}
+                            <span style="background: #1c2738; padding: 2px 7px; border-radius: 3px; font-size: 0.72rem; color: #00e5ff;">${n.bias || 'BIAS'}</span>
+                            <span style="background: rgba(255,255,255,0.06); padding: 2px 7px; border-radius: 3px; font-size: 0.72rem; color: #aaa;">심리: ${n.emotion || 'Neutral'}</span>
+                        </div>
+                        <div>
+                            <button class="cyber-btn-outline" onclick="openNoteModal('${n.date}', ${n.id})" style="font-size: 0.7rem; padding: 2px 8px;">수정</button>
+                            <button class="btn-act btn-del" onclick="deleteNote(${n.id})" style="font-size: 0.7rem; padding: 2px 8px;">삭제</button>
+                        </div>
+                    </div>
 
+                    ${n.preNotes ? `
+                        <div style="font-size: 0.8rem; color: #9bc; margin-bottom: 6px;">
+                            <strong>☀️ PRE-MARKET:</strong> ${n.preNotes}
+                        </div>
+                    ` : ''}
+
+                    ${n.postNotes ? `
+                        <div style="font-size: 0.8rem; color: #d0d7de; margin-bottom: 6px;">
+                            <strong>🌙 POST-RECAP:</strong> ${n.postNotes}
+                        </div>
+                    ` : ''}
+
+                    <div style="display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap;">
+                        ${n.preImageUrl ? `
+                            <div>
+                                <span style="font-size: 0.65rem; color: var(--neon-cyan); display: block;">PRE-CHART</span>
+                                <img src="${n.preImageUrl}" onclick="window.open(this.src)" style="max-height: 160px; border-radius: 4px; border: 1px solid #334; cursor: pointer;">
+                            </div>
+                        ` : ''}
+                        ${n.postImageUrl ? `
+                            <div>
+                                <span style="font-size: 0.65rem; color: var(--neon-green); display: block;">POST-CHART</span>
+                                <img src="${n.postImageUrl}" onclick="window.open(this.src)" style="max-height: 160px; border-radius: 4px; border: 1px solid #334; cursor: pointer;">
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 8. MONTHLY DOSSIER PRINT VIEW
+        function openPrintModal() {
+            const modal = document.getElementById('reportPrintModal');
+            const monthInput = document.getElementById('printMonthSelect');
+            if (!monthInput.value) {
+                monthInput.value = new Date().toISOString().slice(0, 7);
+            }
+            renderMonthlyPrintPreview();
+            modal.style.display = 'flex';
+        }
+        function closePrintModal() { document.getElementById('reportPrintModal').style.display = 'none'; }
+
+        function renderMonthlyPrintPreview() {
+            const selectedMonth = document.getElementById('printMonthSelect').value;
+            const container = document.getElementById('monthlyPrintDocArea');
+
+            let allNotes = [];
+            accounts.forEach(a => {
+                if (a.notes) a.notes.forEach(n => allNotes.push(n));
+            });
+
+            const monthlyNotes = allNotes
+                .filter(n => n.date && n.date.startsWith(selectedMonth))
+                .sort((a, b) => a.date.localeCompare(b.date));
+
+            if (monthlyNotes.length === 0) {
+                container.innerHTML = `<div style="text-align: center; color: #888; padding: 40px 0;">선택한 월(${selectedMonth})에 작성된 일지가 없습니다.</div>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <div style="border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 16px;">
+                    <div style="font-size: 1.2rem; font-weight: bold; color: #fff;">TRADING JOURNAL DOSSIER: ${selectedMonth}</div>
+                    <div style="font-size: 0.75rem; color: #888;">총 ${monthlyNotes.length} 세션 기록</div>
+                </div>
+            ` + monthlyNotes.map(n => `
+                <div class="print-card" style="background: #141923; border: 1px solid #2a3445; border-left: 4px solid var(--neon-green); border-radius: 6px; padding: 12px; margin-bottom: 16px;">
+                    <div style="display: flex; gap: 8px; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; margin-bottom: 8px;">
+                        <span style="font-weight: bold; color: var(--ff-yellow);">📅 ${n.date}</span>
+                        <span style="font-size: 0.75rem; color: #00e5ff;">${n.bias || ''}</span>
+                        <span style="font-size: 0.75rem; color: #aaa;">심리: ${n.emotion || 'Neutral'}</span>
+                    </div>
+                    ${n.preNotes ? `<p style="font-size: 0.8rem; margin-bottom: 6px;"><strong>PRE:</strong> ${n.preNotes}</p>` : ''}
+                    ${n.postNotes ? `<p style="font-size: 0.8rem; margin-bottom: 8px;"><strong>POST:</strong> ${n.postNotes}</p>` : ''}
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        ${n.preImageUrl ? `<img src="${n.preImageUrl}" style="max-height: 200px; border: 1px solid #444; border-radius: 4px;">` : ''}
+                        ${n.postImageUrl ? `<img src="${n.postImageUrl}" style="max-height: 200px; border: 1px solid #444; border-radius: 4px;">` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 9. BACKUP & RESTORE (Google Drive JSON routine)
+        function exportBackupJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ accounts }, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `FF_TERMINAL_BACKUP_${new Date().toISOString().slice(0, 10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importBackupJSON(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const parsed = JSON.parse(evt.target.result);
+                    if (parsed.accounts && Array.isArray(parsed.accounts)) {
+                        accounts = parsed.accounts;
+                        saveData();
+                        refreshUI();
+                        alert('데이터가 성공적으로 복구되었습니다.');
+                    }
+                } catch(err) {
+                    alert('유효하지 않은 백업 JSON 파일입니다.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function promptAddAccount() {
+            const name = prompt("추가할 계정명을 입력하세요 (예: APEX-PA-07):");
+            if (!name) return;
+            const type = prompt("계정 유형을 입력하세요 (EVAL 또는 PA):", "EVAL").toUpperCase();
+            const newAcc = {
+                id: Date.now(),
+                name: name.trim(),
+                type: type === "PA" ? "PA" : "EVAL",
+                accountNum: `ID-${Date.now().toString().slice(-4)}`,
+                balance: 50000,
+                startingBalance: 50000,
+                dailyPnl: 0,
+                notes: []
+            };
+            accounts.push(newAcc);
+            saveData();
+            refreshUI();
+        }
+    </script>
 </body>
 </html>
