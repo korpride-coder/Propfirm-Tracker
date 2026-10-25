@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FF PROP TERMINAL - Full Operational Suite</title>
+    <title>FF PROP TERMINAL - Interactive Journal & Multi-Account Desk</title>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Firebase SDK (v8 Compat) -->
@@ -37,7 +37,6 @@
             font-size: 13px;
         }
 
-        /* Top Header */
         header {
             display: flex;
             justify-content: space-between;
@@ -84,7 +83,6 @@
             font-weight: bold;
         }
 
-        /* Buttons */
         .cyber-btn {
             background: linear-gradient(135deg, var(--neon-green), #00bb66);
             color: #000;
@@ -127,7 +125,6 @@
         .btn-arch { background: #2b2214; color: #ffbc6b; border-color: #553e1f; }
         .btn-del { background: #35151b; color: #ff8888; border-color: #63222d; }
 
-        /* Inactivity Banner */
         .inactivity-alert-box {
             background: rgba(255, 51, 102, 0.08);
             border: 1px solid var(--neon-red);
@@ -145,7 +142,6 @@
             color: #ff99aa;
         }
 
-        /* KPI Banners */
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -171,7 +167,6 @@
             font-family: monospace;
         }
 
-        /* Terminal Tabs */
         .tab-bar {
             display: flex;
             gap: 8px;
@@ -193,7 +188,6 @@
             border-color: var(--ff-yellow);
         }
 
-        /* Section Layout */
         .grid-2col {
             display: grid;
             grid-template-columns: 1.15fr 0.85fr;
@@ -223,7 +217,6 @@
             justify-content: space-between;
         }
 
-        /* Accounts Table */
         .table-wrap { overflow-x: auto; }
         table {
             width: 100%;
@@ -243,7 +236,6 @@
             font-size: 0.72rem;
         }
 
-        /* Progress Bars */
         .progress-track {
             background: #141a27;
             border: 1px solid #232d42;
@@ -259,7 +251,6 @@
             transition: width 0.3s;
         }
 
-        /* Calendar */
         .calendar-nav {
             display: flex;
             justify-content: space-between;
@@ -314,16 +305,7 @@
             top: 5px;
             right: 5px;
         }
-        .cal-pnl-pill {
-            font-size: 0.65rem;
-            padding: 1px 4px;
-            border-radius: 2px;
-            text-align: center;
-            font-family: monospace;
-            font-weight: bold;
-        }
 
-        /* Performance Monitor Charts Grid */
         .monitors-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -334,7 +316,6 @@
             .monitors-grid { grid-template-columns: 1fr; }
         }
 
-        /* Modals */
         .cyber-modal {
             display: none;
             position: fixed;
@@ -350,13 +331,12 @@
             border-radius: 8px;
             padding: 20px;
             width: 94%;
-            max-width: 740px;
-            max-height: 92vh;
+            max-width: 600px;
+            max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 0 30px rgba(0,255,136,0.25);
         }
 
-        /* Print Dossier Styling */
         @media print {
             body * { visibility: hidden; }
             #reportPrintModal, #reportPrintModal * { visibility: visible; }
@@ -512,107 +492,66 @@
         </div>
     </div>
 
-    <!-- MARKET NOTES DESK & LEDGER WITH CATEGORY FILTER -->
+    <!-- MARKET NOTES DESK & LEDGER -->
     <div class="panel-box">
-        <div class="panel-heading" style="flex-wrap: wrap; gap: 8px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span>MARKET NOTES DESK &amp; CHRONOLOGICAL LEDGER</span>
-                <span style="font-size: 0.75rem; color: var(--text-dim);" id="notesCountTag">0 ENTRIES</span>
-            </div>
-            
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <label style="font-size: 0.72rem; color: #888;">보기 구분:</label>
-                <select id="notesDeskFilter" onchange="renderMarketNotesDesk()" style="background: #141923; border: 1px solid #334; color: var(--neon-cyan); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">
-                    <option value="GENERAL" selected>📖 GENERAL JOURNAL ONLY (마켓 종합 일지만)</option>
-                    <option value="ALL">📂 전체 보기 (ALL NOTES)</option>
-                </select>
-            </div>
+        <div class="panel-heading">
+            <span>MARKET NOTES DESK &amp; CHRONOLOGICAL LEDGER</span>
+            <span style="font-size: 0.75rem; color: var(--text-dim);" id="notesCountTag">0 ENTRIES</span>
         </div>
         <div id="marketNotesDeskList"></div>
     </div>
 
     <!-- ==========================================
-         TWO-TOUCH DAILY TRADING JOURNAL MODAL
+         ORIGINAL SIMPLE NOTE MODAL (복원된 심플 모달)
          ========================================== -->
     <div class="cyber-modal" id="noteInputModal">
         <div class="cyber-modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 8px; margin-bottom: 14px;">
                 <div style="font-size: 1rem; font-weight: bold; color: var(--neon-green);">
-                    ⚡ DAILY BIAS &amp; POST-SESSION RECAP
+                    📝 TRADE NOTE &amp; CHART LOG
                 </div>
                 <button class="cyber-btn-outline" onclick="closeNoteModal()">✕ CLOSE</button>
             </div>
 
             <input type="hidden" id="editingNoteId">
 
-            <!-- Date & Bias Row -->
-            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px; margin-bottom: 14px;">
-                <div>
-                    <label style="font-size: 0.72rem; color: #888; text-transform: uppercase;">거래 일자 (DATE)</label>
-                    <input type="date" id="journalDate" style="width: 100%; padding: 8px; background: #141923; border: 1px solid #333; color: #fff; border-radius: 4px;">
-                </div>
-                <div>
-                    <label style="font-size: 0.72rem; color: #888; text-transform: uppercase;">시장 방향성 관점 (DAILY BIAS)</label>
-                    <div style="display: flex; gap: 6px; margin-top: 2px;">
-                        <button type="button" id="biasBull" onclick="setDailyBias('🟢 BULLISH')" style="flex: 1; padding: 7px; background: #142218; border: 1px solid #285528; color: #70db70; cursor: pointer; border-radius: 4px;">🟢 BULL</button>
-                        <button type="button" id="biasBear" onclick="setDailyBias('🔴 BEARISH')" style="flex: 1; padding: 7px; background: #261414; border: 1px solid #5a2424; color: #ff6e6e; cursor: pointer; border-radius: 4px;">🔴 BEAR</button>
-                        <button type="button" id="biasRange" onclick="setDailyBias('⚪ RANGE')" style="flex: 1; padding: 7px; background: #1e222b; border: 1px solid #3b4556; color: #9ab4d0; cursor: pointer; border-radius: 4px;">⚪ RANGE</button>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="font-size: 0.72rem; color: #888; text-transform: uppercase;">거래 일자 (DATE)</label>
+                        <input type="date" id="noteDate" style="width: 100%; padding: 8px; background: #141923; border: 1px solid #333; color: #fff; border-radius: 4px;">
                     </div>
-                    <input type="hidden" id="journalBiasVal" value="⚪ RANGE">
-                </div>
-            </div>
-
-            <!-- SECTION 1: PRE-MARKET -->
-            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid #1f2838; border-left: 4px solid var(--neon-cyan); border-radius: 6px; padding: 12px; margin-bottom: 14px;">
-                <div style="font-size: 0.85rem; font-weight: bold; color: var(--neon-cyan); margin-bottom: 8px;">
-                    ☀️ 1. PRE-MARKET BIAS &amp; KEY LEVELS (장 시작 전)
-                </div>
-                <textarea id="journalPreNotes" rows="3" placeholder="• 오늘의 핵심 유동성 구간 / Key Levels (High/Low sweep, FVG, 이전 고점)&#10;• 주요 시나리오 및 진입 조건 (뉴스 발표 시간 등)" style="width: 100%; padding: 8px; background: #0f131c; border: 1px solid #293447; color: #fff; border-radius: 4px; resize: vertical; margin-bottom: 8px;"></textarea>
-
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <input type="file" id="preFileInput" accept="image/*" style="display: none;" onchange="handleImageFile(event, 'journalPreImage', 'prePreview')">
-                    <button type="button" class="cyber-btn-outline" onclick="document.getElementById('preFileInput').click()" style="padding: 6px 10px; font-size: 0.75rem;">📁 프리마켓 차트 선택</button>
-                    <input type="text" id="journalPreImage" placeholder="또는 차트 복사 후 이 칸 클릭하고 Ctrl + V" style="flex: 1; padding: 6px 8px; background: #0f131c; border: 1px solid #293447; color: #aaa; font-size: 0.75rem; border-radius: 4px;" oninput="renderImageThumb('journalPreImage', 'prePreview')">
-                    <button type="button" class="btn-act btn-del" onclick="clearSpecificImage('journalPreImage', 'prePreview')" style="padding: 6px 10px;">삭제</button>
-                </div>
-                <div id="prePreview" style="margin-top: 6px; display: none; text-align: center;">
-                    <img src="" style="max-height: 180px; max-width: 100%; border-radius: 4px; border: 1px solid var(--neon-cyan);">
-                </div>
-            </div>
-
-            <!-- SECTION 2: POST-MARKET -->
-            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid #243026; border-left: 4px solid var(--neon-green); border-radius: 6px; padding: 12px; margin-bottom: 14px;">
-                <div style="font-size: 0.85rem; font-weight: bold; color: var(--neon-green); margin-bottom: 8px;">
-                    🌙 2. POST-MARKET RECAP &amp; PSYCHOLOGY (장 마감 후)
-                </div>
-
-                <div style="margin-bottom: 8px;">
-                    <label style="font-size: 0.72rem; color: #888;">멘탈 / 심리 상태 (자유 입력):</label>
-                    <input type="text" id="journalEmotion" placeholder="침착, 확신, 조급함(FOMO), 손실 복구 집착 등..." style="width: 100%; padding: 7px; background: #0f131c; border: 1px solid #293447; color: #fff; border-radius: 4px;">
-                    <div style="display: flex; gap: 4px; margin-top: 4px;">
-                        <button type="button" onclick="setEmotionChip('침착 / 원칙준수')" style="font-size: 0.65rem; padding: 2px 6px; background: #182218; border: 1px solid #285528; color: #70db70; cursor: pointer; border-radius: 3px;">침착</button>
-                        <button type="button" onclick="setEmotionChip('확신 매매')" style="font-size: 0.65rem; padding: 2px 6px; background: #18202d; border: 1px solid #2a4060; color: #6db1ff; cursor: pointer; border-radius: 3px;">확신</button>
-                        <button type="button" onclick="setEmotionChip('조급함 (FOMO)')" style="font-size: 0.65rem; padding: 2px 6px; background: #2c2014; border: 1px solid #63431d; color: #ffab5c; cursor: pointer; border-radius: 3px;">FOMO</button>
-                        <button type="button" onclick="setEmotionChip('손실 복구 심리 (Revenge)')" style="font-size: 0.65rem; padding: 2px 6px; background: #2a1515; border: 1px solid #5a2424; color: #ff6e6e; cursor: pointer; border-radius: 3px;">복수매매</button>
+                    <div>
+                        <label style="font-size: 0.72rem; color: #888; text-transform: uppercase;">계정 선택 (ACCOUNT)</label>
+                        <select id="noteAccountSelect" style="width: 100%; padding: 8px; background: #141923; border: 1px solid #333; color: #fff; border-radius: 4px;"></select>
                     </div>
                 </div>
 
-                <textarea id="journalPostNotes" rows="3" placeholder="• 오늘 장 복기 (원칙 준수 여부, 뇌동 매매 유무)&#10;• 아침 바이어스(Pre-Market Bias)가 맞았는지? 놓친 타점이나 개선점" style="width: 100%; padding: 8px; background: #0f131c; border: 1px solid #293447; color: #fff; border-radius: 4px; resize: vertical; margin-bottom: 8px;"></textarea>
-
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <input type="file" id="postFileInput" accept="image/*" style="display: none;" onchange="handleImageFile(event, 'journalPostImage', 'postPreview')">
-                    <button type="button" class="cyber-btn-outline" onclick="document.getElementById('postFileInput').click()" style="padding: 6px 10px; font-size: 0.75rem;">📁 마감 차트 선택</button>
-                    <input type="text" id="journalPostImage" placeholder="또는 최종 마감 차트 복사 후 이 칸 클릭하고 Ctrl + V" style="flex: 1; padding: 6px 8px; background: #0f131c; border: 1px solid #293447; color: #aaa; font-size: 0.75rem; border-radius: 4px;" oninput="renderImageThumb('journalPostImage', 'postPreview')">
-                    <button type="button" class="btn-act btn-del" onclick="clearSpecificImage('journalPostImage', 'postPreview')" style="padding: 6px 10px;">삭제</button>
+                <div>
+                    <label style="font-size: 0.72rem; color: #888; text-transform: uppercase;">노트 / 복기 내용 (TRADING NOTE)</label>
+                    <textarea id="noteText" rows="6" placeholder="매매 셋업, 진입/청산 근거, 멘탈 및 피드백을 자유롭게 작성하세요..." style="width: 100%; padding: 10px; background: #141923; border: 1px solid #333; color: #fff; border-radius: 4px; resize: vertical; line-height: 1.4;"></textarea>
                 </div>
-                <div id="postPreview" style="margin-top: 6px; display: none; text-align: center;">
-                    <img src="" style="max-height: 180px; max-width: 100%; border-radius: 4px; border: 1px solid var(--neon-green);">
+
+                <!-- 차트 이미지 업로드 / 붙여넣기 영역 -->
+                <div style="background: rgba(255,255,255,0.02); border: 1px dashed #334460; border-radius: 6px; padding: 10px;">
+                    <label style="font-size: 0.72rem; color: var(--neon-cyan); text-transform: uppercase; display: block; margin-bottom: 6px;">
+                        📷 차트 스크린샷 (파일 선택 또는 이미지 URL / Ctrl + V)
+                    </label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="file" id="noteFileInput" accept="image/*" style="display: none;" onchange="handleImageFile(event)">
+                        <button type="button" class="cyber-btn-outline" onclick="document.getElementById('noteFileInput').click()" style="padding: 6px 10px; font-size: 0.75rem;">📁 파일 선택</button>
+                        <input type="text" id="noteImageUrl" placeholder="이미지 URL 직접 입력 또는 복사 후 붙여넣기" style="flex: 1; padding: 6px 8px; background: #141923; border: 1px solid #333; color: #aaa; font-size: 0.75rem; border-radius: 4px;" oninput="renderImageThumb()">
+                        <button type="button" class="btn-act btn-del" onclick="clearImage()" style="padding: 6px 10px;">삭제</button>
+                    </div>
+                    <div id="noteImagePreviewWrap" style="margin-top: 8px; display: none; text-align: center;">
+                        <img id="noteImagePreview" src="" style="max-height: 200px; max-width: 100%; border-radius: 4px; border: 1px solid var(--neon-green);">
+                    </div>
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #222; padding-top: 12px;">
+            <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #222; padding-top: 12px; margin-top: 14px;">
                 <button class="cyber-btn-outline" onclick="closeNoteModal()">취소</button>
-                <button class="cyber-btn" onclick="saveTwoTouchJournal()">SAVE DAILY JOURNAL</button>
+                <button class="cyber-btn" onclick="saveSimpleNote()">SAVE NOTE</button>
             </div>
         </div>
     </div>
@@ -812,7 +751,7 @@
             document.getElementById('kpiUnits').textContent = `${evalUnits} / ${paUnits}`;
         }
 
-        // 4. INACTIVITY DETECTOR (5-DAY RULES)
+        // 4. INACTIVITY DETECTOR
         function checkInactivityAlerts() {
             const banner = document.getElementById('inactivityBanner');
             const list = document.getElementById('inactivityList');
@@ -833,7 +772,7 @@
             banner.style.display = 'block';
             list.innerHTML = inactiveAccounts.map(a => `
                 <div class="inactivity-item">
-                    <span><strong>[${a.name}]</strong> (${a.type}) - 지난 5일간 매매 기록 없음 (마지막 거래일: ${a.lastTradeDate})</span>
+                    <span><strong>[${a.name}]</strong> (${a.type}) - 지난 5일간 매매 기록 없음 (마지막: ${a.lastTradeDate})</span>
                     <button class="btn-act btn-del" onclick="dismissAlert(${a.id})">해제</button>
                 </div>
             `).join('');
@@ -844,7 +783,7 @@
             checkInactivityAlerts();
         }
 
-        // 5. ACCOUNTS ROSTER TABLE & ACTION MENU
+        // 5. ACCOUNTS ROSTER TABLE
         function renderAccountsTable() {
             const tbody = document.getElementById('accountsTableBody');
             const filtered = accounts.filter(a => currentTab === 'ACTIVE' ? !a.isRetired : a.isRetired);
@@ -858,7 +797,7 @@
                 const target = a.targetBalance || (a.startingBalance + 3000);
                 const progressPct = Math.min(100, Math.max(0, Math.round(((a.balance - a.startingBalance) / (target - a.startingBalance)) * 100)));
                 const remainingDollar = Math.max(0, target - a.balance);
-                const nqTicks = Math.round(remainingDollar / 5); // $20/pt = $5/tick on 1 NQ
+                const nqTicks = Math.round(remainingDollar / 5);
                 const nqPts = (remainingDollar / 20).toFixed(1);
 
                 return `
@@ -905,7 +844,6 @@
             return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
         }
 
-        // Balance Modal
         function openBalanceModal(accId) {
             const acc = accounts.find(a => a.id === accId);
             if (!acc) return;
@@ -932,7 +870,6 @@
             closeBalanceModal();
         }
 
-        // Account Edit / Create
         function openAccountEditModal(accId = null) {
             const modal = document.getElementById('accountEditModal');
             document.getElementById('modalAccId').value = accId || '';
@@ -1152,61 +1089,41 @@
                 grid.innerHTML += `
                     <div class="cal-cell ${isToday ? 'today' : ''}" onclick="openNoteModal('${dateStr}')">
                         <span class="cal-num">${d}</span>
-                        ${hasNote ? '<span class="cal-dot" title="Journal logged"></span>' : ''}
+                        ${hasNote ? '<span class="cal-dot" title="Note logged"></span>' : ''}
                     </div>
                 `;
             }
         }
 
-        // 8. TWO-TOUCH DAILY JOURNAL ENGINE
-        function setDailyBias(val) {
-            document.getElementById('journalBiasVal').value = val;
-            document.getElementById('biasBull').style.borderColor = val.includes('BULL') ? '#00ff88' : '#285528';
-            document.getElementById('biasBear').style.borderColor = val.includes('BEAR') ? '#ff4444' : '#5a2424';
-            document.getElementById('biasRange').style.borderColor = val.includes('RANGE') ? '#00e5ff' : '#3b4556';
-        }
-
-        function setEmotionChip(val) {
-            document.getElementById('journalEmotion').value = val;
-        }
-
+        // 8. SIMPLE NOTE ENGINE (원래의 간결한 모달)
         function openNoteModal(dateString = null, editId = null) {
             const modal = document.getElementById('noteInputModal');
-            const targetDate = dateString || new Date().toISOString().slice(0, 10);
-            document.getElementById('journalDate').value = targetDate;
+            const accSelect = document.getElementById('noteAccountSelect');
+
+            accSelect.innerHTML = accounts.filter(a => !a.isRetired).map(a => 
+                `<option value="${a.id}">[${a.type}] ${a.name}</option>`
+            ).join('');
+
+            document.getElementById('noteDate').value = dateString || new Date().toISOString().slice(0, 10);
             document.getElementById('editingNoteId').value = editId || '';
-            
-            setDailyBias('⚪ RANGE');
-            document.getElementById('journalPreNotes').value = '';
-            document.getElementById('journalPostNotes').value = '';
-            document.getElementById('journalEmotion').value = '';
-            clearSpecificImage('journalPreImage', 'prePreview');
-            clearSpecificImage('journalPostImage', 'postPreview');
+            document.getElementById('noteText').value = '';
+            clearImage();
 
-            let found = null;
-            accounts.forEach(a => {
-                if (a.notes) {
-                    const hit = editId ? a.notes.find(n => n.id == editId) : a.notes.find(n => n.date == targetDate);
-                    if (hit) found = hit;
-                }
-            });
-
-            if (found) {
-                document.getElementById('editingNoteId').value = found.id;
-                document.getElementById('journalDate').value = found.date;
-                if (found.bias) setDailyBias(found.bias);
-                document.getElementById('journalPreNotes').value = found.preNotes || '';
-                document.getElementById('journalPostNotes').value = found.postNotes || found.text || '';
-                document.getElementById('journalEmotion').value = found.emotion || '';
-
-                if (found.preImageUrl) {
-                    document.getElementById('journalPreImage').value = found.preImageUrl;
-                    renderImageThumb('journalPreImage', 'prePreview');
-                }
-                if (found.postImageUrl || found.imageUrl) {
-                    document.getElementById('journalPostImage').value = found.postImageUrl || found.imageUrl;
-                    renderImageThumb('journalPostImage', 'postPreview');
-                }
+            if (editId) {
+                accounts.forEach(a => {
+                    if (a.notes) {
+                        const hit = a.notes.find(n => n.id == editId);
+                        if (hit) {
+                            accSelect.value = a.id;
+                            document.getElementById('noteDate').value = hit.date;
+                            document.getElementById('noteText').value = hit.text || '';
+                            if (hit.imageUrl) {
+                                document.getElementById('noteImageUrl').value = hit.imageUrl;
+                                renderImageThumb();
+                            }
+                        }
+                    }
+                });
             }
 
             modal.style.display = 'flex';
@@ -1216,67 +1133,41 @@
             document.getElementById('noteInputModal').style.display = 'none';
         }
 
-        function handleImageFile(e, targetInputId, previewWrapId) {
+        function handleImageFile(e) {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(evt) {
-                compressChartImage(evt.target.result, function(compressedUrl) {
-                    document.getElementById(targetInputId).value = compressedUrl;
-                    renderImageThumb(targetInputId, previewWrapId);
-                });
+                document.getElementById('noteImageUrl').value = evt.target.result;
+                renderImageThumb();
             };
             reader.readAsDataURL(file);
         }
 
-        ['journalPreImage', 'journalPostImage'].forEach(id => {
-            const el = document.getElementById(id);
-            if (!el) return;
-            el.addEventListener('paste', function(e) {
-                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-                for (let item of items) {
-                    if (item.type.indexOf('image') === 0) {
-                        const blob = item.getAsFile();
-                        const reader = new FileReader();
-                        reader.onload = function(evt) {
-                            compressChartImage(evt.target.result, function(compressedUrl) {
-                                el.value = compressedUrl;
-                                renderImageThumb(id, id === 'journalPreImage' ? 'prePreview' : 'postPreview');
-                            });
-                        };
-                        reader.readAsDataURL(blob);
-                        e.preventDefault();
-                        break;
-                    }
+        // 클립보드 붙여넣기 지원
+        window.addEventListener('paste', function(e) {
+            const modal = document.getElementById('noteInputModal');
+            if (!modal || modal.style.display === 'none') return;
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let item of items) {
+                if (item.type.indexOf('image') === 0) {
+                    const blob = item.getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        document.getElementById('noteImageUrl').value = evt.target.result;
+                        renderImageThumb();
+                    };
+                    reader.readAsDataURL(blob);
+                    e.preventDefault();
+                    break;
                 }
-            });
+            }
         });
 
-        function compressChartImage(base64Source, callback) {
-            const img = new Image();
-            img.src = base64Source;
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const MAX_W = 1200;
-                let w = img.width, h = img.height;
-                if (w > MAX_W) {
-                    h = Math.round((h * MAX_W) / w);
-                    w = MAX_W;
-                }
-                canvas.width = w;
-                canvas.height = h;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, w, h);
-                let res = canvas.toDataURL('image/webp', 0.75);
-                if (!res.startsWith('data:image/webp')) res = canvas.toDataURL('image/jpeg', 0.75);
-                callback(res);
-            };
-        }
-
-        function renderImageThumb(inputId, previewWrapId) {
-            const val = document.getElementById(inputId).value.trim();
-            const wrap = document.getElementById(previewWrapId);
-            const img = wrap.querySelector('img');
+        function renderImageThumb() {
+            const val = document.getElementById('noteImageUrl').value.trim();
+            const wrap = document.getElementById('noteImagePreviewWrap');
+            const img = document.getElementById('noteImagePreview');
             if (val) {
                 img.src = val;
                 wrap.style.display = 'block';
@@ -1286,49 +1177,43 @@
             }
         }
 
-        function clearSpecificImage(inputId, previewWrapId) {
-            document.getElementById(inputId).value = '';
-            const wrap = document.getElementById(previewWrapId);
-            wrap.style.display = 'none';
-            wrap.querySelector('img').src = '';
+        function clearImage() {
+            document.getElementById('noteImageUrl').value = '';
+            document.getElementById('noteFileInput').value = '';
+            document.getElementById('noteImagePreviewWrap').style.display = 'none';
+            document.getElementById('noteImagePreview').src = '';
         }
 
-        function saveTwoTouchJournal() {
+        function saveSimpleNote() {
             const editId = document.getElementById('editingNoteId').value;
-            const dateVal = document.getElementById('journalDate').value;
-            const bias = document.getElementById('journalBiasVal').value;
-            const preNotes = document.getElementById('journalPreNotes').value.trim();
-            const preImg = document.getElementById('journalPreImage').value.trim();
-            const emotion = document.getElementById('journalEmotion').value.trim();
-            const postNotes = document.getElementById('journalPostNotes').value.trim();
-            const postImg = document.getElementById('journalPostImage').value.trim();
+            const targetAccId = Number(document.getElementById('noteAccountSelect').value);
+            const dateVal = document.getElementById('noteDate').value;
+            const textVal = document.getElementById('noteText').value.trim();
+            const imgVal = document.getElementById('noteImageUrl').value.trim();
 
-            if (!preNotes && !postNotes && !preImg && !postImg) {
-                alert('프리마켓 분석 또는 마감 복기 내용을 한 줄이라도 작성해 주세요.');
+            if (!textVal && !imgVal) {
+                alert('노트 내용 또는 이미지를 입력하세요.');
                 return;
             }
 
             const payload = {
                 id: editId ? Number(editId) : Date.now(),
                 date: dateVal,
-                bias: bias,
-                preNotes: preNotes,
-                preImageUrl: preImg,
-                emotion: emotion || 'Neutral',
-                postNotes: postNotes,
-                postImageUrl: postImg,
-                imageUrl: postImg || preImg,
-                isGeneral: true,
-                text: `[BIAS: ${bias}] [심리: ${emotion || 'Neutral'}]\n• PRE: ${preNotes}\n• POST: ${postNotes}`,
+                text: textVal,
+                imageUrl: imgVal,
                 timestamp: new Date().toISOString()
             };
 
-            accounts.forEach(a => {
-                if (a.notes) a.notes = a.notes.filter(n => n.id != payload.id && n.date != dateVal);
-            });
+            // 수정 시 기존 노트 제거
+            if (editId) {
+                accounts.forEach(a => {
+                    if (a.notes) a.notes = a.notes.filter(n => n.id != editId);
+                });
+            }
 
-            if (!accounts[0].notes) accounts[0].notes = [];
-            accounts[0].notes.unshift(payload);
+            const targetAcc = accounts.find(a => a.id === targetAccId) || accounts[0];
+            if (!targetAcc.notes) targetAcc.notes = [];
+            targetAcc.notes.unshift(payload);
 
             saveData();
             refreshUI();
@@ -1336,7 +1221,7 @@
         }
 
         function deleteNote(noteId) {
-            if (!confirm('이 일지 항목을 삭제하시겠습니까?')) return;
+            if (!confirm('이 노트를 삭제하시겠습니까?')) return;
             accounts.forEach(a => {
                 if (a.notes) a.notes = a.notes.filter(n => n.id != noteId);
             });
@@ -1344,64 +1229,34 @@
             refreshUI();
         }
 
-        // 9. MARKET NOTES DESK WITH GENERAL FILTER
+        // 9. MARKET NOTES DESK
         function renderMarketNotesDesk() {
             const listWrap = document.getElementById('marketNotesDeskList');
             const countTag = document.getElementById('notesCountTag');
-            const filterSelect = document.getElementById('notesDeskFilter');
-            const selectedFilter = filterSelect ? filterSelect.value : 'GENERAL';
-
-            if (filterSelect && filterSelect.options.length <= 2) {
-                accounts.forEach(a => {
-                    const opt = document.createElement('option');
-                    opt.value = a.id;
-                    opt.textContent = `단일 계정: ${a.name}`;
-                    filterSelect.appendChild(opt);
-                });
-            }
 
             let allNotes = [];
-            accounts.forEach((a, idx) => {
+            accounts.forEach(a => {
                 if (a.notes && Array.isArray(a.notes)) {
                     a.notes.forEach(n => {
-                        const isGeneral = n.isGeneral === true || (idx === 0 && (n.bias || n.preNotes || n.postNotes));
-                        allNotes.push({ 
-                            ...n, 
-                            accountName: a.name, 
-                            accountId: a.id,
-                            isGeneralNote: isGeneral
-                        });
+                        allNotes.push({ ...n, accountName: a.name });
                     });
                 }
             });
 
-            let filteredNotes = allNotes;
-            if (selectedFilter === 'GENERAL') {
-                filteredNotes = allNotes.filter(n => n.isGeneralNote);
-            } else if (selectedFilter !== 'ALL') {
-                filteredNotes = allNotes.filter(n => String(n.accountId) === String(selectedFilter));
-            }
+            allNotes.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+            countTag.textContent = `${allNotes.length} ENTRIES`;
 
-            filteredNotes.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-            if (countTag) countTag.textContent = `${filteredNotes.length} ENTRIES`;
-
-            if (filteredNotes.length === 0) {
-                listWrap.innerHTML = `
-                    <div style="color: #666; padding: 24px; text-align: center;">
-                        ${selectedFilter === 'GENERAL' ? '작성된 마켓 종합 일지(General Journal)가 없습니다.' : '해당 조건의 노트가 없습니다.'}
-                    </div>
-                `;
+            if (allNotes.length === 0) {
+                listWrap.innerHTML = `<div style="color: #666; padding: 24px; text-align: center;">작성된 트레이딩 노트가 없습니다.</div>`;
                 return;
             }
 
-            listWrap.innerHTML = filteredNotes.map(n => `
-                <div style="background: #111622; border: 1px solid #1f2738; border-left: 3px solid ${n.isGeneralNote ? 'var(--neon-cyan)' : 'var(--neon-green)'}; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+            listWrap.innerHTML = allNotes.map(n => `
+                <div style="background: #111622; border: 1px solid #1f2738; border-left: 3px solid var(--neon-cyan); border-radius: 6px; padding: 12px; margin-bottom: 12px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
                             <span style="color: var(--ff-yellow); font-weight: bold;">📅 ${n.date}</span>
-                            ${n.isGeneralNote ? '<span style="background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon-cyan); padding: 2px 7px; border-radius: 3px; font-size: 0.72rem; color: var(--neon-cyan);">GENERAL</span>' : ''}
-                            <span style="background: #1c2738; padding: 2px 7px; border-radius: 3px; font-size: 0.72rem; color: #00e5ff;">${n.bias || 'BIAS'}</span>
-                            <span style="background: rgba(255,255,255,0.06); padding: 2px 7px; border-radius: 3px; font-size: 0.72rem; color: #aaa;">심리: ${n.emotion || 'Neutral'}</span>
+                            <span style="background: #1c2738; padding: 2px 7px; border-radius: 3px; font-size: 0.72rem; color: #00e5ff;">${n.accountName}</span>
                         </div>
                         <div>
                             <button class="cyber-btn-outline" onclick="openNoteModal('${n.date}', ${n.id})" style="font-size: 0.7rem; padding: 2px 8px;">수정</button>
@@ -1409,32 +1264,15 @@
                         </div>
                     </div>
 
-                    ${n.preNotes ? `
-                        <div style="font-size: 0.8rem; color: #9bc; margin-bottom: 6px;">
-                            <strong>☀️ PRE-MARKET:</strong> ${n.preNotes}
-                        </div>
-                    ` : ''}
-
-                    ${n.postNotes ? `
-                        <div style="font-size: 0.8rem; color: #d0d7de; margin-bottom: 6px;">
-                            <strong>🌙 POST-RECAP:</strong> ${n.postNotes}
-                        </div>
-                    ` : ''}
-
-                    <div style="display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap;">
-                        ${n.preImageUrl ? `
-                            <div>
-                                <span style="font-size: 0.65rem; color: var(--neon-cyan); display: block;">PRE-CHART</span>
-                                <img src="${n.preImageUrl}" onclick="window.open(this.src)" style="max-height: 160px; border-radius: 4px; border: 1px solid #334; cursor: pointer;">
-                            </div>
-                        ` : ''}
-                        ${n.postImageUrl ? `
-                            <div>
-                                <span style="font-size: 0.65rem; color: var(--neon-green); display: block;">POST-CHART</span>
-                                <img src="${n.postImageUrl}" onclick="window.open(this.src)" style="max-height: 160px; border-radius: 4px; border: 1px solid #334; cursor: pointer;">
-                            </div>
-                        ` : ''}
+                    <div style="font-size: 0.85rem; line-height: 1.5; white-space: pre-wrap; color: #d0d7de; margin-bottom: ${n.imageUrl ? '10px' : '0'};">
+                        ${n.text || ''}
                     </div>
+
+                    ${n.imageUrl ? `
+                        <div style="margin-top: 8px;">
+                            <img src="${n.imageUrl}" onclick="window.open(this.src)" style="max-height: 180px; max-width: 100%; border-radius: 4px; border: 1px solid #334; cursor: pointer;" title="클릭하여 원본 보기">
+                        </div>
+                    ` : ''}
                 </div>
             `).join('');
         }
@@ -1457,7 +1295,7 @@
 
             let allNotes = [];
             accounts.forEach(a => {
-                if (a.notes) a.notes.forEach(n => allNotes.push(n));
+                if (a.notes) a.notes.forEach(n => allNotes.push({ ...n, accountName: a.name }));
             });
 
             const monthlyNotes = allNotes
@@ -1472,21 +1310,16 @@
             container.innerHTML = `
                 <div style="border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 16px;">
                     <div style="font-size: 1.2rem; font-weight: bold; color: #fff;">TRADING JOURNAL DOSSIER: ${selectedMonth}</div>
-                    <div style="font-size: 0.75rem; color: #888;">총 ${monthlyNotes.length} 세션 기록</div>
+                    <div style="font-size: 0.75rem; color: #888;">총 ${monthlyNotes.length} 건 기록</div>
                 </div>
             ` + monthlyNotes.map(n => `
                 <div class="print-card" style="background: #141923; border: 1px solid #2a3445; border-left: 4px solid var(--neon-green); border-radius: 6px; padding: 12px; margin-bottom: 16px;">
                     <div style="display: flex; gap: 8px; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; margin-bottom: 8px;">
                         <span style="font-weight: bold; color: var(--ff-yellow);">📅 ${n.date}</span>
-                        <span style="font-size: 0.75rem; color: #00e5ff;">${n.bias || ''}</span>
-                        <span style="font-size: 0.75rem; color: #aaa;">심리: ${n.emotion || 'Neutral'}</span>
+                        <span style="font-size: 0.75rem; color: #00e5ff;">[${n.accountName}]</span>
                     </div>
-                    ${n.preNotes ? `<p style="font-size: 0.8rem; margin-bottom: 6px;"><strong>PRE:</strong> ${n.preNotes}</p>` : ''}
-                    ${n.postNotes ? `<p style="font-size: 0.8rem; margin-bottom: 8px;"><strong>POST:</strong> ${n.postNotes}</p>` : ''}
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        ${n.preImageUrl ? `<img src="${n.preImageUrl}" style="max-height: 200px; border: 1px solid #444; border-radius: 4px;">` : ''}
-                        ${n.postImageUrl ? `<img src="${n.postImageUrl}" style="max-height: 200px; border: 1px solid #444; border-radius: 4px;">` : ''}
-                    </div>
+                    <p style="font-size: 0.85rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 8px;">${n.text || ''}</p>
+                    ${n.imageUrl ? `<img src="${n.imageUrl}" style="max-height: 200px; border: 1px solid #444; border-radius: 4px;">` : ''}
                 </div>
             `).join('');
         }
@@ -1513,7 +1346,7 @@
                         accounts = parsed.accounts;
                         saveData();
                         refreshUI();
-                        alert('데이터가 성공적으로 복원되었습니다.');
+                        alert('데이터가 성공적으로 복구되었습니다.');
                     }
                 } catch(err) {
                     alert('유효하지 않은 백업 JSON 파일입니다.');
